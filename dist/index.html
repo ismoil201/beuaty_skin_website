@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BEAUTY SKIN KOREA</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" crossorigin src="/assets/index-Dhtaoszs.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="mini-bar">
+        <span data-i18n="header.location">📍 Toshkent</span>
+        <nav aria-label="Qo‘shimcha havolalar" data-i18n-aria-label="header.extraLinks">
+          <button class="mini-link" type="button" data-i18n="header.pickupPoints">Punktlar</button>
+          <button class="mini-link" type="button" data-i18n="header.sell">Sotuvchi bo‘lish</button>
+          <button class="mini-link" type="button" data-i18n="header.support">Savol-javob</button>
+          <button class="mini-link" id="ordersButton" type="button" data-i18n="header.orders">Buyurtmalar</button>
+          <button class="mini-link" id="apiButton" type="button">API</button>
+          <label class="language-picker" aria-label="Language" data-i18n-aria-label="header.language">
+            <select id="languageSelect">
+              <option value="uz">🇺🇿 Uzbek</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="ko">🇰🇷 한국어</option>
+            </select>
+          </label>
+        </nav>
+      </div>
+
+      <div class="topbar">
+        <a class="brand" href="#/" aria-label="BEAUTY SKIN KOREA bosh sahifa" data-i18n-aria-label="header.homeAria">
+          <span class="brand-mark">BSK</span>
+          <span>BEAUTY SKIN KOREA</span>
+        </a>
+
+        <button class="catalog-button" id="catalogButton" type="button" aria-label="Katalogni ochish" data-i18n-aria-label="header.openCatalog" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <span data-i18n="header.catalog">Katalog</span>
+        </button>
+
+        <form class="search" id="searchForm">
+          <input id="searchInput" type="search" placeholder="Mahsulot va kategoriyalarni qidirish" data-i18n-placeholder="header.searchPlaceholder" autocomplete="off" />
+          <button class="search-button" type="submit" aria-label="Qidirish" data-i18n-aria-label="header.search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+          </button>
+        </form>
+
+        <nav class="actions" aria-label="Asosiy menyu" data-i18n-aria-label="header.mainMenu">
+          <button class="header-action" id="loginButton" type="button" aria-label="Profil yoki kirish" data-i18n-aria-label="header.loginProfile">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
+            <span data-i18n="auth.login">Kirish</span>
+          </button>
+          <button class="header-action" id="favoritesButton" type="button" aria-label="Sevimlilar" data-i18n-aria-label="favorites.title">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+            <span data-i18n="favorites.title">Saralangan</span>
+            <strong id="favoritesCount">0</strong>
+          </button>
+          <button class="header-action notification-button" id="notificationsButton" type="button" aria-label="Notifications" data-i18n-aria-label="notifications.title">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7M10 21h4"/></svg>
+            <span data-i18n="notifications.alerts">Alerts</span>
+            <strong id="notificationsCount" hidden>0</strong>
+          </button>
+          <button class="cart-button" id="cartButton" type="button" aria-label="Savat" data-i18n-aria-label="cart.title">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.7 8.4a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.7L5 3H2m7 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg>
+            <span data-i18n="cart.title">Savat</span>
+            <strong id="cartCount">0</strong>
+          </button>
+        </nav>
+      </div>
+
+      <div class="category-nav" id="categoryToolbar">
+        <button class="chip active" data-category="ALL" type="button">Hammasi</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="homeView">
+      <section class="banners" id="banners" aria-label="Bannerlar"></section>
+
+      <section class="hero marketplace-hero" id="home">
+        <div class="hero-main">
+          <div class="hero-copy">
+            <p class="eyebrow">Best daily offers</p>
+            <h1>Korean beauty products</h1>
+            <p>Fast delivery to Uzbekistan, curated cosmetics, skincare, fragrance and accessories.</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#products">Mahsulotlarni ko‘rish</a>
+              <a class="secondary-button" href="#todayDeals">Today Deals</a>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="hero-side">
+          <article class="promo-card">
+            <strong>Fast delivery</strong>
+            <span>Across Uzbekistan</span>
+          </article>
+          <article class="promo-card accent">
+            <strong>Best daily offers</strong>
+            <span>Today only</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="quick-categories section-shell compact" aria-label="Tezkor kategoriyalar">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" data-i18n="home.categories">Bo‘limlar</p>
+            <h2 data-i18n="home.quickCategories">Tezkor kategoriyalar</h2>
+          </div>
+        </div>
+        <div class="quick-grid" id="quickCategoryGrid"></div>
+      </section>
+
+      <section class="strip" id="announcements" hidden></section>
+
+      <section class="home-api-sections section-shell compact" id="homeApiSections" hidden></section>
+
+      <section class="section-shell compact" id="recentlyViewedSection" hidden>
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">History</p>
+            <h2>Recently viewed</h2>
+          </div>
+        </div>
+        <div class="product-grid" id="recentlyViewedGrid"></div>
+      </section>
+
+      <section class="section-shell compact" id="todayDeals">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" data-i18n="home.discounts">Chegirmalar</p>
+            <h2 data-i18n="home.todayDeals">Bugungi takliflar</h2>
+          </div>
+          <div class="head-actions">
+            <span class="deal-timer" data-i18n="home.todayOnly">Today only</span>
+            <span class="mode-badge" id="dealsMode" hidden data-i18n="home.demoMode">Demo mode</span>
+          </div>
+        </div>
+        <div class="status" id="dealsStatus">Yuklanmoqda...</div>
+        <div class="product-grid deals-grid" id="dealsGrid"></div>
+      </section>
+
+      <section class="section-shell" id="products">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" data-i18n="header.catalog">Katalog</p>
+            <h2 id="productsTitle">Ommabop mahsulotlar</h2>
+          </div>
+          <button class="secondary-button" id="refreshHome" type="button" data-i18n="orders.refresh">Yangilash</button>
+        </div>
+        <span class="mode-badge" id="productsMode" hidden data-i18n="home.demoMode">Demo mode</span>
+        <div class="status" id="productStatus">Yuklanmoqda...</div>
+        <div class="product-grid" id="productGrid"></div>
+        <div class="load-row">
+          <button class="secondary-button" id="loadMore" type="button" data-i18n="home.loadMore">Yana yuklash</button>
+        </div>
+      </section>
+
+      </div>
+
+      <section class="product-detail-page section-shell" id="productDetailPage" hidden>
+        <div id="productDetailPageContent"></div>
+      </section>
+    </main>
+
+    <aside class="catalog-drawer" id="catalogDrawer" aria-hidden="true">
+      <div class="catalog-panel">
+        <div class="drawer-head">
+          <h2 data-i18n="header.catalog">Catalog</h2>
+          <button class="icon-button" id="closeCatalog" type="button" aria-label="Katalogni yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="catalog-list" id="catalogList"></div>
+      </div>
+    </aside>
+
+    <aside class="drawer" id="cartDrawer" aria-hidden="true">
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <h2 data-i18n="cart.title">Cart</h2>
+            <p class="hint" id="cartSummary">0 items</p>
+          </div>
+          <button class="icon-button" id="closeCart" type="button" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="drawer-body" id="cartItems"></div>
+        <div class="checkout">
+          <div class="total-line"><span data-i18n="cart.subtotal">Jami</span><strong id="cartTotal">0 so‘m</strong></div>
+          <button class="primary-button full" id="checkoutButton" type="button" disabled data-i18n="cart.checkout">Checkout</button>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="drawer" id="profileDrawer" aria-hidden="true">
+      <div class="drawer-panel profile-panel">
+        <div class="drawer-head">
+          <h2 data-i18n="profile.myProfile">Profile</h2>
+          <button class="icon-button" id="closeProfile" type="button" aria-label="Profilni yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="drawer-body" id="profileContent"></div>
+      </div>
+    </aside>
+
+    <aside class="drawer" id="notificationsDrawer" aria-hidden="true">
+      <div class="drawer-panel notifications-panel">
+        <div class="drawer-head">
+          <div>
+            <h2 data-i18n="notifications.title">Notifications</h2>
+            <p class="hint" id="notificationsSummary">0 unread</p>
+          </div>
+          <div class="head-actions">
+            <button class="secondary-button" id="refreshNotifications" type="button" data-i18n="orders.refresh">Refresh</button>
+            <button class="icon-button" id="closeNotifications" type="button" aria-label="Notifications oynasini yopish">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="drawer-body notifications-content" id="notificationsContent"></div>
+      </div>
+    </aside>
+
+    <dialog id="authDialog">
+      <form class="dialog-card auth-card" method="dialog" id="authForm" novalidate>
+        <div class="dialog-head">
+          <h2 id="authTitle" data-i18n="auth.login">Login</h2>
+          <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="auth-tabs" role="tablist" aria-label="Auth tabs">
+          <button class="auth-tab active" id="loginTab" data-auth-mode="login" type="button" role="tab" aria-selected="true" data-i18n="auth.login">Login</button>
+          <button class="auth-tab" id="registerTab" data-auth-mode="register" type="button" role="tab" aria-selected="false" data-i18n="auth.register">Register</button>
+        </div>
+
+        <div class="auth-form" id="loginFields">
+          <label><span data-i18n="auth.email">Email</span><input id="loginEmail" type="email" autocomplete="email" required /></label>
+          <p class="field-error" id="loginEmailError"></p>
+          <label><span data-i18n="auth.password">Password</span><input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+          <p class="field-error" id="loginPasswordError"></p>
+        </div>
+
+        <div class="auth-form" id="registerFields" hidden>
+          <label><span data-i18n="auth.fullName">Full name</span><input id="registerFullName" autocomplete="name" required /></label>
+          <p class="field-error" id="registerFullNameError"></p>
+          <label><span data-i18n="auth.email">Email</span><input id="registerEmail" type="email" autocomplete="email" required /></label>
+          <p class="field-error" id="registerEmailError"></p>
+          <label><span data-i18n="auth.phone">Phone</span><input id="registerPhone" autocomplete="tel" required /></label>
+          <p class="field-error" id="registerPhoneError"></p>
+          <label><span data-i18n="auth.password">Password</span><input id="registerPassword" type="password" autocomplete="new-password" required /></label>
+          <p class="field-error" id="registerPasswordError"></p>
+          <label><span data-i18n="auth.confirmPassword">Confirm password</span><input id="registerConfirmPassword" type="password" autocomplete="new-password" required /></label>
+          <p class="field-error" id="registerConfirmPasswordError"></p>
+        </div>
+
+        <button class="primary-button full" id="authSubmit" type="submit" data-i18n="auth.signIn">Login</button>
+        <p class="form-message" id="authMessage"></p>
+        <p class="hint">We never store your password. JWT token is used only for authenticated API requests.</p>
+      </form>
+    </dialog>
+
+    <dialog id="apiDialog">
+      <form class="dialog-card" method="dialog" id="apiForm">
+        <div class="dialog-head">
+          <h2>API sozlamasi</h2>
+          <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <label>Backend base URL<input id="baseUrl" placeholder="http://localhost:8080" /></label>
+        <button class="primary-button full" type="submit">Saqlash</button>
+        <p class="hint">Default bo‘sh qolsa `/api/...` local proxy orqali Railway backendga yuboriladi. Xohlasangiz boshqa base URL ham kiriting.</p>
+      </form>
+    </dialog>
+
+    <dialog id="checkoutDialog" class="checkout-dialog">
+      <form class="dialog-card checkout-card" method="dialog" id="checkoutForm" novalidate>
+        <div class="dialog-head">
+          <h2>Checkout</h2>
+          <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="checkout-content" id="checkoutContent"></div>
+        <select id="receiverSelect" hidden></select>
+        <select id="addressSelect" hidden></select>
+        <p class="hint" id="checkoutHint"></p>
+      </form>
+    </dialog>
+
+    <dialog id="ordersDialog" class="orders-dialog">
+      <div class="orders-card">
+        <div class="dialog-head">
+          <h2>My Orders</h2>
+          <div class="head-actions">
+            <button class="secondary-button" id="refreshOrders" type="button">Refresh</button>
+            <button class="icon-button" id="closeOrders" type="button" aria-label="Orders oynasini yopish">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="orders-content" id="ordersContent"></div>
+      </div>
+    </dialog>
+
+    <dialog id="favoritesDialog" class="favorites-dialog">
+      <div class="favorites-card">
+        <div class="dialog-head">
+          <div>
+            <h2>Favorites</h2>
+            <p class="hint" id="favoritesSummary">0 products</p>
+          </div>
+          <div class="head-actions">
+            <button class="secondary-button" id="refreshFavorites" type="button">Refresh</button>
+            <button class="icon-button" id="closeFavorites" type="button" aria-label="Favorites oynasini yopish">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="favorites-content" id="favoritesContent"></div>
+      </div>
+    </dialog>
+
+    <dialog id="myReviewsDialog" class="reviews-dialog">
+      <div class="reviews-card">
+        <div class="dialog-head">
+          <div>
+            <h2>My Reviews</h2>
+            <p class="hint" id="myReviewsSummary">Purchased products and written reviews</p>
+          </div>
+          <div class="head-actions">
+            <button class="secondary-button" id="refreshMyReviews" type="button">Refresh</button>
+            <button class="icon-button" id="closeMyReviews" type="button" aria-label="Reviews oynasini yopish">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="my-reviews-content" id="myReviewsContent"></div>
+      </div>
+    </dialog>
+
+    <dialog id="writeReviewDialog" class="write-review-dialog">
+      <form class="dialog-card write-review-card" method="dialog" id="writeReviewForm" novalidate>
+        <div class="dialog-head">
+          <div>
+            <h2>Write Review</h2>
+            <p class="hint" id="writeReviewProduct">Product review</p>
+          </div>
+          <button class="icon-button" id="closeWriteReview" type="button" aria-label="Review formasini yopish">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="write-review-body">
+          <div class="rating-selector" id="reviewRatingSelector" role="radiogroup" aria-label="Rating"></div>
+          <label>Review text<textarea id="reviewContent" rows="5" required placeholder="Mahsulot haqida fikringizni yozing"></textarea></label>
+          <label>Upload images<input id="reviewImageFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple /></label>
+          <label>Image URLs<input id="reviewImages" placeholder="https://... , https://..." /></label>
+          <p class="hint">Optional. Use comma-separated URLs or one URL per line. Maximum 5 images.</p>
+          <p class="hint" id="reviewUploadStatus"></p>
+          <p class="form-message" id="reviewFormMessage"></p>
+          <button class="primary-button full" id="submitReviewButton" type="submit">Submit review</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="detailDialog">
+      <div class="detail-card" id="detailContent"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

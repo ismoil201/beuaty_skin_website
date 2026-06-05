@@ -1,0 +1,9 @@
+/* BEAUTY SKIN KOREA styles
+ *
+ * Runtime CSS is loaded from /styles.css (public/styles.css) via index.html.
+ * Source of truth: src/styles/marketplace.css + src/styles/variables.css
+ *
+ * Run `npm run sync:css` after editing marketplace.css or variables.css.
+ */
+@import "./marketplace.css";
+@import "./variables.css";
