@@ -158,11 +158,12 @@ function showToast(message) {
 }
 
 function setModeBadge(element, visible) {
+  if (!element) return;
   element.hidden = !visible;
 }
 
 function syncModeBadges() {
-  setModeBadge(els.productsMode, state.demoCategories || state.demoProducts);
+  setModeBadge(els.productsMode, state.demoProducts);
   setModeBadge(els.dealsMode, state.demoDeals);
 }
 
@@ -314,74 +315,69 @@ export async function loadHome() {
   state.feedPage = 0;
   els.title.textContent = t("home.popular");
   els.status.textContent = t("home.loading");
-  els.dealsStatus.textContent = t("home.loading");
   renderSkeleton(els.grid, 12);
   renderSkeleton(els.dealsGrid, 6);
 
   try {
-    await Promise.allSettled([loadCategories(), loadBanners(), loadAnnouncements()]);
+    await Promise.all([loadCategories(), loadBanners(), loadAnnouncements()]);
     const homeLoaded = await loadHomeApi();
     if (!homeLoaded) {
-      await Promise.allSettled([loadProducts(), loadTodayDeals()]);
+      await Promise.all([loadProducts(), loadTodayDeals()]);
     }
-    await Promise.allSettled([loadRecentlyViewed(), loadCart()]);
+    await loadRecentlyViewed();
+    await loadCart();
   } catch (error) {
     console.error("Home loading failed:", error);
-    els.status.textContent = state.lastApiError || t("common.serverFailed");
-    els.dealsStatus.textContent = "";
+    state.demoProducts = false;
+    state.demoDeals = false;
     renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
   } finally {
-    if (els.status.textContent === t("home.loading")) {
+    if (els.status?.textContent === t("home.loading")) {
       els.status.textContent = "";
     }
-    if (els.dealsStatus.textContent === t("home.loading") || els.dealsStatus.textContent === "Yuklanmoqda...") {
+    if (els.dealsStatus?.textContent === t("home.loading") || els.dealsStatus?.textContent === "Yuklanmoqda...") {
       els.dealsStatus.textContent = "";
     }
   }
 }
 
 export async function loadHomeApi() {
-  try {
-    const response = await apiFetch("/api/home", {
-      query: { limit: 10, page: 0, size: 20 },
-      showError: false,
-    });
+  const response = await apiFetch("/api/home", {
+    query: { limit: 10, page: 0, size: 20 },
+    showError: false,
+  });
 
-    if (response === null) {
-      state.homeLoadedFromApi = false;
-      els.homeApiSections.hidden = true;
-      return false;
-    }
-
-    const hits = getPageContent(response.hits || []).map(normalizeProduct);
-    const discounts = getPageContent(response.discounts || []).map(normalizeProduct);
-    const newArrivals = getPageContent(response.newArrivals || []).map(normalizeProduct);
-    const popular = getPageContent(response.popular).map(normalizeProduct);
-    const hasAny = hits.length || discounts.length || newArrivals.length || popular.length;
-
-    if (!hasAny) {
-      state.homeLoadedFromApi = false;
-      els.homeApiSections.hidden = true;
-      return false;
-    }
-
-    state.homeLoadedFromApi = true;
-    state.products = popular.length ? popular : [...hits, ...discounts, ...newArrivals].filter(uniqueProductById);
-    state.todayDeals = discounts;
-    syncProductFavorites();
-    renderHomeApiSections({ hits, discounts, newArrivals });
-    renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "home" });
-    renderProductList(els.dealsGrid, discounts.slice(0, 8), "Chegirmalar topilmadi.", { screen: "home-discounts" });
-    els.status.textContent = "";
-    els.dealsStatus.textContent = "";
-    syncModeBadges();
-    return true;
-  } catch (error) {
-    console.error("Home API loading failed:", error);
+  if (response === null) {
     state.homeLoadedFromApi = false;
     els.homeApiSections.hidden = true;
     return false;
   }
+
+  const hits = getPageContent(response.hits || []).map(normalizeProduct);
+  const discounts = getPageContent(response.discounts || []).map(normalizeProduct);
+  const newArrivals = getPageContent(response.newArrivals || []).map(normalizeProduct);
+  const popular = getPageContent(response.popular).map(normalizeProduct);
+  const hasAny = hits.length || discounts.length || newArrivals.length || popular.length;
+
+  if (!hasAny) {
+    state.homeLoadedFromApi = false;
+    els.homeApiSections.hidden = true;
+    return false;
+  }
+
+  state.homeLoadedFromApi = true;
+  state.products = popular.length ? popular : [...hits, ...discounts, ...newArrivals].filter(uniqueProductById);
+  state.todayDeals = discounts;
+  state.demoProducts = false;
+  state.demoDeals = false;
+  syncProductFavorites();
+  renderHomeApiSections({ hits, discounts, newArrivals });
+  renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "home" });
+  renderProductList(els.dealsGrid, discounts.slice(0, 8), "Chegirmalar topilmadi.", { screen: "home-discounts" });
+  els.status.textContent = "";
+  els.dealsStatus.textContent = "";
+  syncModeBadges();
+  return true;
 }
 
 function renderHomeApiSections(sections) {
@@ -414,55 +410,37 @@ function uniqueProductById(product, index, list) {
 const DEFAULT_CATEGORIES = ["SKINCARE", "MAKEUP", "COLLAGEN", "HAIR_CARE", "FRAGRANCE"];
 
 async function loadCategories() {
-  try {
-    const response = await apiFetch("/api/categories", { showError: false });
-    const categories = getPageContent(response).map(normalizeCategory).filter(Boolean);
+  const response = await apiFetch("/api/categories", { showError: false });
+  const categories = getPageContent(response).map(normalizeCategory).filter(Boolean);
 
-    if (categories.length) {
-      state.categories = categories;
-      state.demoCategories = false;
-    } else {
-      state.categories = DEFAULT_CATEGORIES;
-      state.demoCategories = false;
-      if (response === null) {
-        console.warn("[Categories] API unavailable (e.g. 403) — using default categories.");
-      }
-    }
-  } catch (error) {
-    console.error("Categories loading failed:", error);
+  if (categories.length) {
+    state.categories = categories;
+    state.demoCategories = false;
+  } else {
     state.categories = DEFAULT_CATEGORIES;
     state.demoCategories = false;
-  } finally {
-    syncModeBadges();
-    renderCategories();
   }
+
+  syncModeBadges();
+  renderCategories();
 }
 
 async function loadBanners() {
-  try {
-    const response = await apiFetch("/api/banners", { showError: false });
-    if (response === null) {
-      state.banners = [];
-      return;
-    }
+  const response = await apiFetch("/api/banners", { showError: false });
+  const banners = getPageContent(response)
+    .map((banner) => ({
+      id: banner.id,
+      title: banner.title || "",
+      subtitle: banner.subtitle || "",
+      imageUrl: banner.imageUrl || "",
+      linkType: String(banner.linkType || "NONE").toUpperCase(),
+      linkId: banner.linkId,
+      position: numberOrZero(banner.position),
+    }))
+    .sort((a, b) => a.position - b.position);
 
-    state.banners = getPageContent(response)
-      .map((banner) => ({
-        id: banner.id,
-        title: banner.title || "",
-        subtitle: banner.subtitle || "",
-        imageUrl: banner.imageUrl || "",
-        linkType: String(banner.linkType || "NONE").toUpperCase(),
-        linkId: banner.linkId,
-        position: numberOrZero(banner.position),
-      }))
-      .sort((a, b) => a.position - b.position);
-  } catch (error) {
-    console.error("Banners loading failed:", error);
-    state.banners = [];
-  } finally {
-    renderBanners();
-  }
+  state.banners = banners;
+  renderBanners();
 }
 
 function renderBanners() {
@@ -558,48 +536,37 @@ function addRecentProduct(productId) {
 }
 
 async function loadProducts() {
-  els.status.textContent = t("home.loading");
-  renderSkeleton(els.grid, 12);
-
   try {
+    els.status.textContent = "Yuklanmoqda...";
+    renderSkeleton(els.grid, 12);
+
     const response = await apiFetch("/api/products", {
       query: { page: 0, size: CONFIG.defaultPageSize },
       showError: false,
     });
+
+    console.info("[LOAD PRODUCTS]", response);
+
     const products = getPageContent(response).map(normalizeProduct);
 
     if (products.length) {
       state.products = products;
       state.demoProducts = false;
-      syncProductFavorites();
-      syncModeBadges();
-      renderProductList(els.grid, state.products, t("home.noProducts"));
-      els.status.textContent = "";
-      return;
-    }
-
-    if (response === null) {
+      renderProductList(els.grid, state.products, "Mahsulot topilmadi.");
+    } else {
+      state.products = [];
       state.demoProducts = false;
-      els.status.textContent = state.lastApiError || t("common.serverFailed");
-      renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
-      return;
+      renderEmpty(els.grid, "Mahsulot topilmadi.");
     }
 
-    state.products = [];
-    state.demoProducts = false;
     syncProductFavorites();
-    syncModeBadges();
-    renderProductList(els.grid, state.products, t("home.noProducts"));
-    els.status.textContent = "";
   } catch (error) {
-    console.error("Products loading failed:", error);
+    console.error("[LOAD PRODUCTS FAILED]", error);
     state.demoProducts = false;
-    els.status.textContent = state.lastApiError || t("common.serverFailed");
-    renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
+    renderEmpty(els.grid, "API data failed to load.");
   } finally {
-    if (els.status.textContent === t("home.loading")) {
-      els.status.textContent = "";
-    }
+    syncModeBadges();
+    els.status.textContent = "";
   }
 }
 
@@ -638,47 +605,32 @@ async function loadMoreProducts() {
 }
 
 async function loadTodayDeals() {
-  els.dealsStatus.textContent = "Yuklanmoqda...";
-  renderSkeleton(els.dealsGrid, 5);
-
   try {
+    els.dealsStatus.textContent = "Yuklanmoqda...";
+    renderSkeleton(els.dealsGrid, 5);
+
     const response = await apiFetch("/api/products/today-deals", { showError: false });
+
+    console.info("[LOAD TODAY DEALS]", response);
+
     const products = getPageContent(response).map(normalizeProduct);
 
-    if (products.length) {
-      state.todayDeals = products;
-      state.demoDeals = false;
-      syncProductFavorites();
-      syncModeBadges();
-      renderProductList(els.dealsGrid, state.todayDeals.slice(0, 8), t("home.noProducts"));
-      els.dealsStatus.textContent = "";
-      return;
-    }
-
-    if (response === null) {
-      state.demoDeals = false;
-      state.todayDeals = [];
-      els.dealsStatus.textContent = state.lastApiError || t("common.serverFailed");
-      renderEmpty(els.dealsGrid, t("common.serverFailed"), t("common.tryAgain"));
-      return;
-    }
-
-    state.todayDeals = [];
+    state.todayDeals = products;
     state.demoDeals = false;
+
+    renderProductList(
+      els.dealsGrid,
+      state.todayDeals.slice(0, 8),
+      "Mahsulot topilmadi."
+    );
     syncProductFavorites();
-    syncModeBadges();
-    renderProductList(els.dealsGrid, state.todayDeals, t("home.noProducts"));
-    els.dealsStatus.textContent = "";
   } catch (error) {
-    console.error("Today deals loading failed:", error);
+    console.error("[LOAD TODAY DEALS FAILED]", error);
     state.demoDeals = false;
-    state.todayDeals = [];
-    els.dealsStatus.textContent = state.lastApiError || t("common.serverFailed");
-    renderEmpty(els.dealsGrid, t("common.serverFailed"), t("common.tryAgain"));
+    renderEmpty(els.dealsGrid, "API data failed to load.");
   } finally {
-    if (els.dealsStatus.textContent === "Yuklanmoqda...") {
-      els.dealsStatus.textContent = "";
-    }
+    syncModeBadges();
+    els.dealsStatus.textContent = "";
   }
 }
 
@@ -3407,9 +3359,12 @@ export async function init() {
     .then(() => handleRoute())
     .catch((error) => {
       console.error("Home loading failed:", error);
-      els.status.textContent = state.lastApiError || t("common.serverFailed");
+      state.demoProducts = false;
+      state.demoDeals = false;
+      els.status.textContent = "";
       els.dealsStatus.textContent = "";
       renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
+      syncModeBadges();
       handleRoute();
     });
 }

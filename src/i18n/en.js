@@ -2,7 +2,6 @@ import uz from './uz.js';
 export default {
   ...uz,
 
-  ...translations.uz,
   "header.location": "📍 Tashkent",
   "header.pickupPoints": "Pickup points",
   "header.sell": "Sell on Beauty Skin Korea",

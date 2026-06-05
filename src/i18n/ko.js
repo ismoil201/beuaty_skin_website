@@ -2,7 +2,6 @@ import en from './en.js';
 export default {
   ...en,
 
-  ...translations.en,
   "header.location": "📍 타슈켄트",
   "header.pickupPoints": "픽업 지점",
   "header.sell": "판매자 되기",

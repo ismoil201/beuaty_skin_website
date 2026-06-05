@@ -46,6 +46,10 @@ export function migrateApiBaseUrlStorage() {
   const raw = localStorage.getItem(CONFIG.storageKeys.baseUrl) || "";
   const sanitized = normalizeSavedBaseUrl(raw);
   if (sanitized !== raw.trim().replace(/\/+$/, "")) {
-    localStorage.setItem(CONFIG.storageKeys.baseUrl, sanitized);
+    if (sanitized) {
+      localStorage.setItem(CONFIG.storageKeys.baseUrl, sanitized);
+    } else {
+      localStorage.removeItem(CONFIG.storageKeys.baseUrl);
+    }
   }
 }

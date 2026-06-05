@@ -1,7 +1,6 @@
-import { resolveApiBaseUrl } from "../config/apiBase.js";
-import { getViteEnv, isDevMode } from "../config/env.js";
 import { state } from "../store/state.js";
 import { getToken } from "../utils/storage.js";
+import { getViteEnv, isDevMode } from "../config/env.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
 
 let handlers = {
@@ -14,13 +13,11 @@ export function configureApiClient(nextHandlers = {}) {
   handlers = { ...handlers, ...nextHandlers };
 }
 
+/** Same URL building as old working app.js: empty baseUrl → same-origin /api (Vite proxy / Vercel rewrite). */
 export function buildApiUrl(path, query) {
   const basePath = path.startsWith("/") ? path : `/${path}`;
-  const resolvedBaseUrl = resolveApiBaseUrl(state.baseUrl);
-
-  const url = resolvedBaseUrl
-    ? new URL(`${resolvedBaseUrl.replace(/\/+$/, "")}${basePath}`)
-    : new URL(basePath, window.location.origin);
+  const baseUrl = state.baseUrl ? state.baseUrl.replace(/\/+$/, "") : "";
+  const url = new URL(`${baseUrl}${basePath}`, window.location.origin);
 
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
@@ -30,21 +27,7 @@ export function buildApiUrl(path, query) {
     });
   }
 
-  const requestUrl = url.toString();
-
-  if (isDevMode()) {
-    const env = getViteEnv();
-    console.info("[API DEBUG]", {
-      mode: env.MODE,
-      prod: env.PROD,
-      envBaseUrl: env.VITE_API_BASE_URL,
-      host: window.location.host,
-      resolvedBaseUrl,
-      requestUrl,
-    });
-  }
-
-  return requestUrl;
+  return url.toString();
 }
 
 export async function apiFetch(path, options = {}) {
@@ -73,6 +56,20 @@ export async function apiFetch(path, options = {}) {
     return null;
   }
 
+  if (isDevMode()) {
+    const env = getViteEnv();
+    console.info("[API REQUEST]", {
+      path,
+      requestUrl: url,
+      method: fetchOptions.method || "GET",
+      query,
+      baseUrl: state.baseUrl,
+      host: window.location.host,
+      mode: env.MODE,
+      envBase: env.VITE_API_BASE_URL,
+    });
+  }
+
   try {
     state.lastApiError = "";
     const response = await fetch(url, { ...fetchOptions, headers });
@@ -80,7 +77,12 @@ export async function apiFetch(path, options = {}) {
     const payload = text ? parseResponseBody(text) : null;
 
     if (isDevMode()) {
-      console.debug(`[API] ${fetchOptions.method || "GET"} ${url} → ${response.status}`);
+      console.info("[API RESPONSE]", {
+        requestUrl: url,
+        status: response.status,
+        ok: response.ok,
+        payload,
+      });
     }
 
     if (response.status === 401) {
@@ -94,9 +96,6 @@ export async function apiFetch(path, options = {}) {
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
       state.lastApiError = message;
-      if (isDevMode()) {
-        console.warn(`[API] ${response.status} ${url}`, payload);
-      }
       if (showError) handlers.showToast(message);
       return null;
     }
@@ -105,7 +104,7 @@ export async function apiFetch(path, options = {}) {
   } catch (error) {
     state.lastApiError = "Server bilan aloqa bo‘lmadi";
     if (isDevMode()) {
-      console.error(`[API] Network error ${url}`, error);
+      console.error("[API ERROR]", { requestUrl: url, error });
     }
     if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.");
     return null;
