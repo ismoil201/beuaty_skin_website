@@ -1,0 +1,405 @@
+/* =====================================================================
+   UI POLISH LAYER
+   Loaded last (after marketplace.css + variables.css) so these rules win
+   ties in the cascade. Purely additive — no markup or JS changes.
+   Goal: production-grade spacing, consistent product grid, and polished
+   cards/hover states matching modern Korean e-commerce (Olive Young,
+   Musinsa, Coupang, Uzum). Keeps the existing brand palette (#FFC0CB).
+   ===================================================================== */
+
+:root {
+  /* 4 / 8 / 12 / 16 / 24 / 32 spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-card: 14px;
+  --radius-btn: 12px;
+  --shadow-card-hover: 0 12px 28px rgba(43, 43, 43, 0.14);
+}
+
+/* ---------------------------------------------------------------------
+   1. Product grid — consistent, premium column counts.
+   Desktop >=1280: 5 cols · Laptop 1024-1279: 4 · Tablet 681-1023: 3
+   · Mobile <=680: 2.  Replaces the old auto-fill (which produced ~7-8
+   cramped columns on wide screens). !important is required to beat the
+   existing #dealsGrid !important rules and the auto-fill definitions.
+   --------------------------------------------------------------------- */
+.product-grid,
+.recommended-grid,
+.deals-grid,
+.home-strip-grid,
+.favorites-grid,
+#dealsGrid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  grid-auto-rows: auto !important;
+  gap: var(--space-6) var(--space-4) !important;
+}
+
+@media (max-width: 1279px) {
+  .product-grid,
+  .recommended-grid,
+  .deals-grid,
+  .home-strip-grid,
+  .favorites-grid,
+  #dealsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .product-grid,
+  .recommended-grid,
+  .deals-grid,
+  .home-strip-grid,
+  .favorites-grid,
+  #dealsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .product-grid,
+  .recommended-grid,
+  .deals-grid,
+  .home-strip-grid,
+  .favorites-grid,
+  #dealsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: var(--space-4) var(--space-3) !important;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   2. Product card — size to content, no forced empty gap.
+   The card's inner blocks already have fixed heights (meta/title/price/
+   hint), so cards are naturally equal height. The old min-height:430/456
+   over-stretched them, leaving dead space that pushed the CTA far below
+   the price. We let the card hug its content; equal heights are kept by
+   the grid row + fixed inner block heights.
+   --------------------------------------------------------------------- */
+.product-card {
+  min-height: 0 !important;
+  max-height: none !important;
+  height: 100%;
+}
+
+.product-card .product-image {
+  width: 100%;
+  aspect-ratio: 1 / 1.15;
+  height: auto;
+  border-radius: var(--radius-card);
+  object-fit: cover;
+  background: #eef0f5;
+}
+
+@media (max-width: 680px) {
+  .product-card .product-image {
+    aspect-ratio: 1 / 1.1;
+  }
+}
+
+/* Tighten the info column so price + sold + CTA sit together */
+.product-card .product-info {
+  padding-top: var(--space-2);
+}
+
+.product-card .product-info .hint {
+  margin-bottom: var(--space-2);
+}
+
+.product-card .card-actions {
+  margin-top: var(--space-1);
+  padding-top: 0;
+}
+
+/* CTA button inside cards — readable, consistent */
+.product-card .card-actions .primary-button {
+  min-height: 38px;
+  height: 38px;
+  border-radius: var(--radius-btn);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------
+   3. Polished, clickable hover (desktop pointers only)
+   Transitions live inside this query so touch devices carry no animation
+   work — addresses the mobile-performance requirement.
+   --------------------------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  .product-card {
+    transition: transform 0.18s ease;
+  }
+  .product-card .product-image {
+    transition: box-shadow 0.18s ease;
+  }
+  .product-card:hover {
+    transform: translateY(-3px);
+  }
+  .product-card:hover .product-image {
+    box-shadow: var(--shadow-card-hover);
+  }
+  .product-card:hover .product-info h3 {
+    color: var(--primary-dark);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   4. Typography hierarchy — clear, readable, consistent.
+   (font-size / line-height already match marketplace.css; we only set the
+   lighter product-title weight here to avoid the browser-default bold.)
+   --------------------------------------------------------------------- */
+.product-card .product-info h3 {
+  font-weight: 500;
+}
+
+.product-card .price-row span:first-child {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.product-card .old-price {
+  font-size: 12px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+/* Discount badge — clear red, white text, crisp pill */
+.product-card .badge:not(.today) {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* ---------------------------------------------------------------------
+   5. Section rhythm — balanced vertical spacing between blocks
+   --------------------------------------------------------------------- */
+.section-shell {
+  margin-bottom: var(--space-8);
+}
+
+.section-shell .section-head {
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 680px) {
+  .section-shell {
+    margin-bottom: var(--space-6);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   6. Recommended section on product detail mirrors home card spacing
+   --------------------------------------------------------------------- */
+.recommended-section {
+  margin-top: var(--space-8);
+}
+
+.recommended-section .section-head {
+  margin-bottom: var(--space-4);
+}
+
+/* ---------------------------------------------------------------------
+   7. Product detail — price is the strongest, black, readable element
+   (matches the "price text should be black" requirement and the cards)
+   --------------------------------------------------------------------- */
+.detail-info > h3 {
+  color: #111827;
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 var(--space-1);
+}
+
+.detail-info .old-price {
+  color: #9ca3af;
+  font-size: 15px;
+  text-decoration: line-through;
+}
+
+/* ---------------------------------------------------------------------
+   8. Header overflow fix on medium screens (e.g. 1024px iPad landscape).
+   The legacy header only collapses at <=920px, so between 921-1114px the
+   full desktop header (brand + catalog + search + labelled actions) is
+   wider than the viewport and forces a horizontal scrollbar. We trigger
+   the SAME existing collapse a little earlier — search wraps to its own
+   row and action labels become icon-only — so the header always fits.
+   Grid column counts are intentionally NOT touched here (handled above).
+   --------------------------------------------------------------------- */
+@media (max-width: 1120px) {
+  .topbar {
+    grid-template-columns: auto auto 1fr;
+  }
+  .search {
+    grid-column: 1 / -1;
+    order: 4;
+  }
+  .actions span,
+  .catalog-button span {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   9. Toast notifications — top-right desktop, below header on mobile.
+   Brand accent #FFC0CB. Stacks multiple messages; auto-dismiss + close.
+   --------------------------------------------------------------------- */
+.toast-host {
+  position: fixed;
+  top: 88px;
+  right: 16px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  width: min(380px, calc(100vw - 24px));
+  pointer-events: none;
+}
+
+.toast-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 192, 203, 0.45);
+  background: #fff;
+  color: var(--text, #2b2b2b);
+  box-shadow: 0 14px 36px rgba(43, 43, 43, 0.14);
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  transition: opacity 180ms ease, transform 180ms ease;
+  pointer-events: auto;
+}
+
+.toast-item.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  font-size: 14px;
+  line-height: 1.45;
+  padding-top: 1px;
+}
+
+.toast-close {
+  border: 0;
+  background: transparent;
+  color: #8b8b95;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.toast-close:hover {
+  color: var(--text, #2b2b2b);
+}
+
+.toast-success {
+  border-color: rgba(255, 192, 203, 0.65);
+  background: linear-gradient(135deg, #fff8fa 0%, #fff 70%);
+}
+
+.toast-success .toast-icon {
+  background: #ffc0cb;
+  color: #7c3b4c;
+}
+
+.toast-error {
+  border-color: rgba(220, 53, 69, 0.28);
+  background: linear-gradient(135deg, #fff5f6 0%, #fff 70%);
+}
+
+.toast-error .toast-icon {
+  background: #ffd6dc;
+  color: #b4233d;
+}
+
+.toast-warning {
+  border-color: rgba(245, 158, 11, 0.28);
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 70%);
+}
+
+.toast-warning .toast-icon {
+  background: #ffe8a3;
+  color: #8a5a00;
+}
+
+.toast-info {
+  border-color: rgba(255, 192, 203, 0.45);
+  background: #fff;
+}
+
+.toast-info .toast-icon {
+  background: #ffe4ea;
+  color: #9f5068;
+}
+
+@media (max-width: 680px) {
+  .toast-host {
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    left: 12px;
+    width: auto;
+    align-items: stretch;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   10. Banner carousel — clickable dots + auto-slide polish
+   --------------------------------------------------------------------- */
+.banner-dots .banner-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.banner-dots .banner-dot.active {
+  width: 18px;
+  background: #ffc0cb;
+}
+
+.banner-dots .banner-dot:focus-visible {
+  outline: 2px solid #ffc0cb;
+  outline-offset: 2px;
+}
+
+.banner-track {
+  scroll-behavior: smooth;
+}
+
+.banner-card img {
+  object-fit: cover;
+}

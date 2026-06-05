@@ -80,12 +80,12 @@
       <section class="hero marketplace-hero" id="home">
         <div class="hero-main">
           <div class="hero-copy">
-            <p class="eyebrow">Best daily offers</p>
-            <h1>Korean beauty products</h1>
-            <p>Fast delivery to Uzbekistan, curated cosmetics, skincare, fragrance and accessories.</p>
+            <p class="eyebrow" data-i18n="hero.eyebrow">Best daily offers</p>
+            <h1 data-i18n="hero.title">Korean beauty products</h1>
+            <p data-i18n="hero.subtitle">Fast delivery to Uzbekistan, curated cosmetics, skincare, fragrance and accessories.</p>
             <div class="hero-actions">
-              <a class="primary-button" href="#products">Mahsulotlarni ko‘rish</a>
-              <a class="secondary-button" href="#todayDeals">Today Deals</a>
+              <a class="primary-button" href="#products" data-i18n="hero.viewProducts">Mahsulotlarni ko‘rish</a>
+              <a class="secondary-button" href="#todayDeals" data-i18n="home.todayDeals">Today Deals</a>
             </div>
           </div>
           <div class="hero-visual" aria-hidden="true">
@@ -94,12 +94,12 @@
         </div>
         <div class="hero-side">
           <article class="promo-card">
-            <strong>Fast delivery</strong>
-            <span>Across Uzbekistan</span>
+            <strong data-i18n="hero.fastDelivery">Fast delivery</strong>
+            <span data-i18n="hero.fastDeliverySub">Across Uzbekistan</span>
           </article>
           <article class="promo-card accent">
-            <strong>Best daily offers</strong>
-            <span>Today only</span>
+            <strong data-i18n="hero.eyebrow">Best daily offers</strong>
+            <span data-i18n="home.todayOnly">Today only</span>
           </article>
         </div>
       </section>
@@ -121,8 +121,8 @@
       <section class="section-shell compact" id="recentlyViewedSection" hidden>
         <div class="section-head">
           <div>
-            <p class="eyebrow">History</p>
-            <h2>Recently viewed</h2>
+            <p class="eyebrow" data-i18n="home.history">History</p>
+            <h2 data-i18n="home.recentlyViewed">Recently viewed</h2>
           </div>
         </div>
         <div class="product-grid" id="recentlyViewedGrid"></div>
@@ -269,13 +269,13 @@
     <dialog id="apiDialog">
       <form class="dialog-card" method="dialog" id="apiForm">
         <div class="dialog-head">
-          <h2>API sozlamasi</h2>
+          <h2 data-i18n="api.title">API sozlamasi</h2>
           <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <label>Backend base URL<input id="baseUrl" placeholder="http://localhost:8080" /></label>
-        <button class="primary-button full" type="submit">Saqlash</button>
+        <button class="primary-button full" type="submit" data-i18n="api.save">Saqlash</button>
         <p class="hint">Default bo‘sh qolsa `/api/...` local proxy orqali Railway backendga yuboriladi. Xohlasangiz boshqa base URL ham kiriting.</p>
       </form>
     </dialog>
@@ -283,7 +283,7 @@
     <dialog id="checkoutDialog" class="checkout-dialog">
       <form class="dialog-card checkout-card" method="dialog" id="checkoutForm" novalidate>
         <div class="dialog-head">
-          <h2>Checkout</h2>
+          <h2 data-i18n="checkout.title">Checkout</h2>
           <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
@@ -298,9 +298,9 @@
     <dialog id="ordersDialog" class="orders-dialog">
       <div class="orders-card">
         <div class="dialog-head">
-          <h2>My Orders</h2>
+          <h2 data-i18n="orders.title">My Orders</h2>
           <div class="head-actions">
-            <button class="secondary-button" id="refreshOrders" type="button">Refresh</button>
+            <button class="secondary-button" id="refreshOrders" type="button" data-i18n="orders.refresh">Refresh</button>
             <button class="icon-button" id="closeOrders" type="button" aria-label="Orders oynasini yopish">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
@@ -314,11 +314,11 @@
       <div class="favorites-card">
         <div class="dialog-head">
           <div>
-            <h2>Favorites</h2>
+            <h2 data-i18n="favorites.title">Favorites</h2>
             <p class="hint" id="favoritesSummary">0 products</p>
           </div>
           <div class="head-actions">
-            <button class="secondary-button" id="refreshFavorites" type="button">Refresh</button>
+            <button class="secondary-button" id="refreshFavorites" type="button" data-i18n="orders.refresh">Refresh</button>
             <button class="icon-button" id="closeFavorites" type="button" aria-label="Favorites oynasini yopish">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
@@ -332,11 +332,11 @@
       <div class="reviews-card">
         <div class="dialog-head">
           <div>
-            <h2>My Reviews</h2>
+            <h2 data-i18n="reviews.my">My Reviews</h2>
             <p class="hint" id="myReviewsSummary">Purchased products and written reviews</p>
           </div>
           <div class="head-actions">
-            <button class="secondary-button" id="refreshMyReviews" type="button">Refresh</button>
+            <button class="secondary-button" id="refreshMyReviews" type="button" data-i18n="orders.refresh">Refresh</button>
             <button class="icon-button" id="closeMyReviews" type="button" aria-label="Reviews oynasini yopish">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
@@ -350,7 +350,7 @@
       <form class="dialog-card write-review-card" method="dialog" id="writeReviewForm" novalidate>
         <div class="dialog-head">
           <div>
-            <h2>Write Review</h2>
+            <h2 data-i18n="reviews.write">Write Review</h2>
             <p class="hint" id="writeReviewProduct">Product review</p>
           </div>
           <button class="icon-button" id="closeWriteReview" type="button" aria-label="Review formasini yopish">
@@ -365,7 +365,7 @@
           <p class="hint">Optional. Use comma-separated URLs or one URL per line. Maximum 5 images.</p>
           <p class="hint" id="reviewUploadStatus"></p>
           <p class="form-message" id="reviewFormMessage"></p>
-          <button class="primary-button full" id="submitReviewButton" type="submit">Submit review</button>
+          <button class="primary-button full" id="submitReviewButton" type="submit" data-i18n="reviews.submit">Submit review</button>
         </div>
       </form>
     </dialog>
@@ -374,7 +374,7 @@
       <div class="detail-card" id="detailContent"></div>
     </dialog>
 
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="toast-host" id="toast" role="status" aria-live="polite" aria-relevant="additions"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

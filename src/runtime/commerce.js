@@ -11,6 +11,7 @@ import {
   normalizeCartItem,
   normalizeCategory,
   normalizeOrderItem,
+  normalizeFavoriteItem,
   normalizeReview,
   normalizeNotification,
   normalizeMyReviewItem,
@@ -25,8 +26,9 @@ import { setCartItems, clearCartState } from '../store/cartStore.js';
 import { setFavoriteProducts, clearFavoritesState, syncProductFavorites } from '../store/favoriteStore.js';
 import { t, applyTranslations, setLanguage, getSavedLanguage, setLanguageChangeHandler, getCurrentLanguage } from '../i18n/index.js';
 import { apiFetch, configureApiClient } from '../api/apiClient.js';
+import { showToast } from '../utils/toast.js';
 
-export { apiFetch };
+export { apiFetch, showToast };
 
 function saveAuth(loginResponse) {
   const token = loginResponse?.token || loginResponse?.accessToken || loginResponse?.jwt || "";
@@ -77,7 +79,7 @@ function isLoggedIn() {
 
 function showLoginRequired() {
   openAuthDialog("login");
-  showToast(t("auth.loginRequired"));
+  showToast(t("auth.loginRequired"), "warning");
 }
 
 async function validateAuthOnStartup() {
@@ -148,13 +150,6 @@ function formatDateTime(value) {
 
 function statusLabel(status = "") {
   return t(`status.${status}`) || status || t("common.unknown");
-}
-
-function showToast(message) {
-  els.toast.textContent = message;
-  els.toast.classList.add("show");
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 2800);
 }
 
 function setModeBadge(element, visible) {
@@ -443,6 +438,106 @@ async function loadBanners() {
   renderBanners();
 }
 
+const BANNER_AUTO_MS = 5000;
+let bannerAutoTimer = null;
+let bannerPaused = false;
+let bannerScrollListener = null;
+let bannerScrollEndTimer = 0;
+
+function getBannerTrack() {
+  return els.banners?.querySelector(".banner-track");
+}
+
+function getBannerCount() {
+  return state.banners.length;
+}
+
+function getActiveBannerIndex() {
+  const track = getBannerTrack();
+  if (!track) return 0;
+  const width = track.clientWidth || 1;
+  return Math.max(0, Math.min(getBannerCount() - 1, Math.round(track.scrollLeft / width)));
+}
+
+function updateBannerDots() {
+  const index = getActiveBannerIndex();
+  els.banners?.querySelectorAll("[data-banner-dot]").forEach((dot) => {
+    const active = Number(dot.dataset.bannerDot) === index;
+    dot.classList.toggle("active", active);
+    dot.setAttribute("aria-selected", active ? "true" : "false");
+  });
+}
+
+function scrollToBanner(index, behavior = "smooth") {
+  const track = getBannerTrack();
+  const count = getBannerCount();
+  if (!track || !count) return;
+  const normalized = ((index % count) + count) % count;
+  track.scrollTo({ left: normalized * track.clientWidth, behavior });
+}
+
+function nextBanner() {
+  scrollToBanner(getActiveBannerIndex() + 1);
+}
+
+function prevBanner() {
+  scrollToBanner(getActiveBannerIndex() - 1);
+}
+
+function stopBannerAutoSlide() {
+  if (bannerAutoTimer) {
+    clearInterval(bannerAutoTimer);
+    bannerAutoTimer = null;
+  }
+}
+
+function resetBannerAutoSlide() {
+  stopBannerAutoSlide();
+  if (bannerPaused || getBannerCount() <= 1) return;
+  bannerAutoTimer = setInterval(() => nextBanner(), BANNER_AUTO_MS);
+}
+
+function teardownBannerSlider() {
+  stopBannerAutoSlide();
+  const track = getBannerTrack();
+  if (track && bannerScrollListener) {
+    track.removeEventListener("scroll", bannerScrollListener);
+  }
+  bannerScrollListener = null;
+  if (els.banners) {
+    els.banners.onmouseenter = null;
+    els.banners.onmouseleave = null;
+  }
+}
+
+function initBannerSlider() {
+  teardownBannerSlider();
+
+  const track = getBannerTrack();
+  if (!track || getBannerCount() <= 1) {
+    updateBannerDots();
+    return;
+  }
+
+  bannerScrollListener = () => {
+    clearTimeout(bannerScrollEndTimer);
+    bannerScrollEndTimer = setTimeout(updateBannerDots, 80);
+  };
+  track.addEventListener("scroll", bannerScrollListener, { passive: true });
+
+  els.banners.onmouseenter = () => {
+    bannerPaused = true;
+    stopBannerAutoSlide();
+  };
+  els.banners.onmouseleave = () => {
+    bannerPaused = false;
+    resetBannerAutoSlide();
+  };
+
+  updateBannerDots();
+  resetBannerAutoSlide();
+}
+
 function renderBanners() {
   if (!state.banners.length) {
     els.banners.hidden = true;
@@ -466,8 +561,21 @@ function renderBanners() {
       `).join("")}
     </div>
     <button class="banner-arrow next" data-banner-nav="next" type="button" aria-label="Keyingi banner">›</button>
-    <div class="banner-dots">${state.banners.map((_, index) => `<span class="${index === 0 ? "active" : ""}"></span>`).join("")}</div>
+    <div class="banner-dots" role="tablist" aria-label="Banner slides">
+      ${state.banners.map((_, index) => `
+        <button
+          class="banner-dot ${index === 0 ? "active" : ""}"
+          type="button"
+          data-banner-dot="${index}"
+          role="tab"
+          aria-label="Banner ${index + 1}"
+          aria-selected="${index === 0 ? "true" : "false"}"
+        ></button>
+      `).join("")}
+    </div>
   `;
+
+  initBannerSlider();
 }
 
 async function loadAnnouncements() {
@@ -1154,7 +1262,7 @@ async function addToCart(productId, variantId, quantity) {
   }
 
   if (!selectedVariantId) {
-    showToast(t("product.variantUnavailable"));
+    showToast(t("product.variantUnavailable"), "warning");
     return;
   }
 
@@ -1169,7 +1277,7 @@ async function addToCart(productId, variantId, quantity) {
   renderAddToCartLoading(false);
 
   if (result !== null) {
-    showToast(t("cart.added"));
+    showToast(t("cart.added"), "success");
     await loadCart();
   }
 }
@@ -1272,7 +1380,7 @@ async function removeCartItem(cartItemId) {
   state.cartUpdatingIds.delete(String(cartItemId));
 
   if (result !== null) {
-    showToast(t("cart.itemRemoved"));
+    showToast(t("cart.itemRemoved"), "success");
     await loadCart();
   } else {
     renderCart();
@@ -1291,6 +1399,7 @@ async function updateCartQuantity(cartItemId, quantity) {
   state.cartUpdatingIds.delete(String(cartItemId));
 
   if (result !== null) {
+    showToast(t("cart.quantityUpdated"), "success");
     await loadCart();
   } else {
     renderCart();
@@ -1305,7 +1414,7 @@ async function prepareCheckout() {
 
   await loadCart();
   if (!state.cartItems.length) {
-    showToast("Your cart is empty");
+    showToast("Your cart is empty", "warning");
     return;
   }
 
@@ -1741,25 +1850,33 @@ async function loadFavorites(options = {}) {
   state.favoritesError = "";
   if (render) renderFavorites();
 
-  const response = await apiFetch("/api/favorites", { requireAuth: true, showError: false });
-  state.favoritesLoading = false;
+  try {
+    const response = await apiFetch("/api/favorites", { requireAuth: true, showError: false });
+    state.favoritesLoading = false;
 
-  if (response === null) {
-    if (state.lastApiError.includes("Session expired") || state.lastApiError === "Please login to continue") {
-      clearFavoritesState();
-      if (els.favoritesDialog.open) els.favoritesDialog.close();
+    if (response === null) {
+      if (state.lastApiError.includes("Session expired") || state.lastApiError === "Please login to continue") {
+        clearFavoritesState();
+        if (els.favoritesDialog.open) els.favoritesDialog.close();
+        return;
+      }
+      state.favoritesError = state.lastApiError || "Favorites could not be loaded.";
+      updateFavoritesUi();
+      if (render) renderFavorites();
       return;
     }
-    state.favoritesError = state.lastApiError || "Favorites could not be loaded.";
-    updateFavoritesUi();
-    if (render) renderFavorites();
-    return;
-  }
 
-  setFavoriteProducts(getPageContent(response).map(normalizeFavoriteItem));
-  if (state.products.length) renderProductList(els.grid, state.products, "Mahsulot topilmadi.");
-  if (state.todayDeals.length) renderProductList(els.dealsGrid, state.todayDeals.slice(0, 8), "Bugungi takliflar topilmadi.");
-  if (render || els.favoritesDialog.open) renderFavorites();
+    setFavoriteProducts(getPageContent(response).map(normalizeFavoriteItem));
+    if (state.products.length) renderProductList(els.grid, state.products, "Mahsulot topilmadi.");
+    if (state.todayDeals.length) renderProductList(els.dealsGrid, state.todayDeals.slice(0, 8), "Bugungi takliflar topilmadi.");
+    if (render || els.favoritesDialog.open) renderFavorites();
+  } catch (error) {
+    console.error("[LOAD FAVORITES FAILED]", error);
+    state.favoritesLoading = false;
+    state.favoritesError = "Favorites could not be loaded.";
+    updateFavoritesUi();
+    if (render || els.favoritesDialog.open) renderFavorites();
+  }
 }
 
 function updateFavoritesUi() {
@@ -2879,6 +2996,7 @@ async function placeOrder() {
   if (response === null) {
     state.checkoutError = state.lastApiError || "Order could not be created.";
     renderCheckout();
+    showToast(state.checkoutError, "error");
     return;
   }
 
@@ -2887,7 +3005,7 @@ async function placeOrder() {
   await loadUnreadCount();
   closeCart();
   renderCheckout();
-  showToast("Order created");
+  showToast("Order created", "success");
 }
 
 async function submitProfileEdit(event) {
@@ -3094,11 +3212,18 @@ function handleProductGridClick(event) {
 }
 
 function handleBannerClick(event) {
+  const dot = event.target.closest("[data-banner-dot]");
+  if (dot) {
+    scrollToBanner(Number(dot.dataset.bannerDot));
+    resetBannerAutoSlide();
+    return;
+  }
+
   const nav = event.target.closest("[data-banner-nav]");
   if (nav) {
-    const track = els.banners.querySelector(".banner-track");
-    const amount = track?.clientWidth || 0;
-    track?.scrollBy({ left: nav.dataset.bannerNav === "next" ? amount : -amount, behavior: "smooth" });
+    if (nav.dataset.bannerNav === "next") nextBanner();
+    else prevBanner();
+    resetBannerAutoSlide();
     return;
   }
 
@@ -3118,7 +3243,7 @@ function handleBannerClick(event) {
       routeHome();
       renderCategoryProducts(category);
     } else {
-      showToast("Category banner is not available yet.");
+      showToast("Category banner is not available yet.", "info");
     }
   }
 }
@@ -3300,7 +3425,7 @@ async function toggleFavorite(productId) {
     renderProductDetail(state.selectedDetailProduct);
   }
   if (els.favoritesDialog.open) renderFavorites();
-  showToast(isFavorite ? "Added to favorites" : "Removed from favorites");
+  showToast(isFavorite ? "Added to favorites" : "Removed from favorites", "success");
   if (isFavorite && !existingProduct) await loadFavorites({ render: els.favoritesDialog.open });
 }
 
@@ -3338,7 +3463,7 @@ export async function init() {
       showToast(t("auth.sessionExpired"));
     },
     onLoginRequired: showLoginRequired,
-    showToast,
+    showToast: (message, type = "error") => showToast(message, type),
   });
 
   try {
@@ -3382,7 +3507,6 @@ export {
   renderOrders,
   renderCheckout,
   renderNotifications,
-  showToast,
   openAuthDialog,
   openCart,
   closeCart,

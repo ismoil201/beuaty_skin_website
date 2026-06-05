@@ -96,7 +96,7 @@ export async function apiFetch(path, options = {}) {
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
       state.lastApiError = message;
-      if (showError) handlers.showToast(message);
+      if (showError) handlers.showToast(message, "error");
       return null;
     }
 
@@ -106,7 +106,7 @@ export async function apiFetch(path, options = {}) {
     if (isDevMode()) {
       console.error("[API ERROR]", { requestUrl: url, error });
     }
-    if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.");
+    if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.", "error");
     return null;
   }
 }
