@@ -4,12 +4,14 @@ Production-oriented e-commerce frontend for Korean beauty and fashion. The app t
 
 ## Quick start
 
+**Do not use Live Server** (VS Code port 5500). This project requires Vite for ES modules, env injection, and the API proxy.
+
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:4173`. API calls under `/api` are proxied to production during development.
+Open **http://localhost:5173**. API calls use `VITE_API_BASE_URL` from `.env.local` (direct Railway) or `/api` via the Vite proxy when the env var is unset.
 
 ### Production build
 

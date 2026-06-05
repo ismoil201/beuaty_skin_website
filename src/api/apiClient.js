@@ -1,4 +1,5 @@
 import { resolveApiBaseUrl } from "../config/apiBase.js";
+import { getViteEnv, isDevMode } from "../config/env.js";
 import { state } from "../store/state.js";
 import { getToken } from "../utils/storage.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
@@ -15,10 +16,10 @@ export function configureApiClient(nextHandlers = {}) {
 
 export function buildApiUrl(path, query) {
   const basePath = path.startsWith("/") ? path : `/${path}`;
-  const base = resolveApiBaseUrl(state.baseUrl);
+  const resolvedBaseUrl = resolveApiBaseUrl(state.baseUrl);
 
-  const url = base
-    ? new URL(`${base.replace(/\/+$/, "")}${basePath}`)
+  const url = resolvedBaseUrl
+    ? new URL(`${resolvedBaseUrl.replace(/\/+$/, "")}${basePath}`)
     : new URL(basePath, window.location.origin);
 
   if (query) {
@@ -29,7 +30,21 @@ export function buildApiUrl(path, query) {
     });
   }
 
-  return url.toString();
+  const requestUrl = url.toString();
+
+  if (isDevMode()) {
+    const env = getViteEnv();
+    console.info("[API DEBUG]", {
+      mode: env.MODE,
+      prod: env.PROD,
+      envBaseUrl: env.VITE_API_BASE_URL,
+      host: window.location.host,
+      resolvedBaseUrl,
+      requestUrl,
+    });
+  }
+
+  return requestUrl;
 }
 
 export async function apiFetch(path, options = {}) {
@@ -64,7 +79,7 @@ export async function apiFetch(path, options = {}) {
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
 
-    if (import.meta.env.DEV) {
+    if (isDevMode()) {
       console.debug(`[API] ${fetchOptions.method || "GET"} ${url} → ${response.status}`);
     }
 
@@ -79,7 +94,7 @@ export async function apiFetch(path, options = {}) {
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
       state.lastApiError = message;
-      if (import.meta.env.DEV) {
+      if (isDevMode()) {
         console.warn(`[API] ${response.status} ${url}`, payload);
       }
       if (showError) handlers.showToast(message);
@@ -89,7 +104,7 @@ export async function apiFetch(path, options = {}) {
     return payload;
   } catch (error) {
     state.lastApiError = "Server bilan aloqa bo‘lmadi";
-    if (import.meta.env.DEV) {
+    if (isDevMode()) {
       console.error(`[API] Network error ${url}`, error);
     }
     if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.");

@@ -1,9 +1,33 @@
 import { CONFIG } from "./config.js";
+import { getEnvString, isDevMode } from "./env.js";
 
 const PRODUCTION_API_URL = CONFIG.productionApiBaseUrl.replace(/\/+$/, "");
 
+const VITE_DEV_PORTS = new Set(["5173", "4173"]);
+const LIVE_SERVER_PORTS = new Set(["5500", "5501", "5502"]);
+
+let liveServerWarningShown = false;
+
 export function isLocalDevHost(hostname = globalThis.location?.hostname) {
   return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
+export function isViteDevServer(port = globalThis.location?.port) {
+  return VITE_DEV_PORTS.has(String(port || ""));
+}
+
+export function isLiveServerHost(port = globalThis.location?.port) {
+  return LIVE_SERVER_PORTS.has(String(port || ""));
+}
+
+export function warnLiveServerOnce() {
+  if (liveServerWarningShown) return;
+  liveServerWarningShown = true;
+  console.warn(
+    "[BEAUTY SKIN KOREA] Live Server (port 5500) is not supported. " +
+      "Run `npm install && npm run dev` and open http://localhost:5173 . " +
+      "Calling Railway API directly as fallback."
+  );
 }
 
 function isBlockedOverride(value) {
@@ -41,16 +65,31 @@ export function normalizeSavedBaseUrl(value) {
 }
 
 /**
- * Option A in production: always call Railway directly.
- * Local dev: Vite proxy (/api → Railway) when base is empty, or explicit override.
+ * Resolve API base URL.
+ * - VITE_API_BASE_URL or Railway URL when env missing (safe default)
+ * - Vite dev (5173/4173) with no env: relative /api via proxy
+ * - Live Server (5500): Railway direct + console warning
+ * - Production hosts: Railway direct
  */
 export function resolveApiBaseUrl(storedOverride = "") {
-  const envUrl = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, "");
+  const envUrl = getEnvString("VITE_API_BASE_URL").replace(/\/+$/, "");
   if (envUrl) return envUrl;
 
-  if (isLocalDevHost()) {
-    const override = normalizeSavedBaseUrl(storedOverride);
-    return override;
+  if (isLiveServerHost()) {
+    warnLiveServerOnce();
+    return PRODUCTION_API_URL;
+  }
+
+  const override = normalizeSavedBaseUrl(storedOverride);
+  if (override) return override;
+
+  if (isLocalDevHost() && isViteDevServer() && isDevMode()) {
+    return "";
+  }
+
+  if (isLocalDevHost() && !isViteDevServer()) {
+    warnLiveServerOnce();
+    return PRODUCTION_API_URL;
   }
 
   return PRODUCTION_API_URL;
