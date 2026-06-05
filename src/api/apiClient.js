@@ -1,3 +1,4 @@
+import { resolveApiBaseUrl } from "../config/apiBase.js";
 import { state } from "../store/state.js";
 import { getToken } from "../utils/storage.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
@@ -14,8 +15,11 @@ export function configureApiClient(nextHandlers = {}) {
 
 export function buildApiUrl(path, query) {
   const basePath = path.startsWith("/") ? path : `/${path}`;
-  const baseUrl = state.baseUrl ? state.baseUrl.replace(/\/+$/, "") : "";
-  const url = new URL(`${baseUrl}${basePath}`, window.location.origin);
+  const base = resolveApiBaseUrl(state.baseUrl);
+
+  const url = base
+    ? new URL(`${base.replace(/\/+$/, "")}${basePath}`)
+    : new URL(basePath, window.location.origin);
 
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
@@ -29,7 +33,13 @@ export function buildApiUrl(path, query) {
 }
 
 export async function apiFetch(path, options = {}) {
-  const { query, showError = true, requireAuth = false, ...fetchOptions } = options;
+  const {
+    query,
+    showError = true,
+    requireAuth = false,
+    silentAuth = false,
+    ...fetchOptions
+  } = options;
   const url = buildApiUrl(path, query);
   const headers = {
     Accept: "application/json",
@@ -54,22 +64,34 @@ export async function apiFetch(path, options = {}) {
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
 
+    if (import.meta.env.DEV) {
+      console.debug(`[API] ${fetchOptions.method || "GET"} ${url} → ${response.status}`);
+    }
+
     if (response.status === 401) {
       state.lastApiError = "Session expired. Please login again.";
-      handlers.onUnauthorized();
+      if (!silentAuth) {
+        handlers.onUnauthorized();
+      }
       return null;
     }
 
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
       state.lastApiError = message;
+      if (import.meta.env.DEV) {
+        console.warn(`[API] ${response.status} ${url}`, payload);
+      }
       if (showError) handlers.showToast(message);
       return null;
     }
 
     return payload;
-  } catch {
+  } catch (error) {
     state.lastApiError = "Server bilan aloqa bo‘lmadi";
+    if (import.meta.env.DEV) {
+      console.error(`[API] Network error ${url}`, error);
+    }
     if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.");
     return null;
   }

@@ -33,7 +33,15 @@ Default production base URL:
 
 `https://cosmetic-server-production.up.railway.app`
 
-In development, leave the in-app API base URL empty so requests go to `/api/...` and Vite (or `server.js`) proxies them to Railway. You can override the base URL from the header **API** dialog; the value is stored under `zaven_base_url`.
+The frontend calls Railway **directly** in production (Option A). Set this in Vercel → Project Settings → Environment Variables:
+
+```
+VITE_API_BASE_URL=https://cosmetic-server-production.up.railway.app
+```
+
+Then redeploy. Without it, the app still falls back to the same Railway URL hardcoded in `config.js`.
+
+In local development, leave the in-app API base URL empty so requests go to `/api/...` and Vite proxies them to Railway. You can override the base URL from the header **API** dialog; localhost overrides are ignored on production hosts.
 
 ## Project structure
 

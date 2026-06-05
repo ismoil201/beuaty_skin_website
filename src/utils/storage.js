@@ -1,4 +1,7 @@
 import { CONFIG } from "../config/config.js";
+import { normalizeSavedBaseUrl } from "../config/apiBase.js";
+
+export { normalizeSavedBaseUrl } from "../config/apiBase.js";
 
 export function readJsonStorage(key, fallback) {
   try {
@@ -6,11 +9,6 @@ export function readJsonStorage(key, fallback) {
   } catch {
     return fallback;
   }
-}
-
-export function normalizeSavedBaseUrl(value) {
-  const clean = value.trim().replace(/\/+$/, "");
-  return clean.includes("cosmetic-server-production.up.railway.app") ? "" : clean;
 }
 
 export function getToken() {
@@ -41,5 +39,13 @@ export function migrateAuthStorage() {
   const user = localStorage.getItem(CONFIG.storageKeys.user);
   if (!user && oldUser) {
     localStorage.setItem(CONFIG.storageKeys.user, oldUser);
+  }
+}
+
+export function migrateApiBaseUrlStorage() {
+  const raw = localStorage.getItem(CONFIG.storageKeys.baseUrl) || "";
+  const sanitized = normalizeSavedBaseUrl(raw);
+  if (sanitized !== raw.trim().replace(/\/+$/, "")) {
+    localStorage.setItem(CONFIG.storageKeys.baseUrl, sanitized);
   }
 }

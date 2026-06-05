@@ -2,7 +2,8 @@ import { CONFIG } from '../config/config.js';
 import { CATEGORY_LABELS, QUICK_CATEGORIES, DEMO_PRODUCTS } from '../config/constants.js';
 import { state } from '../store/state.js';
 import { els } from '../utils/dom.js';
-import { getToken, getSessionId, readJsonStorage, normalizeSavedBaseUrl } from '../utils/storage.js';
+import { normalizeSavedBaseUrl } from '../config/apiBase.js';
+import { getToken } from '../utils/storage.js';
 import { escapeHtml } from '../utils/html.js';
 import {
   getPageContent,
@@ -85,7 +86,12 @@ async function validateAuthOnStartup() {
     return;
   }
 
-  const profile = await apiFetch("/api/users/me", { requireAuth: true, showError: false });
+  const profile = await apiFetch("/api/users/me", {
+    requireAuth: true,
+    showError: false,
+    silentAuth: true,
+  });
+
   if (!profile) {
     clearAuth();
     return;
@@ -94,8 +100,8 @@ async function validateAuthOnStartup() {
   state.user = profile;
   localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(profile));
   updateAuthUi();
-  await loadFavorites();
-  await loadUnreadCount();
+
+  await Promise.allSettled([loadFavorites(), loadUnreadCount()]);
 }
 
 function updateAuthUi() {
@@ -308,15 +314,24 @@ export async function loadHome() {
   state.feedPage = 0;
   els.title.textContent = t("home.popular");
   els.status.textContent = t("home.loading");
+  els.dealsStatus.textContent = t("home.loading");
   renderSkeleton(els.grid, 12);
   renderSkeleton(els.dealsGrid, 6);
-  await Promise.all([loadCategories(), loadBanners(), loadAnnouncements()]);
-  const homeLoaded = await loadHomeApi();
-  if (!homeLoaded) {
-    await Promise.all([loadProducts(), loadTodayDeals()]);
+
+  try {
+    await Promise.all([loadCategories(), loadBanners(), loadAnnouncements()]);
+    const homeLoaded = await loadHomeApi();
+    if (!homeLoaded) {
+      await Promise.all([loadProducts(), loadTodayDeals()]);
+    }
+    await loadRecentlyViewed();
+    await loadCart();
+  } catch (error) {
+    console.error("Home loading failed:", error);
+    els.status.textContent = t("common.serverFailed");
+    els.dealsStatus.textContent = "";
+    renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
   }
-  await loadRecentlyViewed();
-  await loadCart();
 }
 
 export async function loadHomeApi() {
@@ -510,7 +525,7 @@ function addRecentProduct(productId) {
 }
 
 async function loadProducts() {
-  els.status.textContent = "Yuklanmoqda...";
+  els.status.textContent = t("home.loading");
   renderSkeleton(els.grid, 12);
   const response = await apiFetch("/api/products", {
     query: { page: 0, size: CONFIG.defaultPageSize },
@@ -521,14 +536,25 @@ async function loadProducts() {
   if (products.length) {
     state.products = products;
     state.demoProducts = false;
-  } else {
-    state.products = DEMO_PRODUCTS.map(normalizeProduct);
-    state.demoProducts = true;
+    syncProductFavorites();
+    syncModeBadges();
+    renderProductList(els.grid, state.products, t("home.noProducts"));
+    els.status.textContent = "";
+    return;
   }
 
+  if (response === null) {
+    state.demoProducts = false;
+    els.status.textContent = t("common.serverFailed");
+    renderEmpty(els.grid, t("common.serverFailed"), t("common.tryAgain"));
+    return;
+  }
+
+  state.products = DEMO_PRODUCTS.map(normalizeProduct);
+  state.demoProducts = true;
   syncProductFavorites();
   syncModeBadges();
-  renderProductList(els.grid, state.products, "Mahsulot topilmadi.");
+  renderProductList(els.grid, state.products, t("home.noProducts"));
   els.status.textContent = "";
 }
 
@@ -3304,8 +3330,12 @@ export async function init() {
   }
 
   updateAuthUi();
-  await validateAuthOnStartup();
-  loadHome().then(() => handleRoute()).catch((error) => {
+  validateAuthOnStartup().catch((error) => {
+    console.error("Auth startup failed:", error);
+  });
+  loadHome()
+    .then(() => handleRoute())
+    .catch((error) => {
     console.error("Home loading failed:", error);
     state.products = DEMO_PRODUCTS.map(normalizeProduct);
     state.todayDeals = DEMO_PRODUCTS.map(normalizeProduct);
