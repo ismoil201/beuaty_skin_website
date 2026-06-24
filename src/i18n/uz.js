@@ -23,6 +23,8 @@ export default {
     "auth.phone": "Telefon",
     "auth.signIn": "Kirish",
     "auth.createAccount": "Hisob yaratish",
+    "auth.continueWithGoogle": "Google bilan kirish",
+    "auth.or": "yoki",
     "auth.logout": "Chiqish",
     "auth.loginRequired": "Davom etish uchun kiring",
     "auth.sessionExpired": "Sessiya tugadi. Qayta kiring.",

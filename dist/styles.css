@@ -3663,6 +3663,79 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   gap: 6px;
 }
 
+/* `display: grid` above otherwise overrides the [hidden] attribute, which
+   left both the login and register field groups visible at once (the two
+   modes looked identical). This restores hidden behaviour for the inactive
+   group so only one form shows per tab. */
+.auth-form[hidden] {
+  display: none;
+}
+
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn, 12px);
+  background: #fff;
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.google-button:hover {
+  background: #f7f8fa;
+  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.16);
+}
+
+.google-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.google-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.google-button.loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(60, 64, 67, 0.25);
+  border-top-color: #3c4043;
+  border-radius: 50%;
+  animation: google-spin 0.7s linear infinite;
+}
+
+@keyframes google-spin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: lowercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 .dialog-card label {
   display: grid;
   gap: 7px;
@@ -5239,8 +5312,21 @@ dialog {
 }
 
 /* ---------------------------------------------------------------------
-   5. Section rhythm — balanced vertical spacing between blocks
+   5. Section rhythm + container alignment.
+   Every top-level content block shares ONE centered container with the
+   same horizontal padding, so banners, quick categories, deals and the
+   product grid all line up with the header on any screen width. Before
+   this, .section-shell was pinned to the left (no auto margin) while the
+   header and banner were centered, leaving everything misaligned and a
+   large empty gutter on wide screens.
    --------------------------------------------------------------------- */
+.banners,
+.section-shell,
+.strip {
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
 .section-shell {
   margin-bottom: var(--space-8);
 }
@@ -5249,9 +5335,22 @@ dialog {
   margin-bottom: var(--space-4);
 }
 
+@media (max-width: 1023px) {
+  .banners,
+  .section-shell,
+  .strip {
+    padding-inline: 16px;
+  }
+}
+
 @media (max-width: 680px) {
   .section-shell {
     margin-bottom: var(--space-6);
+  }
+  .banners,
+  .section-shell,
+  .strip {
+    padding-inline: 12px;
   }
 }
 

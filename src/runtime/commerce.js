@@ -27,6 +27,7 @@ import { setFavoriteProducts, clearFavoritesState, syncProductFavorites } from '
 import { t, applyTranslations, setLanguage, getSavedLanguage, setLanguageChangeHandler, getCurrentLanguage } from '../i18n/index.js';
 import { apiFetch, configureApiClient } from '../api/apiClient.js';
 import { showToast } from '../utils/toast.js';
+import { signInWithGoogleIdToken } from '../config/firebase.js';
 
 export { apiFetch, showToast };
 
@@ -366,6 +367,7 @@ export async function loadHomeApi() {
   state.demoProducts = false;
   state.demoDeals = false;
   syncProductFavorites();
+  state.homeApiSections = { hits, discounts, newArrivals };
   renderHomeApiSections({ hits, discounts, newArrivals });
   renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "home" });
   renderProductList(els.dealsGrid, discounts.slice(0, 8), "Chegirmalar topilmadi.", { screen: "home-discounts" });
@@ -377,16 +379,16 @@ export async function loadHomeApi() {
 
 function renderHomeApiSections(sections) {
   const configs = [
-    ["Hits", "Best picks", sections.hits, "home-hits"],
-    ["Discounts", "Deals", sections.discounts, "home-discounts"],
-    ["New Arrivals", "Fresh", sections.newArrivals, "home-new"],
+    ["home.popular", "home.recommended", sections.hits, "home-hits"],
+    ["home.discounts", "home.todayOnly", sections.discounts, "home-discounts"],
+    ["home.newArrivals", "home.categories", sections.newArrivals, "home-new"],
   ];
   const html = configs
     .filter(([, , products]) => products.length)
-    .map(([title, eyebrow, products, screen]) => `
+    .map(([titleKey, eyebrowKey, products, screen]) => `
       <section class="home-product-strip">
         <div class="section-head">
-          <div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h2>${escapeHtml(title)}</h2></div>
+          <div><p class="eyebrow">${escapeHtml(t(eyebrowKey))}</p><h2>${escapeHtml(t(titleKey))}</h2></div>
         </div>
         <div class="product-grid home-strip-grid">
           ${products.slice(0, 10).map((product, index) => productCard(product, { screen, position: index })).join("")}
@@ -551,12 +553,11 @@ function renderBanners() {
     <div class="banner-track">
       ${state.banners.map((banner) => `
         <article class="banner-card ${banner.imageUrl ? "has-image" : ""}" data-banner-link-type="${escapeHtml(banner.linkType)}" data-banner-link-id="${escapeHtml(banner.linkId ?? "")}">
-          <span class="ad-badge">Reklama</span>
-          ${banner.imageUrl ? `<img src="${escapeHtml(banner.imageUrl)}" alt="${escapeHtml(banner.title || "Banner")}" />` : ""}
+          ${banner.imageUrl ? `<img src="${escapeHtml(banner.imageUrl)}" alt="${escapeHtml(banner.title || "Banner")}" />` : `
           <div>
             <strong>${escapeHtml(banner.title || "BEAUTY SKIN KOREA")}</strong>
             ${banner.subtitle ? `<p>${escapeHtml(banner.subtitle)}</p>` : ""}
-          </div>
+          </div>`}
         </article>
       `).join("")}
     </div>
@@ -2580,7 +2581,17 @@ function setFieldError(id, message) {
 function setAuthLoading(loading) {
   state.authLoading = loading;
   els.authSubmit.disabled = loading;
+  if (els.googleLoginButton) els.googleLoginButton.disabled = loading;
   els.authSubmit.textContent = loading ? t("home.loading") : (state.authMode === "login" ? t("auth.signIn") : t("auth.createAccount"));
+}
+
+function setFirebaseLoading(loading) {
+  state.authLoading = loading;
+  els.authSubmit.disabled = loading;
+  if (els.googleLoginButton) {
+    els.googleLoginButton.disabled = loading;
+    els.googleLoginButton.classList.toggle("loading", loading);
+  }
 }
 
 function isValidEmail(email) {
@@ -2669,6 +2680,10 @@ async function submitLogin() {
     return;
   }
 
+  await finishLogin(response);
+}
+
+async function finishLogin(response) {
   saveAuth(response);
   await validateAuthOnStartup();
   els.authDialog.close();
@@ -2676,6 +2691,42 @@ async function submitLogin() {
   await loadCart();
   await loadFavorites();
   await loadUnreadCount();
+}
+
+async function submitFirebaseLogin() {
+  if (state.authLoading) return;
+  clearAuthErrors();
+  setFirebaseLoading(true);
+
+  let idToken;
+  try {
+    idToken = await signInWithGoogleIdToken();
+  } catch (error) {
+    setFirebaseLoading(false);
+    // User closing the popup is not an error worth surfacing loudly.
+    const code = error?.code || "";
+    if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+    els.authMessage.textContent = code === "auth/popup-blocked"
+      ? "Popup bloklandi. Brauzerda popup'ga ruxsat bering."
+      : "Google bilan kirishda xatolik yuz berdi.";
+    els.authMessage.className = "form-message error";
+    return;
+  }
+
+  const response = await apiFetch("/api/auth/firebase", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+    showError: false,
+  });
+
+  setFirebaseLoading(false);
+  if (!response?.token) {
+    els.authMessage.textContent = state.lastApiError || "Server Google hisobini qabul qilmadi.";
+    els.authMessage.className = "form-message error";
+    return;
+  }
+
+  await finishLogin(response);
 }
 
 async function submitRegister() {
@@ -3066,6 +3117,7 @@ export function bindEvents() {
   els.banners.addEventListener("click", handleBannerClick);
   els.grid.addEventListener("click", handleProductGridClick);
   els.dealsGrid.addEventListener("click", handleProductGridClick);
+  els.homeApiSections.addEventListener("click", handleProductGridClick);
   els.detailContent.addEventListener("click", handleDetailClick);
   els.productDetailPageContent.addEventListener("click", (event) => {
     if (!handleDetailClick(event)) {
@@ -3087,6 +3139,7 @@ export function bindEvents() {
   els.loginTab.addEventListener("click", () => setAuthMode("login"));
   els.registerTab.addEventListener("click", () => setAuthMode("register"));
   els.authForm.addEventListener("submit", submitAuth);
+  els.googleLoginButton?.addEventListener("click", submitFirebaseLogin);
   els.apiForm.addEventListener("submit", saveApiBaseUrl);
   els.checkoutButton.addEventListener("click", prepareCheckout);
   els.checkoutForm.addEventListener("submit", submitCheckout);
@@ -3444,6 +3497,7 @@ function rerenderLanguageSensitiveUi() {
   } else {
     renderProductList(els.grid, state.products, t("home.noProducts"), { screen: state.currentGridScreen });
     renderProductList(els.dealsGrid, state.todayDeals.slice(0, 8), t("home.noProducts"));
+    if (state.homeApiSections) renderHomeApiSections(state.homeApiSections);
   }
   if (els.cartDrawer.classList.contains("open")) renderCart();
   if (els.favoritesDialog.open) renderFavorites();
