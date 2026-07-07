@@ -8,6 +8,7 @@ const files = [
   "polish.css",
   "premium.css",
   "phase2.css",
+  "art-direction.css",
 ];
 const parts = files.map((file) => {
   const filePath = path.join(root, "src/styles", file);

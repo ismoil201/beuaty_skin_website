@@ -1,0 +1,251 @@
+/* =====================================================================
+   PHASE 4 — Art Direction (Visual Identity Only)
+   Premium Korean Beauty & Fashion Editorial Language
+   ===================================================================== */
+
+:root,
+[data-theme="light"] {
+  --ad-ivory: #f6f3ef;
+  --ad-warm-white: #fdfbf8;
+  --ad-soft-sand: #ece6df;
+  --ad-charcoal: #191818;
+  --ad-muted-ink: #6b655f;
+  --ad-divider: rgba(25, 24, 24, 0.14);
+}
+
+/* Layout breathing room */
+main > #homeView > section {
+  margin-top: clamp(34px, 6vw, 92px);
+}
+
+.section-shell {
+  max-width: min(1560px, 100vw);
+}
+
+.section-head {
+  align-items: end;
+}
+
+.section-head h2 {
+  max-width: 24ch;
+}
+
+/* Hero campaign language */
+.marketplace-hero {
+  margin-top: 8px;
+}
+
+.hero-main {
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-main::before {
+  content: "";
+  position: absolute;
+  inset: -14% -10%;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.18), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.15), transparent 44%);
+  pointer-events: none;
+  animation: ad-float 18s ease-in-out infinite alternate;
+}
+
+@keyframes ad-float {
+  from { transform: translateY(-1.5%) scale(1); }
+  to { transform: translateY(1.5%) scale(1.03); }
+}
+
+.hero-copy .eyebrow {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.hero-copy h1 {
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+
+.hero-copy p {
+  text-wrap: pretty;
+}
+
+/* Campaign rhythm */
+#homeApiSections .home-product-strip:nth-child(2n),
+.personalization-strip:nth-child(2n),
+#recentlyViewedSection:nth-child(2n) {
+  background: linear-gradient(180deg, var(--ad-warm-white), #ffffff);
+}
+
+#homeApiSections .home-product-strip:nth-child(2n+1),
+.personalization-strip:nth-child(2n+1),
+#recentlyViewedSection:nth-child(2n+1) {
+  background: linear-gradient(180deg, #ffffff, var(--ad-ivory));
+}
+
+/* Editorial blocks */
+.editorial-magazine {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: clamp(18px, 2.8vw, 42px);
+  align-items: stretch;
+}
+
+.editorial-card {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  min-height: clamp(260px, 34vw, 460px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background:
+    linear-gradient(120deg, rgba(24, 24, 24, 0.38), rgba(24, 24, 24, 0.18)),
+    linear-gradient(130deg, #5f4f44, #9f8878 45%, #d8c4b3);
+  box-shadow: 0 24px 52px rgba(23, 19, 15, 0.12);
+}
+
+.editorial-card.alt {
+  background:
+    linear-gradient(120deg, rgba(24, 24, 24, 0.25), rgba(24, 24, 24, 0.1)),
+    linear-gradient(130deg, #3d3b3a, #7e756d 45%, #c7bbb0);
+}
+
+.editorial-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.02) 48%);
+}
+
+.editorial-content {
+  position: absolute;
+  left: clamp(16px, 2.4vw, 36px);
+  right: clamp(16px, 2.4vw, 36px);
+  bottom: clamp(16px, 2.4vw, 34px);
+  z-index: 2;
+  color: #fff;
+}
+
+.editorial-content h3 {
+  font-family: var(--ds-font-display, serif);
+  font-size: clamp(1.5rem, 2.6vw, 2.5rem);
+  font-weight: 600;
+  margin: 8px 0 10px;
+  line-height: 1.15;
+}
+
+.editorial-content p {
+  margin: 0;
+  max-width: 40ch;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Product imagery-first direction */
+.product-card .card-media {
+  background: #f3efea;
+}
+
+.product-card .product-image {
+  filter: saturate(0.94) contrast(1.02);
+}
+
+.product-card .product-info {
+  padding: 14px 10px 0;
+}
+
+.product-card .card-actions {
+  padding-bottom: 2px;
+}
+
+.product-card .price-row {
+  margin-top: 4px;
+}
+
+/* Softer premium controls */
+.primary-button {
+  background: var(--ad-charcoal);
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #0f0f0f;
+}
+
+.secondary-button {
+  border-color: rgba(25, 24, 24, 0.16);
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #f3efea;
+}
+
+/* Editorial dividers */
+.section-shell,
+#homeApiSections .home-product-strip,
+.personalization-strip,
+#todayDeals,
+#products,
+#popularSearchesSection,
+#quickCategoriesSection {
+  position: relative;
+}
+
+#homeApiSections .home-product-strip::before,
+.personalization-strip::before,
+#todayDeals::before,
+#products::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ad-divider), transparent);
+}
+
+/* Brand story visual mood */
+.brand-hero {
+  border-radius: 30px;
+  background:
+    linear-gradient(130deg, rgba(17, 17, 17, 0.18), rgba(17, 17, 17, 0.03)),
+    linear-gradient(120deg, #e8e2dc, #f8f5f1);
+}
+
+.brand-hero h1 {
+  font-family: var(--ds-font-display, serif);
+  font-size: clamp(2rem, 4vw, 3.6rem);
+}
+
+/* Scroll reveal */
+@media (prefers-reduced-motion: no-preference) {
+  #homeView > section {
+    animation: ad-reveal 0.8s ease both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 22%;
+  }
+}
+
+@keyframes ad-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile art direction */
+@media (max-width: 920px) {
+  .editorial-magazine {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .editorial-card {
+    min-height: 240px;
+    border-radius: 22px;
+  }
+
+  .section-shell {
+    padding-inline: 12px;
+  }
+}
