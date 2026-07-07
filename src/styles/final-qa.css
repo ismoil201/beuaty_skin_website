@@ -1,0 +1,278 @@
+/* =====================================================================
+   FINAL DESIGN REVIEW — Visual QA Normalization
+   Strict consistency pass: spacing, typography, radius, shadows, icons,
+   motion timing, section rhythm, card/image ratios, and responsive polish.
+   ===================================================================== */
+
+/* 1) Global vertical rhythm */
+#homeView > section,
+#brandView > section,
+.product-detail-page > section,
+.product-detail-page .recommended-section {
+  margin-block: clamp(28px, 4.2vw, 72px);
+}
+
+.section-shell.compact {
+  margin-block: clamp(22px, 3.4vw, 54px);
+}
+
+/* 2) Standardize spacing scale usage */
+.section-head,
+.catalog-toolbar,
+.filter-chips-row,
+.pdp-tabs,
+.checkout-nav,
+.reviews-toolbar {
+  gap: clamp(10px, 1.2vw, 18px);
+}
+
+/* 3) Typography consistency */
+h1, h2, h3, h4, h5 {
+  text-wrap: balance;
+}
+
+p, .hint, .review-card-premium p, .editorial-content p {
+  line-height: 1.68;
+  letter-spacing: 0;
+}
+
+.section-head h2,
+.detail-title,
+.brand-hero h1,
+.hero-copy h1 {
+  letter-spacing: -0.012em;
+}
+
+.brand-name,
+.eyebrow,
+.pdp-variant-label {
+  letter-spacing: 0.11em;
+}
+
+/* 4) Border-radius consistency */
+.product-card,
+.card-media,
+.product-image,
+.editorial-card,
+.brand-hero,
+.banner-card,
+.filter-sidebar,
+.pdp-main-image,
+.pdp-purchase-card,
+.reviews-summary-grid,
+.review-card-premium,
+.cart-item,
+.drawer-panel,
+.dialog-card,
+.bottom-sheet-panel {
+  border-radius: 20px;
+}
+
+.chip,
+.primary-button,
+.secondary-button,
+.view-toggle,
+.search,
+.search-chip {
+  border-radius: 999px;
+}
+
+/* 5) Shadow consistency */
+.product-card,
+.banner-card,
+.editorial-card,
+.brand-hero,
+.pdp-purchase-card,
+.drawer-panel,
+dialog,
+.compare-fab {
+  box-shadow: 0 14px 34px rgba(20, 17, 13, 0.09);
+}
+
+/* 6) Icon sizing consistency */
+.icon-button svg,
+.header-action svg,
+.cart-button svg,
+.theme-toggle svg,
+.search-voice svg,
+.search-image svg,
+.search-button svg,
+.trust-item svg,
+.mobile-menu-toggle svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.8;
+}
+
+/* 7) Button sizing consistency */
+.primary-button,
+.secondary-button {
+  min-height: 44px;
+  padding-inline: 18px;
+  font-weight: 600;
+}
+
+.icon-button {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* 8) Card-height consistency */
+.product-grid .product-card {
+  height: 100%;
+}
+
+.product-card .product-info {
+  min-height: 148px;
+}
+
+.product-card .card-actions {
+  min-height: 46px;
+}
+
+/* 9) Image ratio consistency */
+.product-card .product-image,
+.home-strip-grid .product-image,
+.recommended-grid .product-image,
+.favorites-grid .product-image {
+  aspect-ratio: 1 / 1.2;
+}
+
+.quick-card {
+  aspect-ratio: 1.35 / 1;
+}
+
+.banner-card {
+  aspect-ratio: 16 / 6.6;
+}
+
+.editorial-card {
+  aspect-ratio: 1.45 / 1;
+  min-height: 0;
+}
+
+.pdp-main-image {
+  aspect-ratio: 1 / 1.06;
+}
+
+/* 10) Divider spacing consistency */
+.section-shell::after {
+  content: "";
+  display: block;
+  margin-top: clamp(18px, 2vw, 30px);
+}
+
+#homeView > section:last-child::after,
+#homeView > section.editorial-magazine::after {
+  content: none;
+}
+
+/* 11) Hover/motion consistency */
+.product-card,
+.product-image,
+.banner-card,
+.quick-card,
+.chip,
+.primary-button,
+.secondary-button,
+.search-chip,
+.icon-button,
+.pdp-thumb,
+.view-toggle button,
+.mobile-filter-btn,
+.cart-stepper button {
+  transition-duration: 300ms !important;
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* 12) Editorial alternation clarity */
+#homeView > section.editorial-magazine:nth-of-type(2n) .editorial-card:first-child {
+  order: 2;
+}
+
+/* 13) Trust and conversion visual clarity */
+.trust-bar {
+  padding: clamp(14px, 1.8vw, 26px);
+}
+
+.trust-item {
+  min-height: 32px;
+}
+
+.pdp-badges,
+.delivery-info,
+.cart-free-shipping {
+  border-radius: 14px;
+}
+
+/* 14) Search/filters clarity */
+.search-panel,
+.filter-sidebar,
+.bottom-sheet-panel {
+  border-color: rgba(23, 20, 16, 0.12);
+}
+
+.filter-group {
+  padding-block: 10px;
+}
+
+/* 15) Mobile QA */
+@media (max-width: 430px) {
+  .section-shell {
+    padding-inline: 12px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 46px;
+  }
+
+  .mobile-buy-bar {
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .product-grid,
+  .personalization-strip .product-grid {
+    gap: 12px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .section-shell {
+    padding-inline: clamp(16px, 2.4vw, 24px);
+  }
+
+  .product-card .product-info {
+    min-height: 156px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .section-shell {
+    max-width: 1640px;
+  }
+
+  .hero-copy p {
+    max-width: 58ch;
+  }
+}
+
+@media (min-width: 1920px) {
+  .section-shell {
+    max-width: 1760px;
+  }
+}
+
+/* 16) Reduced motion strict */
+@media (prefers-reduced-motion: reduce) {
+  .hero-main::before,
+  #homeView > section {
+    animation: none !important;
+  }
+}

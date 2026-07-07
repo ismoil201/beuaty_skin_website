@@ -9,6 +9,7 @@ const files = [
   "premium.css",
   "phase2.css",
   "art-direction.css",
+  "final-qa.css",
 ];
 const parts = files.map((file) => {
   const filePath = path.join(root, "src/styles", file);
