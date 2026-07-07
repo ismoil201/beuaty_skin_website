@@ -1103,3 +1103,316 @@ mark {
   font-size: 18px;
   border-radius: inherit;
 }
+
+/* ===================================================================== */
+/* PHASE 3 — Luxury Editorial Visual Identity                            */
+/* ===================================================================== */
+
+body {
+  background: linear-gradient(180deg, #f8f7f5 0%, #f6f3f0 35%, #f8f7f5 100%);
+}
+
+.section-shell {
+  margin-block: var(--ds-space-10, 52px);
+  padding-inline: clamp(20px, 3vw, 48px);
+}
+
+.section-head {
+  margin-bottom: clamp(22px, 3vw, 36px);
+}
+
+.section-head h2 {
+  font-family: var(--ds-font-display, serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.55rem, 2vw, 2.35rem);
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: #7d756d;
+}
+
+.hint {
+  line-height: 1.75;
+}
+
+/* Hero: editorial full-bleed campaign */
+.marketplace-hero {
+  display: block !important;
+  max-width: min(1560px, 100vw);
+  margin: 16px auto 0;
+  padding-inline: clamp(12px, 2vw, 28px);
+}
+
+.hero-main {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  min-height: clamp(420px, 68vh, 760px);
+  background:
+    linear-gradient(130deg, rgba(17, 17, 17, 0.72), rgba(17, 17, 17, 0.2)),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.18), transparent 48%),
+    linear-gradient(120deg, #2d2623, #8e7b6d 45%, #cdb39d);
+  display: flex;
+  align-items: end;
+  padding: clamp(26px, 4vw, 64px);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+.hero-copy {
+  max-width: 640px;
+  color: #fff;
+  z-index: 2;
+}
+
+.hero-copy h1 {
+  font-family: var(--ds-font-display, serif);
+  font-size: clamp(2.1rem, 6vw, 5.4rem);
+  line-height: 1.04;
+  margin: 8px 0 16px;
+  font-weight: 600;
+}
+
+.hero-copy p:not(.eyebrow) {
+  font-size: clamp(0.98rem, 1.6vw, 1.16rem);
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 56ch;
+}
+
+.hero-actions {
+  margin-top: 28px;
+  gap: 10px;
+}
+
+.hero-actions .primary-button,
+.hero-actions .secondary-button {
+  border-radius: 999px;
+  min-height: 46px;
+  padding-inline: 22px;
+}
+
+.hero-actions .secondary-button {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hero-side {
+  display: none;
+}
+
+/* Premium campaign strips */
+.banners {
+  max-width: min(1560px, 100vw);
+  margin-top: 14px;
+  padding-inline: clamp(12px, 2vw, 28px);
+}
+
+.banner-card {
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  min-height: clamp(240px, 40vw, 430px);
+}
+
+/* Trust bar as quiet luxury strip */
+.trust-bar {
+  border: 1px solid var(--ds-border);
+  border-radius: 22px;
+  padding: clamp(16px, 2vw, 24px);
+  background: rgba(255, 253, 251, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+.trust-item {
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.trust-item svg {
+  stroke: #4e6f60;
+}
+
+/* Editorial cards / product cards */
+.product-grid,
+.home-strip-grid,
+.recommended-grid {
+  gap: clamp(16px, 2vw, 26px) clamp(14px, 1.6vw, 24px) !important;
+}
+
+.product-card {
+  border-radius: 20px;
+  border: 1px solid rgba(215, 206, 198, 0.65);
+  background: linear-gradient(180deg, #fffdfa 0%, #fff 100%);
+  overflow: hidden;
+}
+
+.product-card .card-media,
+.product-card .product-image {
+  border-radius: 20px;
+}
+
+.product-card .product-image {
+  aspect-ratio: 1 / 1.22;
+}
+
+.product-card .brand-name {
+  font-size: 0.66rem;
+  color: #6e665f;
+  letter-spacing: 0.12em;
+}
+
+.product-card .product-info h3 {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.product-card .price-row span:first-child {
+  font-size: 1.05rem;
+}
+
+.product-card .card-actions .primary-button {
+  border-radius: 999px;
+  min-height: 42px;
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 22px 42px rgba(19, 16, 12, 0.13);
+  }
+  .product-card:hover .product-image {
+    transform: scale(1.06);
+  }
+}
+
+/* Category toolbar / chips */
+.category-nav {
+  padding-block: 10px 14px;
+  gap: 8px;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.chip {
+  min-height: 36px;
+  border-radius: 999px;
+  padding-inline: 14px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.chip.active {
+  background: #151515;
+  color: #fff;
+  border-color: #151515;
+}
+
+/* Product detail elegance */
+.pdp-layout {
+  gap: clamp(28px, 5vw, 80px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+}
+
+.pdp-main-image {
+  border-radius: 28px;
+  aspect-ratio: 1 / 1.1;
+}
+
+.pdp-purchase-card {
+  border-radius: 24px;
+  padding: clamp(18px, 2vw, 30px);
+  background: rgba(255, 253, 251, 0.96);
+}
+
+.detail-title {
+  font-family: var(--ds-font-display, serif);
+  font-weight: 600;
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  line-height: 1.22;
+  margin: 2px 0 14px;
+}
+
+.pdp-price-block h3 {
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+}
+
+.pdp-tab-nav {
+  gap: 16px;
+  border-bottom-color: rgba(215, 206, 198, 0.8);
+}
+
+.pdp-tab-btn {
+  padding-inline: 0;
+  font-size: 0.92rem;
+}
+
+/* Editorial homepage sections */
+#homeApiSections .home-product-strip,
+.personalization-strip,
+#recentlyViewedSection,
+#todayDeals,
+#products {
+  padding: clamp(18px, 2vw, 28px);
+  border-radius: 24px;
+  background: rgba(255, 253, 251, 0.75);
+  border: 1px solid rgba(224, 214, 205, 0.7);
+}
+
+#popularSearchesSection,
+#quickCategoriesSection {
+  padding: clamp(18px, 2vw, 28px);
+  border-radius: 24px;
+  background: rgba(255, 253, 251, 0.72);
+  border: 1px solid rgba(224, 214, 205, 0.7);
+}
+
+.quick-grid {
+  gap: 14px;
+}
+
+.quick-card {
+  border-radius: 16px;
+  min-height: 116px;
+  background: linear-gradient(180deg, #fff, #f7f3ef);
+  border: 1px solid rgba(222, 213, 204, 0.7);
+}
+
+/* Motion language: slower, elegant */
+.product-card,
+.banner-card,
+.quick-card,
+.pdp-main-image img,
+.primary-button,
+.secondary-button,
+.icon-button,
+.drawer,
+dialog {
+  transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Mobile: larger touch rhythm */
+@media (max-width: 900px) {
+  .section-shell {
+    margin-block: 34px;
+    padding-inline: 14px;
+  }
+
+  .hero-main {
+    min-height: 460px;
+    border-radius: 22px;
+    padding: 24px 20px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .product-card .product-image {
+    aspect-ratio: 1 / 1.16;
+  }
+}
