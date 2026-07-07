@@ -7,6 +7,7 @@ const files = [
   "variables.css",
   "polish.css",
   "premium.css",
+  "phase2.css",
 ];
 const parts = files.map((file) => {
   const filePath = path.join(root, "src/styles", file);

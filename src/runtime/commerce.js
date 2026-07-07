@@ -42,6 +42,10 @@ import {
   saveSearchHistory,
   closeSearchPanel,
 } from '../utils/searchPanel.js';
+import { initFilterState, setSourceProducts, getFilteredProducts, renderFilterSidebar, renderFilterChips, persistFilters, clearAllFilters, applyViewMode, renderCompareFab, renderCompareDrawer, renderComparePage, renderCartExtras, renderCheckoutStepper, renderFlashCountdown, renderBrandPage } from '../utils/phase2Ui.js';
+import { toggleCompareId, getCompareIds, removeCompareId, clearCompare, MAX_COMPARE } from '../store/compareStore.js';
+import { saveForLaterItem, removeSavedForLater, getSavedForLater } from '../store/savedForLaterStore.js';
+import { initLazyImages } from '../utils/imageLoader.js';
 
 export { apiFetch, showToast };
 
@@ -258,6 +262,7 @@ function observeProductImpressions(container) {
 
 function productCard(product, meta = {}) {
   const isFavorite = state.favoriteIds.has(String(product.id)) || Boolean(product.favorite);
+  const isCompared = getCompareIds().includes(String(product.id));
   const screen = meta.screen || state.currentGridScreen || "home";
   const position = meta.position ?? 0;
   const stock = numberOrZero(product.stock);
@@ -286,7 +291,7 @@ function productCard(product, meta = {}) {
         </div>
         <div class="card-overlay">
           <button class="secondary-button" data-quick-view="${escapeHtml(product.id)}" type="button">${escapeHtml(t("product.quickView"))}</button>
-          <button class="icon-button" data-compare="${escapeHtml(product.id)}" type="button" aria-label="${escapeHtml(t("product.compare"))}">
+          <button class="icon-button ${isCompared ? "active" : ""}" data-compare="${escapeHtml(product.id)}" type="button" aria-label="${escapeHtml(t("product.compare"))}" aria-pressed="${isCompared}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
           </button>
         </div>
@@ -323,6 +328,18 @@ function renderProductList(container, products, emptyMessage, meta = {}) {
   }
   container.innerHTML = products.map((product, index) => productCard(product, { ...meta, position: index })).join("");
   observeProductImpressions(container);
+  initLazyImages(container);
+  applyViewMode(container, state.filters?.viewMode || "grid");
+}
+
+function applyAndRenderGrid(products, emptyMessage, meta = {}) {
+  setSourceProducts(state, products);
+  renderFilterSidebar(state, t, categoryLabel);
+  renderFilterChips(state, t);
+  const filtered = getFilteredProducts(state);
+  renderProductList(els.grid, filtered, emptyMessage, meta);
+  const sortSelect = document.getElementById("sortSelect");
+  if (sortSelect && sortSelect.value !== state.filters.sort) sortSelect.value = state.filters.sort;
 }
 
 function renderSelect(select, items, labelOf) {
@@ -365,6 +382,7 @@ export async function loadHome() {
       await Promise.all([loadProducts(), loadTodayDeals()]);
     }
     await loadRecentlyViewed();
+    renderPersonalizationSections();
     await loadCart();
   } catch (error) {
     console.error("Home loading failed:", error);
@@ -413,7 +431,7 @@ export async function loadHomeApi() {
   syncProductFavorites();
   state.homeApiSections = { hits, discounts, newArrivals };
   renderHomeApiSections({ hits, discounts, newArrivals });
-  renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "home" });
+  applyAndRenderGrid(state.products, t("home.noProducts"), { screen: "home" });
   renderProductList(els.dealsGrid, discounts.slice(0, 8), "Chegirmalar topilmadi.", { screen: "home-discounts" });
   els.status.textContent = "";
   els.dealsStatus.textContent = "";
@@ -705,7 +723,7 @@ async function loadProducts() {
     if (products.length) {
       state.products = products;
       state.demoProducts = false;
-      renderProductList(els.grid, state.products, "Mahsulot topilmadi.");
+      applyAndRenderGrid(state.products, "Mahsulot topilmadi.", { screen: state.currentGridScreen || "home" });
     } else {
       state.products = [];
       state.demoProducts = false;
@@ -750,7 +768,7 @@ async function loadMoreProducts() {
   const nextProducts = products.filter((product) => product.id && !existingIds.has(String(product.id)));
   state.products = [...state.products, ...nextProducts];
   syncProductFavorites();
-  renderProductList(els.grid, state.products, "Mahsulot topilmadi.", { screen: state.currentGridScreen || "home" });
+  applyAndRenderGrid(state.products, "Mahsulot topilmadi.", { screen: state.currentGridScreen || "home" });
 
   state.feedLoading = false;
   els.loadMore.disabled = false;
@@ -806,6 +824,18 @@ function renderCatalogList() {
       <span>${category === "ALL" ? "→" : "›"}</span>
     </button>
   `).join("");
+}
+
+function renderPersonalizationSections() {
+  const section = document.getElementById("personalizationSection");
+  const grid = document.getElementById("personalizationGrid");
+  if (!section || !grid) return;
+  const picks = state.products.slice(0, 10);
+  section.hidden = !picks.length;
+  if (!picks.length) return;
+  grid.innerHTML = picks.map((p, i) => productCard(p, { screen: "personalized", position: i })).join("");
+  observeProductImpressions(grid);
+  initLazyImages(grid);
 }
 
 function renderQuickCategories() {
@@ -955,12 +985,303 @@ function initPremiumUi() {
     const primary = event.target.closest(".primary-button");
     if (primary && !primary.disabled) ripple(event, primary);
   });
+
+  initPhase2Ui();
+}
+
+function initPhase2Ui() {
+  initFilterState(state);
+  state.compareIds = getCompareIds();
+  syncCompareUi();
+  renderFilterSidebar(state, t, categoryLabel);
+
+  if (!state.flashSaleEnd) {
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    state.flashSaleEnd = end.getTime();
+  }
+  startFlashCountdown();
+
+  document.getElementById("sortSelect")?.addEventListener("change", (e) => {
+    state.filters.sort = e.target.value;
+    persistFilters(state);
+    applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+  });
+
+  document.getElementById("gridViewBtn")?.addEventListener("click", () => {
+    state.filters.viewMode = "grid";
+    persistFilters(state);
+    applyViewMode(els.grid, "grid");
+  });
+
+  document.getElementById("listViewBtn")?.addEventListener("click", () => {
+    state.filters.viewMode = "list";
+    persistFilters(state);
+    applyViewMode(els.grid, "list");
+  });
+
+  bindFilterEvents(document.getElementById("filterSidebar"));
+  bindFilterEvents(document.getElementById("filterSheetContent"));
+
+  document.getElementById("mobileFilterBtn")?.addEventListener("click", () => openBottomSheet("filterSheet"));
+  document.getElementById("mobileSortBtn")?.addEventListener("click", () => {
+    const sheet = document.getElementById("sortSheetOptions");
+    const labels = { popular: t("sort.popular"), "price-asc": t("sort.priceAsc"), "price-desc": t("sort.priceDesc"), rating: t("sort.rating"), newest: t("sort.newest"), discount: t("sort.discount") };
+    if (sheet) {
+      sheet.innerHTML = Object.entries(labels).map(([v, label]) => `
+        <button class="mobile-nav-link" type="button" data-sort-option="${v}">${escapeHtml(label)}</button>
+      `).join("");
+    }
+    openBottomSheet("sortSheet");
+  });
+
+  document.getElementById("closeFilterSheet")?.addEventListener("click", () => closeBottomSheet("filterSheet"));
+  document.getElementById("applyFilterSheet")?.addEventListener("click", () => {
+    closeBottomSheet("filterSheet");
+    applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+  });
+
+  document.getElementById("sortSheetOptions")?.addEventListener("click", (e) => {
+    const opt = e.target.closest("[data-sort-option]");
+    if (!opt) return;
+    state.filters.sort = opt.dataset.sortOption;
+    const sortSelect = document.getElementById("sortSelect");
+    if (sortSelect) sortSelect.value = state.filters.sort;
+    persistFilters(state);
+    closeBottomSheet("sortSheet");
+    applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+  });
+
+  document.getElementById("filterChipsRow")?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-remove-chip]");
+    if (!chip) return;
+    removeFilterChip(chip.dataset.removeChip);
+  });
+
+  document.getElementById("compareFab")?.addEventListener("click", openCompareDrawer);
+  document.getElementById("closeCompare")?.addEventListener("click", closeCompareDrawer);
+  document.getElementById("openComparePage")?.addEventListener("click", openComparePage);
+  document.getElementById("clearCompare")?.addEventListener("click", () => { clearCompare(); syncCompareUi(); renderComparePage(state.compareProducts, t); });
+  document.getElementById("compareDrawerContent")?.addEventListener("click", (e) => {
+    const rm = e.target.closest("[data-remove-compare]");
+    if (rm) { removeCompareId(rm.dataset.removeCompare); syncCompareUi(); }
+  });
+
+  document.getElementById("closePdpFullscreen")?.addEventListener("click", closePdpFullscreen);
+  document.getElementById("pdpFullscreen")?.addEventListener("click", (e) => { if (e.target.id === "pdpFullscreen") closePdpFullscreen(); });
+
+  document.getElementById("cartExtras")?.addEventListener("click", handleCartExtrasClick);
+}
+
+function bindFilterEvents(container) {
+  if (!container) return;
+  container.addEventListener("click", (e) => {
+    if (e.target.closest("[data-clear-filters]")) {
+      clearAllFilters(state);
+      renderFilterSidebar(state, t, categoryLabel);
+      renderFilterChips(state, t);
+      applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+      return;
+    }
+    const toggle = e.target.closest(".filter-group-toggle");
+    if (toggle) toggle.closest(".filter-group")?.classList.toggle("collapsed");
+  });
+  container.addEventListener("change", (e) => {
+    const f = state.filters;
+    if (e.target.matches("[data-filter-brand]")) {
+      const val = e.target.dataset.filterBrand;
+      f.brands = e.target.checked ? [...new Set([...f.brands, val])] : f.brands.filter((b) => b !== val);
+    }
+    if (e.target.matches("[data-filter-color]")) {
+      const val = e.target.dataset.filterColor;
+      f.colors = e.target.checked ? [...new Set([...f.colors, val])] : f.colors.filter((c) => c !== val);
+    }
+    if (e.target.matches("[data-filter-size]")) {
+      const val = e.target.dataset.filterSize;
+      f.sizes = e.target.checked ? [...new Set([...f.sizes, val])] : f.sizes.filter((s) => s !== val);
+    }
+    if (e.target.matches("[data-filter-origin]")) {
+      const val = e.target.dataset.filterOrigin;
+      f.origin = e.target.checked ? [...new Set([...f.origin, val])] : f.origin.filter((o) => o !== val);
+    }
+    if (e.target.matches("[data-filter-seller]")) {
+      const val = e.target.dataset.filterSeller;
+      f.seller = e.target.checked ? [...new Set([...f.seller, val])] : f.seller.filter((s) => s !== val);
+    }
+    if (e.target.matches("[data-filter-toggle]")) {
+      f[e.target.dataset.filterToggle] = e.target.checked;
+    }
+    if (e.target.matches("[data-filter-rating]")) {
+      f.minRating = Number(e.target.value);
+    }
+    if (e.target.matches("[data-filter-price]")) {
+      f.maxPrice = Number(e.target.value);
+    }
+    persistFilters(state);
+    renderFilterChips(state, t);
+    if (container.id !== "filterSheetContent") {
+      applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+    }
+  });
+}
+
+function removeFilterChip(key) {
+  const f = state.filters;
+  if (key === "onSale") f.onSale = false;
+  else if (key === "inStock") f.inStock = false;
+  else if (key === "rating") f.minRating = 0;
+  else if (key.startsWith("brand:")) f.brands = f.brands.filter((b) => b !== key.slice(6));
+  else if (key.startsWith("color:")) f.colors = f.colors.filter((c) => c !== key.slice(6));
+  else if (key.startsWith("size:")) f.sizes = f.sizes.filter((s) => s !== key.slice(5));
+  persistFilters(state);
+  renderFilterSidebar(state, t, categoryLabel);
+  renderFilterChips(state, t);
+  applyAndRenderGrid(state.sourceProducts.length ? state.sourceProducts : state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+}
+
+async function toggleCompareProduct(productId) {
+  const result = toggleCompareId(productId);
+  if (result.full) {
+    showToast(t("compare.full", { max: MAX_COMPARE }), "warning");
+    return;
+  }
+  state.compareIds = result.ids;
+  await syncCompareUi();
+  showToast(result.added ? t("compare.added") : t("compare.removed"), "success");
+}
+
+async function syncCompareUi() {
+  state.compareIds = getCompareIds();
+  renderCompareFab(state.compareIds.length);
+  if (!state.compareIds.length) {
+    state.compareProducts = [];
+    renderCompareDrawer([], t);
+    return;
+  }
+  const known = state.compareIds.map((id) => findKnownProduct(id)).filter(Boolean);
+  const missing = state.compareIds.filter((id) => !known.find((p) => String(p.id) === String(id)));
+  if (missing.length) {
+    const response = await apiFetch("/api/products/by-ids", {
+      method: "POST",
+      body: JSON.stringify(missing.map(Number).filter(Boolean)),
+      showError: false,
+    });
+    const fetched = getPageContent(response).map(normalizeProduct);
+    state.compareProducts = [...known, ...fetched].slice(0, MAX_COMPARE);
+  } else {
+    state.compareProducts = known.slice(0, MAX_COMPARE);
+  }
+  renderCompareDrawer(state.compareProducts, t);
+}
+
+function openCompareDrawer() {
+  document.getElementById("compareDrawer")?.classList.add("open");
+  document.getElementById("compareDrawer")?.setAttribute("aria-hidden", "false");
+  lockBody();
+}
+
+function closeCompareDrawer() {
+  document.getElementById("compareDrawer")?.classList.remove("open");
+  document.getElementById("compareDrawer")?.setAttribute("aria-hidden", "true");
+  unlockBodyIfNoOverlay();
+}
+
+function openComparePage() {
+  renderComparePage(state.compareProducts, t);
+  document.getElementById("compareDialog")?.showModal();
+  lockBody();
+}
+
+function openBottomSheet(id) {
+  const sheet = document.getElementById(id);
+  sheet?.classList.add("open");
+  sheet?.setAttribute("aria-hidden", "false");
+}
+
+function closeBottomSheet(id) {
+  document.getElementById(id)?.classList.remove("open");
+  document.getElementById(id)?.setAttribute("aria-hidden", "true");
+}
+
+function openPdpFullscreen(src) {
+  const img = document.getElementById("pdpFullscreenImg");
+  const el = document.getElementById("pdpFullscreen");
+  if (img && el && src) {
+    img.src = src;
+    el.classList.add("open");
+    el.setAttribute("aria-hidden", "false");
+  }
+}
+
+function closePdpFullscreen() {
+  document.getElementById("pdpFullscreen")?.classList.remove("open");
+  document.getElementById("pdpFullscreen")?.setAttribute("aria-hidden", "true");
+}
+
+function startFlashCountdown() {
+  const tick = () => {
+    const el = document.querySelector("#todayDeals .flash-countdown-wrap");
+    if (el && state.flashSaleEnd) el.innerHTML = renderFlashCountdown(state.flashSaleEnd);
+  };
+  tick();
+  window.setInterval(tick, 1000);
+}
+
+function handleCartExtrasClick(event) {
+  if (event.target.closest("[data-apply-coupon]")) {
+    const input = document.getElementById("cartCouponInput");
+    const code = (input?.value || "").trim().toUpperCase();
+    if (code === "BEAUTY10") {
+      state.cartCoupon = code;
+      state.cartCouponDiscount = Math.round(state.cartTotal * 0.1);
+      showToast(t("cart.couponApplied"), "success");
+    } else if (code) {
+      showToast(t("cart.couponInvalid"), "warning");
+    }
+    renderCart();
+    return;
+  }
+  const restore = event.target.closest("[data-restore-saved]");
+  if (restore) {
+    removeSavedForLater(restore.dataset.restoreSaved);
+    showToast(t("cart.restored"), "info");
+    renderCart();
+  }
+}
+
+async function loadBrandPage(brand) {
+  state.selectedBrand = brand;
+  const products = state.sourceProducts.length
+    ? state.sourceProducts.filter((p) => p.brand === brand)
+    : state.products.filter((p) => p.brand === brand);
+  let list = products;
+  if (!list.length) {
+    const response = await apiFetch("/api/products/search", { query: { q: brand, page: 0, size: 24 }, showError: false });
+    list = getPageContent(response).map(normalizeProduct).filter((p) => p.brand === brand);
+  }
+  const content = document.getElementById("brandViewContent");
+  if (content) {
+    content.innerHTML = renderBrandPage(brand, list, t, list.slice(0, 12).map((p, i) => productCard(p, { screen: "brand", position: i })).join(""));
+    initLazyImages(content);
+  }
+}
+
+function showBrandView() {
+  state.currentRoute = "brand";
+  els.homeView.hidden = true;
+  els.productDetailPage.hidden = true;
+  document.getElementById("brandView")?.removeAttribute("hidden");
+}
+
+function hideBrandView() {
+  document.getElementById("brandView")?.setAttribute("hidden", "");
 }
 
 function showHomeView() {
   state.currentRoute = "home";
   els.homeView.hidden = false;
   els.productDetailPage.hidden = true;
+  hideBrandView();
   document.title = "BEAUTY SKIN KOREA";
 }
 
@@ -968,6 +1289,7 @@ function showProductView() {
   state.currentRoute = "product";
   els.homeView.hidden = true;
   els.productDetailPage.hidden = false;
+  hideBrandView();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -981,11 +1303,19 @@ function routeHome() {
 
 export async function handleRoute() {
   const hash = window.location.hash || "#/";
-  const match = hash.match(/^#\/product\/([^/?#]+)/);
+  const productMatch = hash.match(/^#\/product\/([^/?#]+)/);
+  const brandMatch = hash.match(/^#\/brand\/([^/?#]+)/);
 
-  if (match) {
+  if (productMatch) {
     showProductView();
-    await loadProductDetailPage(decodeURIComponent(match[1]));
+    await loadProductDetailPage(decodeURIComponent(productMatch[1]));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (brandMatch) {
+    showBrandView();
+    await loadBrandPage(decodeURIComponent(brandMatch[1]));
     window.scrollTo({ top: 0, behavior: "smooth" });
     return;
   }
@@ -1020,7 +1350,7 @@ async function renderSearchResults(query) {
   const products = getPageContent(response).map(normalizeProduct);
   state.products = products;
   syncProductFavorites();
-  renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "search" });
+  applyAndRenderGrid(state.products, t("home.noProducts"), { screen: "search" });
   els.status.textContent = "";
 }
 
@@ -1050,7 +1380,7 @@ async function renderCategoryProducts(category) {
   const products = getPageContent(response).map(normalizeProduct);
   state.products = products;
   syncProductFavorites();
-  renderProductList(els.grid, state.products, t("home.noProducts"), { screen: "category" });
+  applyAndRenderGrid(state.products, t("home.noProducts"), { screen: "category" });
   els.status.textContent = "";
 }
 
@@ -1092,6 +1422,10 @@ async function loadProductDetailPage(productId) {
   state.selectedDetailProduct = product;
   state.selectedVariantId = pickDefaultVariant(product)?.id || null;
   state.selectedQuantity = 1;
+  state.pdpGalleryIndex = 0;
+  state.pdpActiveTab = "description";
+  state.reviewSearchQuery = "";
+  state.reviewFilterRating = 0;
   document.title = `${product.name} - BEAUTY SKIN KOREA`;
   addRecentProduct(product.id);
   sendProductView(product.id);
@@ -1132,18 +1466,25 @@ function renderProductDetailError() {
 
 function renderProductDetail(product) {
   const selectedVariant = product.variants.find((variant) => String(variant.id) === String(state.selectedVariantId)) || null;
-  const gallery = [...product.images, ...product.detailImages].filter(Boolean);
+  const gallery = [...new Set([product.image, ...product.images, ...product.detailImages].filter(Boolean))];
+  const galleryIndex = Math.min(state.pdpGalleryIndex || 0, Math.max(0, gallery.length - 1));
+  const currentImage = gallery[galleryIndex] || product.image;
   const currentPrice = selectedVariant?.discountPrice ?? selectedVariant?.price ?? product.finalPrice;
   const originalPrice = selectedVariant?.price ?? product.originalPrice;
   const variantStock = selectedVariant?.stock ?? product.stock;
   const isFavorite = state.favoriteIds.has(String(product.id)) || Boolean(product.favorite);
+  const isCompared = getCompareIds().includes(String(product.id));
   const pageMode = state.currentRoute === "product";
   const target = pageMode ? els.productDetailPageContent : els.detailContent;
+  const lowStock = numberOrZero(variantStock) > 0 && numberOrZero(variantStock) <= 5;
+  const deliveryDate = new Date(Date.now() + 3 * 86400000).toLocaleDateString(getCurrentLanguage(), { weekday: "short", month: "short", day: "numeric" });
 
   target.innerHTML = `
     ${pageMode ? `
       <div class="breadcrumbs">
         <button data-route-home type="button">${escapeHtml(t("product.home") || t("home.all"))}</button>
+        <span>/</span>
+        <button data-brand="${escapeHtml(product.brand || "")}" type="button">${escapeHtml(product.brand || t("header.catalog"))}</button>
         <span>/</span>
         <button data-category="${escapeHtml(product.category || "ALL")}" type="button">${escapeHtml(product.category ? categoryLabel(product.category) : t("header.catalog"))}</button>
         <span>/</span>
@@ -1151,48 +1492,98 @@ function renderProductDetail(product) {
       </div>
     ` : `
       <div class="drawer-head">
-        <h2>Mahsulot tafsiloti</h2>
+        <h2>${escapeHtml(t("product.viewDetails"))}</h2>
         <button class="icon-button" data-close-detail type="button" aria-label="Yopish">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
     `}
-    <div class="detail-layout">
-      <div class="detail-gallery">
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" />
-        ${gallery.length > 1 ? `<div class="detail-thumbs">${gallery.slice(0, 8).map((image) => `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}" />`).join("")}</div>` : ""}
-      </div>
-      <div class="detail-info">
-        <p class="hint">${escapeHtml(product.brand || product.category)} · ★ ${product.ratingAvg.toFixed(1)} (${product.reviewCount}) · ${product.soldCount} dona sotilgan</p>
-        <h2 class="detail-title">${escapeHtml(product.name)}</h2>
-        <h3>${formatPrice(currentPrice)}</h3>
-        ${originalPrice > currentPrice ? `<p class="old-price">${formatPrice(originalPrice)}</p>` : ""}
-        <button class="secondary-button detail-favorite ${isFavorite ? "active" : ""}" data-detail-favorite="${escapeHtml(product.id)}" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-          ${escapeHtml(isFavorite ? t("product.saved") : t("product.save"))}
-        </button>
-        ${product.variants.length ? renderVariantButtons(product) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
-        <p class="hint">${escapeHtml(t("product.stock", { count: variantStock ?? 0 }))}</p>
-        <div class="quantity-row">
-          <button class="secondary-button" data-qty="minus" type="button">-</button>
-          <input id="quantityInput" value="${state.selectedQuantity}" inputmode="numeric" />
-          <button class="secondary-button" data-qty="plus" type="button">+</button>
+    <div class="pdp-layout">
+      <div class="pdp-gallery-wrap">
+        <div class="pdp-main-image" data-pdp-zoom>
+          <img src="${escapeHtml(currentImage)}" alt="${escapeHtml(product.name)}" id="pdpMainImage" />
         </div>
-        <button class="primary-button full" data-detail-add type="button">${escapeHtml(t("product.addToCartFull"))}</button>
+        ${gallery.length > 1 ? `
+          <div class="pdp-thumbs" role="tablist">
+            ${gallery.slice(0, 10).map((image, index) => `
+              <button class="pdp-thumb ${index === galleryIndex ? "active" : ""}" type="button" data-pdp-thumb="${index}" role="tab" aria-selected="${index === galleryIndex}">
+                <img src="${escapeHtml(image)}" alt="" loading="lazy" />
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+        <button class="ghost-button full" type="button" data-pdp-fullscreen style="margin-top:8px">${escapeHtml(t("product.fullscreen"))}</button>
+        <div class="media-placeholder">${escapeHtml(t("product.video360Placeholder"))}</div>
+      </div>
+      <div class="pdp-purchase-card">
+        <div class="pdp-badges">
+          <span class="pdp-badge pdp-badge--auth">✓ ${escapeHtml(t("product.authentic"))}</span>
+          <span class="pdp-badge pdp-badge--official">★ ${escapeHtml(t("product.officialStore"))}</span>
+          ${lowStock ? `<span class="pdp-badge pdp-badge--stock-low">${escapeHtml(t("product.lowStock"))}</span>` : ""}
+        </div>
+        <p class="hint brand-name">${escapeHtml(product.brand || product.category)}</p>
+        <h2 class="detail-title">${escapeHtml(product.name)}</h2>
+        <div class="pdp-price-block">
+          <h3>${formatPrice(currentPrice)}</h3>
+          ${originalPrice > currentPrice ? `<p class="old-price">${formatPrice(originalPrice)}</p>` : ""}
+        </div>
+        <div class="pdp-price-breakdown">
+          <div><span>${escapeHtml(t("product.listPrice"))}</span><span>${formatPrice(originalPrice)}</span></div>
+          ${product.discountPercent ? `<div><span>${escapeHtml(t("product.discount"))}</span><span>-${product.discountPercent}%</span></div>` : ""}
+          <div><strong>${escapeHtml(t("cart.subtotal"))}</strong><strong>${formatPrice(currentPrice)}</strong></div>
+          <p class="hint">${escapeHtml(t("product.installmentPlaceholder"))}</p>
+        </div>
+        <p class="hint">${renderStars(product.ratingAvg)} ${product.ratingAvg.toFixed(1)} (${product.reviewCount}) · ${escapeHtml(t("product.sold", { count: product.soldCount }))}</p>
+        <div class="pdp-actions-row" style="margin:12px 0">
+          <button class="secondary-button detail-favorite ${isFavorite ? "active" : ""}" data-detail-favorite="${escapeHtml(product.id)}" type="button">${escapeHtml(isFavorite ? t("product.saved") : t("product.save"))}</button>
+          <button class="secondary-button ${isCompared ? "active" : ""}" data-compare="${escapeHtml(product.id)}" type="button">${escapeHtml(t("product.compare"))}</button>
+        </div>
+        ${product.variants.length ? renderVariantSelectors(product) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
+        <p class="hint">${numberOrZero(variantStock) > 0 ? escapeHtml(t("product.stock", { count: variantStock })) : escapeHtml(t("product.outOfStock"))}</p>
+        <div class="quantity-row">
+          <button class="secondary-button" data-qty="minus" type="button" aria-label="Decrease">-</button>
+          <input id="quantityInput" value="${state.selectedQuantity}" inputmode="numeric" aria-label="${escapeHtml(t("product.quantity"))}" />
+          <button class="secondary-button" data-qty="plus" type="button" aria-label="Increase">+</button>
+        </div>
+        <div class="pdp-shipping-estimate">
+          <strong>${escapeHtml(t("product.estimatedDelivery"))}</strong>
+          <p class="pdp-delivery-countdown">🚚 ${escapeHtml(deliveryDate)}</p>
+          <p class="hint">${escapeHtml(t("product.delivery"))}</p>
+        </div>
+        <div class="cart-coupon" style="margin-top:12px">
+          <input type="text" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" data-pdp-coupon />
+          <button class="secondary-button" type="button" data-pdp-apply-coupon>${escapeHtml(t("cart.applyCoupon"))}</button>
+        </div>
+        <div class="pdp-actions">
+          <button class="primary-button full" data-detail-add type="button">${escapeHtml(t("product.addToCartFull"))}</button>
+        </div>
         <div class="delivery-info">
-          <span>${escapeHtml(t("product.delivery"))}</span>
           <span>${escapeHtml(t("product.secure"))}</span>
           <span>${escapeHtml(t("product.original"))}</span>
         </div>
-        <div class="detail-tabs">
-          <section><strong>${escapeHtml(t("product.description"))}</strong><p class="hint">${escapeHtml(product.description || t("common.unavailable"))}</p></section>
-          ${product.detailImages.length ? `<section><strong>${escapeHtml(t("product.detailImages"))}</strong><div class="detail-image-stack">${product.detailImages.map((image) => `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)} detail" loading="lazy" />`).join("")}</div></section>` : ""}
-          <section><strong>${escapeHtml(t("product.details"))}</strong><p class="hint">${escapeHtml(t("home.categories"))}: ${escapeHtml(product.category ? categoryLabel(product.category) : "-")} · Brand: ${escapeHtml(product.brand || "-")}</p></section>
-          <section><strong>${escapeHtml(t("product.reviews"))}</strong>${renderProductReviews(product.id)}</section>
-        </div>
+      </div>
+    </div>
+    <div class="pdp-tabs">
+      <nav class="pdp-tab-nav" role="tablist">
+        <button class="pdp-tab-btn ${state.pdpActiveTab === "description" ? "active" : ""}" data-pdp-tab="description" type="button" role="tab">${escapeHtml(t("product.description"))}</button>
+        <button class="pdp-tab-btn ${state.pdpActiveTab === "details" ? "active" : ""}" data-pdp-tab="details" type="button" role="tab">${escapeHtml(t("product.details"))}</button>
+        <button class="pdp-tab-btn ${state.pdpActiveTab === "reviews" ? "active" : ""}" data-pdp-tab="reviews" type="button" role="tab">${escapeHtml(t("product.reviews"))}</button>
+      </nav>
+      <div class="pdp-tab-panel" ${state.pdpActiveTab === "description" ? "" : "hidden"} data-pdp-panel="description">
+        <p class="hint">${escapeHtml(product.description || t("common.unavailable"))}</p>
+        ${product.detailImages.length ? `<div class="detail-image-stack">${product.detailImages.map((image) => `<img src="${escapeHtml(image)}" alt="" loading="lazy" class="img-loading" />`).join("")}</div>` : ""}
+      </div>
+      <div class="pdp-tab-panel" ${state.pdpActiveTab === "details" ? "" : "hidden"} data-pdp-panel="details">
+        <p class="hint">${escapeHtml(t("home.categories"))}: ${escapeHtml(product.category ? categoryLabel(product.category) : "-")}</p>
+        <p class="hint">${escapeHtml(t("filter.brand"))}: ${escapeHtml(product.brand || "-")}</p>
+      </div>
+      <div class="pdp-tab-panel reviews-premium" ${state.pdpActiveTab === "reviews" ? "" : "hidden"} data-pdp-panel="reviews">
+        ${renderProductReviews(product.id)}
       </div>
     </div>
     ${pageMode ? renderRecommendations() : ""}
+    ${pageMode ? renderFrequentlyBought(product) : ""}
+    ${pageMode ? renderRecentlyViewedStrip() : ""}
     ${pageMode ? `
       <div class="mobile-buy-bar">
         <strong>${formatPrice(currentPrice)}</strong>
@@ -1201,6 +1592,69 @@ function renderProductDetail(product) {
     ` : ""}
   `;
   observeProductImpressions(target);
+  initLazyImages(target);
+  initPdpGallerySwipe(target);
+}
+
+function renderVariantSelectors(product) {
+  const colors = [];
+  const sizes = [];
+  product.variants.forEach((v) => {
+    const label = String(v.label || "");
+    const parts = label.split(/[\/,\-]/).map((p) => p.trim()).filter(Boolean);
+    if (parts[0]) colors.push(parts[0]);
+    if (parts[1]) sizes.push(parts[1]);
+  });
+  const uniqueColors = [...new Set(colors)];
+  const uniqueSizes = [...new Set(sizes)];
+
+  if (uniqueColors.length > 1 || uniqueSizes.length > 1) {
+    return `
+      ${uniqueColors.length ? `<div class="pdp-variant-section"><p class="pdp-variant-label">${escapeHtml(t("filter.color"))}</p><div class="color-swatches">${uniqueColors.map((c) => `<button class="color-swatch" type="button" data-variant-color="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join("")}</div></div>` : ""}
+      ${uniqueSizes.length ? `<div class="pdp-variant-section"><p class="pdp-variant-label">${escapeHtml(t("filter.size"))}</p><div class="size-options">${product.variants.map((v) => {
+        const active = String(v.id) === String(state.selectedVariantId);
+        const disabled = Number(v.stock || 0) <= 0;
+        return `<button class="size-option ${active ? "active" : ""}" data-variant="${escapeHtml(v.id)}" type="button" ${disabled ? "disabled" : ""}>${escapeHtml(v.label || v.id)}</button>`;
+      }).join("")}</div></div>` : ""}
+    `;
+  }
+  return renderVariantButtons(product);
+}
+
+function renderFrequentlyBought(product) {
+  const others = (state.recommendedOthers || state.recommendedProducts || []).slice(0, 3);
+  if (!others.length) return "";
+  return `
+    <section class="recommended-section">
+      <div class="section-head"><h2>${escapeHtml(t("product.frequentlyBought"))}</h2></div>
+      <div class="product-grid">${others.map((p, i) => productCard(p, { screen: "fbt", position: i })).join("")}</div>
+    </section>
+  `;
+}
+
+function renderRecentlyViewedStrip() {
+  const ids = getRecentProductIds().filter((id) => String(id) !== String(state.selectedDetailProduct?.id));
+  if (!ids.length || !state.recentlyViewed.length) return "";
+  return `
+    <section class="recommended-section">
+      <div class="section-head"><h2>${escapeHtml(t("home.recentlyViewed"))}</h2></div>
+      <div class="product-grid">${state.recentlyViewed.slice(0, 6).map((p, i) => productCard(p, { screen: "recent", position: i })).join("")}</div>
+    </section>
+  `;
+}
+
+function initPdpGallerySwipe(container) {
+  const main = container.querySelector(".pdp-main-image");
+  if (!main || !("ontouchstart" in window)) return;
+  let startX = 0;
+  main.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  main.addEventListener("touchend", (e) => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) < 40) return;
+    const gallery = [...new Set([state.selectedDetailProduct?.image, ...(state.selectedDetailProduct?.images || []), ...(state.selectedDetailProduct?.detailImages || [])].filter(Boolean))];
+    state.pdpGalleryIndex = Math.max(0, Math.min(gallery.length - 1, (state.pdpGalleryIndex || 0) + (diff < 0 ? 1 : -1)));
+    renderProductDetail(state.selectedDetailProduct);
+  }, { passive: true });
 }
 
 async function loadRecommendedProducts(product) {
@@ -1348,54 +1802,103 @@ async function loadProductReviews(productId) {
 
 function renderProductReviews(productId) {
   const key = String(productId);
-  const reviews = state.productReviewsByProductId[key] || [];
+  let reviews = [...(state.productReviewsByProductId[key] || [])];
   const loading = state.productReviewsLoading[key];
   const error = state.productReviewsError[key];
 
   if (loading) {
-    return "<div class=\"reviews-loading\"><div class=\"skeleton-card\"></div></div>";
+    return "<div class=\"reviews-loading\"><div class=\"skeleton-card\"></div><div class=\"skeleton-card\"></div></div>";
   }
 
   if (error) {
     return `
       <div class="reviews-inline-error">
         <p>${escapeHtml(error)}</p>
-        <button class="secondary-button" data-reviews-retry="${escapeHtml(productId)}" type="button">Retry</button>
+        <button class="secondary-button" data-reviews-retry="${escapeHtml(productId)}" type="button">${escapeHtml(t("common.tryAgain"))}</button>
       </div>
     `;
   }
 
-  if (!reviews.length) {
-    return `<div class="reviews-empty"><strong>${escapeHtml(t("reviews.none"))}</strong><p class="hint">${escapeHtml(t("reviews.none"))}</p></div>`;
+  if (state.reviewSearchQuery) {
+    const q = state.reviewSearchQuery.toLowerCase();
+    reviews = reviews.filter((r) => String(r.content || "").toLowerCase().includes(q));
+  }
+  if (state.reviewFilterRating > 0) {
+    reviews = reviews.filter((r) => numberOrZero(r.rating) >= state.reviewFilterRating);
+  }
+  if (state.reviewSort === "helpful") {
+    reviews.sort((a, b) => (state.reviewHelpfulIds.has(String(b.id)) ? 1 : 0) - (state.reviewHelpfulIds.has(String(a.id)) ? 1 : 0));
+  } else if (state.reviewSort === "rating-high") {
+    reviews.sort((a, b) => numberOrZero(b.rating) - numberOrZero(a.rating));
+  } else if (state.reviewSort === "rating-low") {
+    reviews.sort((a, b) => numberOrZero(a.rating) - numberOrZero(b.rating));
   }
 
-  const stats = reviewStats(reviews);
+  if (!reviews.length && !state.productReviewsByProductId[key]?.length) {
+    return `<div class="reviews-empty"><strong>${escapeHtml(t("reviews.none"))}</strong></div>`;
+  }
+
+  const allReviews = state.productReviewsByProductId[key] || [];
+  const stats = reviewStats(allReviews);
+  const distribution = [5, 4, 3, 2, 1].map((star) => {
+    const count = allReviews.filter((r) => Math.round(numberOrZero(r.rating)) === star).length;
+    return { star, count, pct: allReviews.length ? (count / allReviews.length) * 100 : 0 };
+  });
+
   return `
-    <div class="review-summary">
-      <div>
+    <div class="reviews-summary-grid">
+      <div class="reviews-avg">
         <strong>${stats.average.toFixed(1)}</strong>
-        ${renderStars(stats.average, "Average rating")}
+        ${renderStars(stats.average)}
+        <p class="hint">${stats.count} ${escapeHtml(t("product.reviews"))}</p>
       </div>
-      <p class="hint">${stats.count} ${escapeHtml(t("product.reviews"))}</p>
+      <div class="rating-bars">
+        ${distribution.map((d) => `
+          <div class="rating-bar-row">
+            <span>${d.star}★</span>
+            <div class="rating-bar-track"><div class="rating-bar-fill" style="width:${d.pct}%"></div></div>
+            <span>${d.count}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="reviews-toolbar">
+      <input type="search" placeholder="${escapeHtml(t("reviews.search"))}" value="${escapeHtml(state.reviewSearchQuery || "")}" data-review-search />
+      <select data-review-sort>
+        <option value="newest" ${state.reviewSort === "newest" ? "selected" : ""}>${escapeHtml(t("reviews.sortNewest"))}</option>
+        <option value="rating-high" ${state.reviewSort === "rating-high" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingHigh"))}</option>
+        <option value="rating-low" ${state.reviewSort === "rating-low" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingLow"))}</option>
+        <option value="helpful" ${state.reviewSort === "helpful" ? "selected" : ""}>${escapeHtml(t("reviews.sortHelpful"))}</option>
+      </select>
+      <select data-review-filter-rating>
+        <option value="0">${escapeHtml(t("reviews.allRatings"))}</option>
+        ${[5, 4, 3, 2, 1].map((r) => `<option value="${r}" ${state.reviewFilterRating === r ? "selected" : ""}>${r}★+</option>`).join("")}
+      </select>
     </div>
     <div class="review-list">
-      ${reviews.map(renderReviewCard).join("")}
+      ${reviews.length ? reviews.map(renderReviewCard).join("") : `<p class="hint">${escapeHtml(t("search.noResults"))}</p>`}
     </div>
   `;
 }
 
 function renderReviewCard(review) {
+  const helpful = state.reviewHelpfulIds.has(String(review.id));
+  const verified = Boolean(review.orderId);
   return `
-    <article class="review-card">
+    <article class="review-card-premium">
       <div class="review-head">
         <div>
           <strong>${escapeHtml(review.userName)}</strong>
+          ${verified ? `<span class="review-verified">✓ ${escapeHtml(t("reviews.verified"))}</span>` : ""}
           <p class="hint">${formatDateTime(review.createdAt)}</p>
         </div>
         ${renderStars(review.rating)}
       </div>
       <p>${escapeHtml(review.content || t("reviews.noText"))}</p>
-      ${review.imageUrls.length ? `<div class="review-images">${review.imageUrls.slice(0, 5).map((url) => `<img src="${escapeHtml(url)}" alt="Review image" loading="lazy" />`).join("")}</div>` : ""}
+      ${review.imageUrls.length ? `<div class="review-media-grid">${review.imageUrls.slice(0, 5).map((url) => `<img src="${escapeHtml(url)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+      <button class="review-helpful ${helpful ? "active" : ""}" data-review-helpful="${escapeHtml(review.id)}" type="button">
+        👍 ${escapeHtml(t("reviews.helpful"))}${helpful ? " ✓" : ""}
+      </button>
     </article>
   `;
 }
@@ -1532,18 +2035,24 @@ function renderCart() {
   }
 
   els.checkoutButton.disabled = !state.cartItems.length;
+  const crossSell = state.products.slice(0, 4).map((p, i) => productCard(p, { screen: "cart-cross", position: i })).join("");
+  renderCartExtras(state, t, crossSell ? `<p class="cart-section-title">${escapeHtml(t("home.recommended"))}</p><div class="product-grid">${crossSell}</div>` : "");
+
   els.cartItems.innerHTML = state.cartItems.length
     ? state.cartItems.map((item) => `
       <article class="cart-item ${state.cartUpdatingIds.has(String(item.id)) ? "loading" : ""}">
-        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" />
+        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" class="img-loading" />
         <div>
           <h3>${escapeHtml(item.name)}</h3>
           <p class="hint">${escapeHtml(item.brand || "BEAUTY SKIN KOREA")} ${item.variantLabel ? `· ${escapeHtml(item.variantLabel)}` : ""}</p>
           <p>${formatPrice(item.unitPrice)} · ${escapeHtml(t("common.total"))}: ${formatPrice(item.lineTotal)}</p>
           <div class="cart-stepper">
-            <button data-cart-qty="minus" data-cart-id="${escapeHtml(item.id)}" ${item.quantity <= 1 ? "disabled" : ""} type="button">-</button>
-            <span>${item.quantity}</span>
-            <button data-cart-qty="plus" data-cart-id="${escapeHtml(item.id)}" type="button">+</button>
+            <button data-cart-qty="minus" data-cart-id="${escapeHtml(item.id)}" ${item.quantity <= 1 ? "disabled" : ""} type="button" aria-label="Decrease">-</button>
+            <span aria-live="polite">${item.quantity}</span>
+            <button data-cart-qty="plus" data-cart-id="${escapeHtml(item.id)}" type="button" aria-label="Increase">+</button>
+          </div>
+          <div class="cart-item-actions">
+            <button class="cart-save-later" data-save-later="${escapeHtml(item.id)}" type="button">${escapeHtml(t("cart.saveForLater"))}</button>
           </div>
         </div>
         <button class="icon-button" data-remove="${escapeHtml(item.id)}" type="button" aria-label="${escapeHtml(t("cart.remove"))}">
@@ -1610,6 +2119,7 @@ async function prepareCheckout() {
 
   state.orderSuccess = null;
   state.checkoutError = "";
+  state.checkoutStep = 1;
   state.checkoutLoading = true;
   renderCheckout();
   els.checkoutDialog.showModal();
@@ -1669,25 +2179,51 @@ function renderCheckout() {
   const selectedReceiver = state.receivers.find((receiver) => String(receiver.id) === String(state.selectedReceiverId));
   const selectedAddress = state.addresses.find((address) => String(address.id) === String(state.selectedAddressId));
 
+  const discount = state.cartCouponDiscount || 0;
+  const total = Math.max(0, state.cartTotal - discount);
+
   els.checkoutContent.innerHTML = `
-    <div class="checkout-layout">
-      <div class="checkout-steps">
-        ${state.checkoutError ? `<div class="checkout-error">${escapeHtml(state.checkoutError)}</div>` : ""}
+    ${renderCheckoutStepper(state.checkoutStep, t)}
+    <div class="checkout-layout checkout-step-panel">
+      ${state.checkoutError ? `<div class="checkout-error">${escapeHtml(state.checkoutError)}</div>` : ""}
+      ${state.checkoutStep === 1 ? `
         <section class="checkout-step">
-          <div class="step-head"><span>1</span><h3>Receiver</h3></div>
+          <h3>${escapeHtml(t("checkout.stepShipping"))}</h3>
           ${renderReceiverList()}
           ${renderReceiverForm()}
         </section>
+      ` : ""}
+      ${state.checkoutStep === 2 ? `
         <section class="checkout-step">
-          <div class="step-head"><span>2</span><h3>Delivery Address</h3></div>
+          <h3>${escapeHtml(t("checkout.stepAddress"))}</h3>
           ${renderAddressList()}
           ${renderAddressForm()}
         </section>
-      </div>
+      ` : ""}
+      ${state.checkoutStep === 3 ? `
+        <section class="checkout-step">
+          <h3>${escapeHtml(t("checkout.stepPayment"))}</h3>
+          <p class="hint">${escapeHtml(t("trust.secure"))}</p>
+          <div class="delivery-info"><span>💳 ${escapeHtml(t("checkout.paymentPlaceholder"))}</span></div>
+        </section>
+      ` : ""}
+      ${state.checkoutStep === 4 ? `
+        <section class="checkout-step">
+          <h3>${escapeHtml(t("checkout.stepReview"))}</h3>
+          ${renderOrderSummary(selectedReceiver, selectedAddress)}
+        </section>
+      ` : ""}
       <aside class="order-summary">
-        <div class="step-head"><span>3</span><h3>Order Summary</h3></div>
+        <h3>${escapeHtml(t("checkout.orderSummary"))}</h3>
         ${renderOrderSummary(selectedReceiver, selectedAddress)}
+        ${discount ? `<p class="hint">${escapeHtml(t("cart.couponApplied"))}: -${formatPrice(discount)}</p>` : ""}
       </aside>
+    </div>
+    <div class="checkout-nav">
+      ${state.checkoutStep > 1 ? `<button class="secondary-button" type="button" data-checkout-prev>${escapeHtml(t("checkout.back"))}</button>` : "<span></span>"}
+      ${state.checkoutStep < 4
+    ? `<button class="primary-button" type="button" data-checkout-next>${escapeHtml(t("checkout.continue"))}</button>`
+    : `<button class="primary-button" type="button" data-place-order ${state.orderSubmitting ? "disabled" : ""}>${escapeHtml(state.orderSubmitting ? t("checkout.placing") : t("checkout.placeOrder"))}</button>`}
     </div>
   `;
 }
@@ -1788,16 +2324,16 @@ function renderOrderSummary(receiver, address) {
 function renderOrderSuccess() {
   const order = state.orderSuccess;
   els.checkoutContent.innerHTML = `
-    <div class="order-success">
-      <div class="success-mark">✓</div>
-      <h3>Order created</h3>
-      <p>Order #${escapeHtml(order.id)} · ${escapeHtml(order.status || "NEW")}</p>
+    <div class="order-success-animation">
+      <div class="order-success-icon">✓</div>
+      <h3>${escapeHtml(t("checkout.orderCreated"))}</h3>
+      <p>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)} · ${escapeHtml(order.status || "NEW")}</p>
       <strong>${formatPrice(order.totalAmount)}</strong>
       <p class="hint">${escapeHtml(order.fullName || "")} ${order.phone ? `· ${escapeHtml(order.phone)}` : ""}</p>
       <p class="hint">${escapeHtml(order.address || "")}</p>
       <div class="hero-actions">
-        <button class="secondary-button" data-success-orders type="button">View orders</button>
-        <button class="primary-button" data-success-continue type="button">Continue shopping</button>
+        <button class="secondary-button" data-success-orders type="button">${escapeHtml(t("checkout.viewOrders"))}</button>
+        <button class="primary-button" data-success-continue type="button">${escapeHtml(t("checkout.continueShopping"))}</button>
       </div>
     </div>
   `;
@@ -3065,6 +3601,8 @@ async function handleCheckoutClick(event) {
   const deleteReceiver = event.target.closest("[data-delete-receiver]");
   const deleteAddress = event.target.closest("[data-delete-address]");
   const placeOrderButton = event.target.closest("[data-place-order]");
+  const nextStep = event.target.closest("[data-checkout-next]");
+  const prevStep = event.target.closest("[data-checkout-prev]");
   const viewOrdersButton = event.target.closest("[data-success-orders]");
   const continueButton = event.target.closest("[data-success-continue]");
 
@@ -3088,6 +3626,30 @@ async function handleCheckoutClick(event) {
 
   if (address) {
     state.selectedAddressId = address.dataset.selectAddress;
+    renderCheckout();
+    return;
+  }
+
+  if (nextStep) {
+    if (state.checkoutStep === 1 && !state.selectedReceiverId) {
+      state.checkoutError = t("checkout.receiverRequired");
+      renderCheckout();
+      return;
+    }
+    if (state.checkoutStep === 2 && !state.selectedAddressId) {
+      state.checkoutError = t("checkout.addressRequired");
+      renderCheckout();
+      return;
+    }
+    state.checkoutError = "";
+    state.checkoutStep = Math.min(4, state.checkoutStep + 1);
+    renderCheckout();
+    return;
+  }
+
+  if (prevStep) {
+    state.checkoutError = "";
+    state.checkoutStep = Math.max(1, state.checkoutStep - 1);
     renderCheckout();
     return;
   }
@@ -3307,10 +3869,28 @@ export function bindEvents() {
   els.grid.addEventListener("click", handleProductGridClick);
   els.dealsGrid.addEventListener("click", handleProductGridClick);
   els.homeApiSections.addEventListener("click", handleProductGridClick);
+  document.getElementById("brandViewContent")?.addEventListener("click", handleProductGridClick);
+  document.getElementById("personalizationSection")?.addEventListener("click", handleProductGridClick);
   els.detailContent.addEventListener("click", handleDetailClick);
   els.productDetailPageContent.addEventListener("click", (event) => {
     if (!handleDetailClick(event)) {
       handleProductGridClick(event);
+    }
+  });
+  els.productDetailPageContent.addEventListener("input", (event) => {
+    if (event.target.matches("[data-review-search]")) {
+      state.reviewSearchQuery = event.target.value;
+      renderProductDetail(state.selectedDetailProduct);
+    }
+  });
+  els.productDetailPageContent.addEventListener("change", (event) => {
+    if (event.target.matches("[data-review-sort]")) {
+      state.reviewSort = event.target.value;
+      renderProductDetail(state.selectedDetailProduct);
+    }
+    if (event.target.matches("[data-review-filter-rating]")) {
+      state.reviewFilterRating = Number(event.target.value);
+      renderProductDetail(state.selectedDetailProduct);
     }
   });
   els.cartItems.addEventListener("click", handleCartClick);
@@ -3441,7 +4021,7 @@ function handleProductGridClick(event) {
 
   if (compare) {
     event.stopPropagation();
-    showToast(t("product.compareSoon"), "info");
+    toggleCompareProduct(compare.dataset.compare);
     return;
   }
 
@@ -3512,16 +4092,32 @@ function handleBannerClick(event) {
 function handleDetailClick(event) {
   const routeHomeButton = event.target.closest("[data-route-home]");
   const categoryButton = event.target.closest(".product-detail-page [data-category]");
+  const brandButton = event.target.closest("[data-brand]");
   const close = event.target.closest("[data-close-detail]");
   const variant = event.target.closest("[data-variant]");
   const qty = event.target.closest("[data-qty]");
   const add = event.target.closest("[data-detail-add]");
   const favorite = event.target.closest("[data-detail-favorite]");
+  const compare = event.target.closest("[data-compare]");
   const reviewsRetry = event.target.closest("[data-reviews-retry]");
+  const pdpThumb = event.target.closest("[data-pdp-thumb]");
+  const pdpTab = event.target.closest("[data-pdp-tab]");
+  const pdpZoom = event.target.closest("[data-pdp-zoom]");
+  const pdpFullscreen = event.target.closest("[data-pdp-fullscreen]");
+  const reviewHelpful = event.target.closest("[data-review-helpful]");
+  const reviewSearch = event.target.closest("[data-review-search]");
+  const reviewSort = event.target.closest("[data-review-sort]");
+  const reviewFilter = event.target.closest("[data-review-filter-rating]");
 
   if (routeHomeButton) {
     event.stopPropagation();
     routeHome();
+    return true;
+  }
+
+  if (brandButton && brandButton.dataset.brand) {
+    event.stopPropagation();
+    window.location.hash = `#/brand/${encodeURIComponent(brandButton.dataset.brand)}`;
     return true;
   }
 
@@ -3536,6 +4132,39 @@ function handleDetailClick(event) {
     event.stopPropagation();
     els.detailDialog.close();
     unlockBodyIfNoOverlay();
+    return true;
+  }
+
+  if (pdpThumb) {
+    event.stopPropagation();
+    state.pdpGalleryIndex = Number(pdpThumb.dataset.pdpThumb);
+    renderProductDetail(state.selectedDetailProduct);
+    return true;
+  }
+
+  if (pdpZoom) {
+    event.stopPropagation();
+    pdpZoom.classList.toggle("zoomed");
+    return true;
+  }
+
+  if (pdpFullscreen) {
+    event.stopPropagation();
+    const img = document.getElementById("pdpMainImage");
+    openPdpFullscreen(img?.src);
+    return true;
+  }
+
+  if (pdpTab) {
+    event.stopPropagation();
+    state.pdpActiveTab = pdpTab.dataset.pdpTab;
+    renderProductDetail(state.selectedDetailProduct);
+    return true;
+  }
+
+  if (compare) {
+    event.stopPropagation();
+    toggleCompareProduct(compare.dataset.compare);
     return true;
   }
 
@@ -3565,6 +4194,15 @@ function handleDetailClick(event) {
     return true;
   }
 
+  if (reviewHelpful) {
+    event.stopPropagation();
+    const id = reviewHelpful.dataset.reviewHelpful;
+    if (state.reviewHelpfulIds.has(id)) state.reviewHelpfulIds.delete(id);
+    else state.reviewHelpfulIds.add(id);
+    renderProductDetail(state.selectedDetailProduct);
+    return true;
+  }
+
   if (add) {
     event.stopPropagation();
     const quantityInput = document.getElementById("quantityInput");
@@ -3581,10 +4219,19 @@ function handleCartClick(event) {
   const startShopping = event.target.closest("[data-start-shopping]");
   const qty = event.target.closest("[data-cart-qty]");
   const remove = event.target.closest("[data-remove]");
+  const saveLater = event.target.closest("[data-save-later]");
   if (retry) loadCart();
   if (startShopping) {
     closeCart();
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (saveLater) {
+    const item = state.cartItems.find((i) => String(i.id) === String(saveLater.dataset.saveLater));
+    if (item) {
+      saveForLaterItem(item);
+      removeCartItem(item.id);
+    }
+    return;
   }
   if (qty) {
     const item = state.cartItems.find((cartItem) => String(cartItem.id) === String(qty.dataset.cartId));
@@ -3643,8 +4290,9 @@ function lockBody() {
 }
 
 function unlockBodyIfNoOverlay() {
-  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open");
-  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.myReviewsDialog, els.writeReviewDialog].some((dialog) => dialog.open);
+  const compareOpen = document.getElementById("compareDrawer")?.classList.contains("open");
+  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || compareOpen;
+  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
   if (!hasOpenDrawer && !hasOpenDialog) {
     document.body.classList.remove("locked");
   }
