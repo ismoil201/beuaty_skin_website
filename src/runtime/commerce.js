@@ -380,6 +380,11 @@ export async function loadHome() {
     const homeLoaded = await loadHomeApi();
     if (!homeLoaded) {
       await Promise.all([loadProducts(), loadTodayDeals()]);
+      renderHomeApiSections({
+        hits: state.products.slice(0, 12),
+        discounts: state.todayDeals.slice(0, 10),
+        newArrivals: state.products.slice(6, 18),
+      });
     }
     await loadRecentlyViewed();
     renderPersonalizationSections();
@@ -440,26 +445,81 @@ export async function loadHomeApi() {
 }
 
 function renderHomeApiSections(sections) {
-  const configs = [
-    ["home.popular", "home.recommended", sections.hits, "home-hits"],
-    ["home.discounts", "home.todayOnly", sections.discounts, "home-discounts"],
-    ["home.newArrivals", "home.categories", sections.newArrivals, "home-new"],
-  ];
-  const html = configs
-    .filter(([, , products]) => products.length)
-    .map(([titleKey, eyebrowKey, products, screen]) => `
-      <section class="home-product-strip">
-        <div class="section-head">
-          <div><p class="eyebrow">${escapeHtml(t(eyebrowKey))}</p><h2>${escapeHtml(t(titleKey))}</h2></div>
-        </div>
-        <div class="product-grid home-strip-grid">
-          ${products.slice(0, 10).map((product, index) => productCard(product, { screen, position: index })).join("")}
-        </div>
-      </section>
-    `).join("");
-  els.homeApiSections.hidden = !html;
-  els.homeApiSections.innerHTML = html;
-  observeProductImpressions(els.homeApiSections);
+  const trending = sections.hits || [];
+  const editors = sections.discounts || [];
+  const arrivals = sections.newArrivals || [];
+
+  const trendingGrid = document.getElementById("trendingKoreaGrid");
+  if (trendingGrid) {
+    renderProductList(trendingGrid, trending.slice(0, 10), t("home.noProducts"), { screen: "home-trending" });
+  }
+
+  const editorsGrid = document.getElementById("editorsPicksGrid");
+  if (editorsGrid) {
+    renderProductList(editorsGrid, editors.slice(0, 8), t("home.noProducts"), { screen: "home-editors" });
+  }
+
+  const arrivalsGrid = document.getElementById("newArrivalsGrid");
+  if (arrivalsGrid) {
+    renderProductList(arrivalsGrid, arrivals.slice(0, 10), t("home.noProducts"), { screen: "home-new" });
+  }
+
+  renderBrandSpotlight([...trending, ...editors, ...arrivals]);
+  renderRoutineProducts(arrivals.length ? arrivals : trending);
+  renderSocialGalleryTiles([...trending, ...arrivals]);
+
+  // Keep legacy container for compatibility, but hide it in new homepage narrative.
+  els.homeApiSections.hidden = true;
+  els.homeApiSections.innerHTML = "";
+}
+
+function renderBrandSpotlight(products) {
+  const container = document.getElementById("brandSpotlightGrid");
+  if (!container) return;
+  const brands = new Map();
+  products.forEach((product) => {
+    const brand = String(product.brand || "").trim();
+    if (!brand || brands.has(brand)) return;
+    brands.set(brand, product);
+  });
+  const featured = [...brands.entries()].slice(0, 4);
+  container.innerHTML = featured.map(([brand, product]) => `
+    <article class="brand-spotlight-card" data-brand="${escapeHtml(brand)}">
+      <div class="brand-spotlight-media">
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(brand)}" loading="lazy" />
+      </div>
+      <div class="brand-spotlight-content">
+        <p class="eyebrow">Brand Story</p>
+        <h3>${escapeHtml(brand)}</h3>
+        <p>${escapeHtml(shortText(product.description || "Premium Korean beauty philosophy.", 78))}</p>
+        <button class="secondary-button" type="button" data-brand="${escapeHtml(brand)}">Explore Brand</button>
+      </div>
+    </article>
+  `).join("");
+  initLazyImages(container);
+}
+
+function renderRoutineProducts(products) {
+  const container = document.getElementById("routineGrid");
+  if (!container) return;
+  const picks = (products || []).slice(0, 4);
+  container.innerHTML = picks.map((product, index) => productCard(product, { screen: "home-routine", position: index })).join("");
+  observeProductImpressions(container);
+  initLazyImages(container);
+}
+
+function renderSocialGalleryTiles(products) {
+  const tiles = document.querySelectorAll("#socialGalleryGrid .social-tile");
+  if (!tiles.length) return;
+  tiles.forEach((tile, index) => {
+    const product = products[index % Math.max(products.length, 1)];
+    if (!product) {
+      tile.innerHTML = "";
+      return;
+    }
+    tile.innerHTML = `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />`;
+  });
+  initLazyImages(document.getElementById("socialGalleryGrid"));
 }
 
 function uniqueProductById(product, index, list) {
@@ -606,6 +666,7 @@ function renderBanners() {
   if (!state.banners.length) {
     els.banners.hidden = true;
     els.banners.innerHTML = "";
+    setHeroCampaignImage("");
     return;
   }
 
@@ -638,7 +699,18 @@ function renderBanners() {
     </div>
   `;
 
+  setHeroCampaignImage(state.banners[0]?.imageUrl || "");
   initBannerSlider();
+}
+
+function setHeroCampaignImage(imageUrl) {
+  const hero = document.querySelector(".hero-main");
+  if (!hero) return;
+  if (!imageUrl) {
+    hero.style.removeProperty("--hero-campaign-image");
+    return;
+  }
+  hero.style.setProperty("--hero-campaign-image", `url("${imageUrl}")`);
 }
 
 async function loadAnnouncements() {
@@ -938,6 +1010,21 @@ function initPremiumUi() {
     els.searchInput.value = chip.dataset.searchChip;
     saveSearchHistory(chip.dataset.searchChip);
     renderSearchResults(chip.dataset.searchChip).catch(() => {});
+  });
+
+  document.querySelector("[data-scroll-home]")?.addEventListener("click", () => {
+    document.getElementById("quickCategoriesSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.querySelector(".mobile-bottom-nav")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-mobile-action]");
+    if (!button) return;
+    const action = button.dataset.mobileAction;
+    if (action === "home") {
+      window.location.hash = "#/";
+      return;
+    }
+    document.getElementById(action)?.click();
   });
 
   const mobileDrawer = document.getElementById("mobileDrawer");

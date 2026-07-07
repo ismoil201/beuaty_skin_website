@@ -127,8 +127,11 @@
             <p data-i18n="hero.subtitle">Fast delivery to Uzbekistan, curated cosmetics, skincare, fragrance and accessories.</p>
             <div class="hero-actions">
               <a class="primary-button" href="#products" data-i18n="hero.viewProducts">Mahsulotlarni ko‘rish</a>
-              <a class="secondary-button" href="#todayDeals" data-i18n="home.todayDeals">Today Deals</a>
             </div>
+            <button class="hero-scroll-indicator" type="button" data-scroll-home aria-label="Scroll to content">
+              <span>SCROLL</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
           </div>
           <div class="hero-visual" aria-hidden="true">
             <span></span><span></span><span></span>
@@ -202,6 +205,28 @@
         <div class="quick-grid" id="quickCategoryGrid"></div>
       </section>
 
+      <section class="section-shell compact" id="trendingKoreaSection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Trending</p>
+            <h2>Trending In Korea</h2>
+          </div>
+        </div>
+        <div class="product-grid" id="trendingKoreaGrid"></div>
+      </section>
+
+      <section class="section-shell" id="editorialCampaignSection">
+        <article class="editorial-hero-banner">
+          <div class="editorial-hero-media"></div>
+          <div class="editorial-hero-content">
+            <p class="eyebrow">Editorial Campaign</p>
+            <h2>Seoul Summer Glow</h2>
+            <p>Premium Korean beauty and fashion essentials curated with a calm editorial mood.</p>
+            <a class="primary-button" href="#products">Explore Campaign</a>
+          </div>
+        </article>
+      </section>
+
       <section class="section-shell editorial-magazine" aria-label="Brand stories">
         <article class="editorial-card alt">
           <div class="editorial-content">
@@ -233,6 +258,23 @@
         <div class="product-grid" id="personalizationGrid"></div>
       </section>
 
+      <section class="section-shell compact" id="socialGallerySection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Social</p>
+            <h2>Instagram Gallery</h2>
+          </div>
+        </div>
+        <div class="social-gallery-grid" id="socialGalleryGrid">
+          <article class="social-tile"></article>
+          <article class="social-tile"></article>
+          <article class="social-tile"></article>
+          <article class="social-tile"></article>
+          <article class="social-tile"></article>
+          <article class="social-tile"></article>
+        </div>
+      </section>
+
       <section class="section-shell compact" id="recentlyViewedSection" hidden>
         <div class="section-head">
           <div>
@@ -246,8 +288,8 @@
       <section class="section-shell compact" id="todayDeals">
         <div class="section-head">
           <div>
-            <p class="eyebrow" data-i18n="home.discounts">Chegirmalar</p>
-            <h2 data-i18n="home.todayDeals">Bugungi takliflar</h2>
+            <p class="eyebrow">Flash Sale</p>
+            <h2 data-i18n="home.todayDeals">Flash Sale</h2>
           </div>
           <div class="head-actions">
             <span class="deal-timer" data-i18n="home.todayOnly">Today only</span>
@@ -262,8 +304,8 @@
       <section class="section-shell" id="products">
         <div class="section-head">
           <div>
-            <p class="eyebrow" data-i18n="header.catalog">Katalog</p>
-            <h2 id="productsTitle">Ommabop mahsulotlar</h2>
+            <p class="eyebrow">Best Sellers</p>
+            <h2 id="productsTitle">Best Sellers</h2>
           </div>
           <button class="secondary-button" id="refreshHome" type="button" data-i18n="orders.refresh">Yangilash</button>
         </div>
@@ -310,6 +352,58 @@
         </div>
       </section>
 
+      <section class="section-shell compact" id="brandSpotlightSection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Brand Spotlight</p>
+            <h2>Official Korean Brands</h2>
+          </div>
+        </div>
+        <div class="brand-spotlight-grid" id="brandSpotlightGrid"></div>
+      </section>
+
+      <section class="section-shell compact" id="editorsPicksSection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Editor's Picks</p>
+            <h2>Curated By Beauty Editors</h2>
+          </div>
+        </div>
+        <div class="product-grid" id="editorsPicksGrid"></div>
+      </section>
+
+      <section class="section-shell" id="beautyRoutineSection">
+        <article class="editorial-routine">
+          <div class="routine-copy">
+            <p class="eyebrow">K-Beauty Routine</p>
+            <h2>4 Steps To Calm, Radiant Skin</h2>
+            <p>Cleanser, toner, serum, and barrier cream selected from trusted Korean formulations.</p>
+          </div>
+          <div class="routine-grid" id="routineGrid"></div>
+        </article>
+      </section>
+
+      <section class="section-shell compact" id="newArrivalsSection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">New Arrivals</p>
+            <h2>Just Landed From Korea</h2>
+          </div>
+        </div>
+        <div class="product-grid" id="newArrivalsGrid"></div>
+      </section>
+
+      <section class="section-shell" id="lifestyleBannerSection">
+        <article class="lifestyle-banner">
+          <div class="lifestyle-banner-media"></div>
+          <div class="lifestyle-banner-content">
+            <p class="eyebrow">Lifestyle</p>
+            <h2>Korean Daily Beauty & Fashion</h2>
+            <p>Minimal, clean, and premium essentials inspired by modern Seoul living.</p>
+          </div>
+        </article>
+      </section>
+
       <section class="section-shell" id="brandView" hidden>
         <div id="brandViewContent"></div>
       </section>
@@ -320,6 +414,14 @@
         <div id="productDetailPageContent"></div>
       </section>
     </main>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile quick navigation">
+      <button type="button" data-mobile-action="home">Home</button>
+      <button type="button" data-mobile-action="catalogButton">Catalog</button>
+      <button type="button" data-mobile-action="favoritesButton">Wishlist</button>
+      <button type="button" data-mobile-action="cartButton">Cart</button>
+      <button type="button" data-mobile-action="loginButton">Account</button>
+    </nav>
 
     <aside class="catalog-drawer" id="catalogDrawer" aria-hidden="true">
       <div class="catalog-panel">
