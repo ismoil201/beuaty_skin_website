@@ -24,28 +24,54 @@
               <option value="ko">🇰🇷 한국어</option>
             </select>
           </label>
+          <label class="currency-picker" aria-label="Currency" data-i18n-aria-label="header.currency">
+            <select id="currencySelect">
+              <option value="UZS">UZS</option>
+              <option value="USD">USD</option>
+              <option value="KRW">KRW</option>
+            </select>
+          </label>
         </nav>
       </div>
 
       <div class="topbar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
         <a class="brand" href="#/" aria-label="BEAUTY SKIN KOREA bosh sahifa" data-i18n-aria-label="header.homeAria">
           <span class="brand-mark">BSK</span>
           <span>BEAUTY SKIN KOREA</span>
         </a>
 
-        <button class="catalog-button" id="catalogButton" type="button" aria-label="Katalogni ochish" data-i18n-aria-label="header.openCatalog" aria-expanded="false">
+        <button class="catalog-button" id="catalogButton" type="button" aria-label="Katalogni ochish" data-i18n-aria-label="header.openCatalog" aria-expanded="false" aria-controls="megaMenu">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           <span data-i18n="header.catalog">Katalog</span>
         </button>
 
-        <form class="search" id="searchForm">
-          <input id="searchInput" type="search" placeholder="Mahsulot va kategoriyalarni qidirish" data-i18n-placeholder="header.searchPlaceholder" autocomplete="off" />
-          <button class="search-button" type="submit" aria-label="Qidirish" data-i18n-aria-label="header.search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
-          </button>
-        </form>
+        <div class="search-wrap">
+          <form class="search" id="searchForm" role="search">
+            <input id="searchInput" type="search" placeholder="Mahsulot va kategoriyalarni qidirish" data-i18n-placeholder="header.searchPlaceholder" autocomplete="off" aria-autocomplete="list" aria-controls="searchPanel" aria-expanded="false" />
+            <div class="search-actions">
+              <button class="search-voice" type="button" aria-label="Voice search" data-i18n-aria-label="search.voice">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M12 18v3M8 21h8"/></svg>
+              </button>
+              <button class="search-image" type="button" aria-label="Image search" data-i18n-aria-label="search.image">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 8h.01M4 16l4.5-4.5a2 2 0 0 1 3 0L20 20M4 6h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/></svg>
+              </button>
+              <button class="search-button" type="submit" aria-label="Qidirish" data-i18n-aria-label="header.search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+              </button>
+            </div>
+          </form>
+          <div class="search-panel" id="searchPanel" role="listbox"></div>
+        </div>
 
         <nav class="actions" aria-label="Asosiy menyu" data-i18n-aria-label="header.mainMenu">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+            <span data-i18n="header.theme">Theme</span>
+          </button>
           <button class="header-action" id="loginButton" type="button" aria-label="Profil yoki kirish" data-i18n-aria-label="header.loginProfile">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
             <span data-i18n="auth.login">Kirish</span>
@@ -71,7 +97,23 @@
       <div class="category-nav" id="categoryToolbar">
         <button class="chip active" data-category="ALL" type="button">Hammasi</button>
       </div>
+
+      <div class="mega-menu" id="megaMenu" aria-hidden="true">
+        <div class="mega-menu-inner" id="megaMenuContent"></div>
+      </div>
     </header>
+
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <div class="mobile-drawer-panel" role="dialog" aria-label="Mobile navigation">
+        <div class="drawer-head">
+          <h2 data-i18n="header.catalog">Katalog</h2>
+          <button class="icon-button" id="closeMobileMenu" type="button" aria-label="Close menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <nav id="mobileNavLinks"></nav>
+      </div>
+    </div>
 
     <main>
       <div id="homeView">
@@ -104,7 +146,36 @@
         </div>
       </section>
 
-      <section class="quick-categories section-shell compact" aria-label="Tezkor kategoriyalar">
+      <section class="trust-bar section-shell compact" aria-label="Trust indicators">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+          <span data-i18n="trust.secure">Secure payment</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2M19 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2M12 2v20"/></svg>
+          <span data-i18n="trust.authentic">100% authentic</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span data-i18n="trust.delivery">Fast delivery</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <span data-i18n="trust.verified">Verified sellers</span>
+        </div>
+      </section>
+
+      <section class="section-shell compact" id="popularSearchesSection">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" data-i18n="search.trending">Trending</p>
+            <h2 data-i18n="search.popularSearches">Popular searches</h2>
+          </div>
+        </div>
+        <div class="search-chips" id="popularSearchesChips"></div>
+      </section>
+
+      <section class="quick-categories section-shell compact" aria-label="Tezkor kategoriyalar" id="quickCategoriesSection">
         <div class="section-head">
           <div>
             <p class="eyebrow" data-i18n="home.categories">Bo‘limlar</p>

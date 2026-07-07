@@ -28,6 +28,20 @@ import { t, applyTranslations, setLanguage, getSavedLanguage, setLanguageChangeH
 import { apiFetch, configureApiClient } from '../api/apiClient.js';
 import { showToast } from '../utils/toast.js';
 import { signInWithGoogleIdToken } from '../config/firebase.js';
+import { initTheme } from '../utils/theme.js';
+import {
+  initHeaderScroll,
+  initPageTransitions,
+  initOfflineBanner,
+  favoritePop,
+  flyToCart,
+  ripple,
+} from '../utils/motion.js';
+import {
+  initSearchPanel,
+  saveSearchHistory,
+  closeSearchPanel,
+} from '../utils/searchPanel.js';
 
 export { apiFetch, showToast };
 
@@ -164,7 +178,14 @@ function syncModeBadges() {
 }
 
 function renderSkeleton(container, count = 12) {
-  container.innerHTML = Array.from({ length: count }, () => "<div class=\"skeleton-card\"></div>").join("");
+  container.innerHTML = Array.from({ length: count }, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="ds-skeleton" style="aspect-ratio:1/1.05;border-radius:14px;margin-bottom:12px"></div>
+      <div class="ds-skeleton" style="height:12px;width:40%;margin-bottom:8px;border-radius:6px"></div>
+      <div class="ds-skeleton" style="height:14px;width:90%;margin-bottom:8px;border-radius:6px"></div>
+      <div class="ds-skeleton" style="height:18px;width:55%;border-radius:6px"></div>
+    </div>
+  `).join("");
 }
 
 function renderEmpty(container, message, actionLabel = t("home.showAll")) {
@@ -239,20 +260,41 @@ function productCard(product, meta = {}) {
   const isFavorite = state.favoriteIds.has(String(product.id)) || Boolean(product.favorite);
   const screen = meta.screen || state.currentGridScreen || "home";
   const position = meta.position ?? 0;
+  const stock = numberOrZero(product.stock);
+  const lowStock = stock > 0 && stock <= 5;
+  const outOfStock = stock === 0;
+  const ratingDisplay = product.ratingAvg
+    ? `<span class="rating"><span class="star" aria-hidden="true">★</span> ${product.ratingAvg.toFixed(1)} <span class="review-count">(${product.reviewCount || 0})</span></span>`
+    : `<span class="rating"><span class="star" aria-hidden="true">★</span> 0 <span class="review-count">(0)</span></span>`;
+
   return `
     <article class="product-card" data-product="${escapeHtml(product.id)}" data-screen="${escapeHtml(screen)}" data-position="${escapeHtml(position)}">
-      <div class="badge-row">
-        ${product.discountPercent ? `<span class="badge">-${product.discountPercent}%</span>` : ""}
-        ${product.todayDeal ? `<span class="badge today">Today deal</span>` : ""}
+      <div class="card-media">
+        <div class="badge-row">
+          ${product.discountPercent ? `<span class="badge ds-badge--sale">-${product.discountPercent}%</span>` : ""}
+          ${product.todayDeal ? `<span class="badge today ds-badge--deal">${escapeHtml(t("home.todayOnly"))}</span>` : ""}
+          ${product.isNew ? `<span class="badge ds-badge--new">NEW</span>` : ""}
+        </div>
+        <button class="icon-button favorite-float ${isFavorite ? "active" : ""}" data-favorite="${escapeHtml(product.id)}" type="button" aria-label="${escapeHtml(t("favorites.title"))}" aria-pressed="${isFavorite}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+        <img class="product-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />
+        <div class="card-badges-bottom">
+          ${lowStock ? `<span class="ds-badge ds-badge--stock">${escapeHtml(t("product.lowStock"))}</span>` : ""}
+          ${outOfStock ? `<span class="ds-badge ds-badge--stock">${escapeHtml(t("product.outOfStock"))}</span>` : ""}
+          <span class="ds-badge ds-badge--delivery">${escapeHtml(t("product.freeShipping"))}</span>
+        </div>
+        <div class="card-overlay">
+          <button class="secondary-button" data-quick-view="${escapeHtml(product.id)}" type="button">${escapeHtml(t("product.quickView"))}</button>
+          <button class="icon-button" data-compare="${escapeHtml(product.id)}" type="button" aria-label="${escapeHtml(t("product.compare"))}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          </button>
+        </div>
       </div>
-      <button class="icon-button favorite-float ${isFavorite ? "active" : ""}" data-favorite="${escapeHtml(product.id)}" type="button" aria-label="Sevimlilar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-      </button>
-      <img class="product-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />
       <div class="product-info">
         <div class="product-meta">
           <span class="brand-name">${escapeHtml(product.brand || product.category || "BEAUTY SKIN KOREA")}</span>
-          <span class="rating">${product.ratingAvg ? `★ ${product.ratingAvg.toFixed(1)} (${product.reviewCount})` : "★ 0 (0)"}</span>
+          ${ratingDisplay}
         </div>
         <h3>${escapeHtml(product.name)}</h3>
         <p>${escapeHtml(product.description || `${product.soldCount} dona sotilgan`)}</p>
@@ -263,7 +305,9 @@ function productCard(product, meta = {}) {
         <p class="hint">${escapeHtml(t("product.sold", { count: product.soldCount }))}</p>
       </div>
       <div class="card-actions">
-        <button class="primary-button" data-add="${escapeHtml(product.id)}" type="button">${escapeHtml(t("product.addToCart"))}</button>
+        <button class="primary-button ${state.addingProductIds.has(String(product.id)) ? "loading" : ""}" data-add="${escapeHtml(product.id)}" type="button" ${outOfStock ? "disabled" : ""}>
+          ${escapeHtml(state.addingProductIds.has(String(product.id)) ? t("product.adding") : t("product.addToCart"))}
+        </button>
         <button class="icon-button" data-detail="${escapeHtml(product.id)}" type="button" aria-label="${escapeHtml(t("product.viewDetails"))}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -771,6 +815,146 @@ function renderQuickCategories() {
       ${escapeHtml(categoryLabel(item.category))}
     </button>
   `).join("");
+  renderMegaMenu();
+  renderPopularSearches();
+  renderMobileNav();
+}
+
+const POPULAR_SEARCHES = ["SNAIL CREAM", "COSRX", "SUNSCREEN", "LIP TINT", "VITAMIN C", "COLLAGEN"];
+
+function renderPopularSearches() {
+  const container = document.getElementById("popularSearchesChips");
+  if (!container) return;
+  container.innerHTML = POPULAR_SEARCHES.map((term) => `
+    <button class="search-chip" type="button" data-search-chip="${escapeHtml(term)}" data-chip-type="trending">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+      ${escapeHtml(term)}
+    </button>
+  `).join("");
+}
+
+function renderMegaMenu() {
+  const mega = document.getElementById("megaMenuContent");
+  if (!mega) return;
+  const groups = [
+    { title: t("home.categories"), items: state.categories.slice(0, 8) },
+    { title: t("home.quickCategories"), items: QUICK_CATEGORIES.map((c) => c.category) },
+  ];
+  mega.innerHTML = groups.map((group) => `
+    <div class="mega-menu-group">
+      <h3>${escapeHtml(group.title)}</h3>
+      ${group.items.map((cat) => `
+        <button type="button" data-category="${escapeHtml(cat)}">${escapeHtml(categoryLabel(cat))}</button>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
+function renderMobileNav() {
+  const nav = document.getElementById("mobileNavLinks");
+  if (!nav) return;
+  const links = [
+    { id: "ordersButton", label: t("header.orders") },
+    { id: "favoritesButton", label: t("favorites.title") },
+    { id: "cartButton", label: t("cart.title") },
+    { id: "loginButton", label: t("auth.login") },
+  ];
+  nav.innerHTML = `
+    ${["ALL", ...state.categories].map((cat) => `
+      <button class="mobile-nav-link" type="button" data-category="${escapeHtml(cat)}">
+        ${cat === "ALL" ? escapeHtml(t("home.all")) : escapeHtml(categoryLabel(cat))}
+      </button>
+    `).join("")}
+    ${links.map((link) => `<button class="mobile-nav-link" type="button" data-mobile-action="${escapeHtml(link.id)}">${escapeHtml(link.label)}</button>`).join("")}
+  `;
+}
+
+function initPremiumUi() {
+  initTheme();
+  initHeaderScroll();
+  initPageTransitions();
+  initOfflineBanner();
+
+  initSearchPanel({
+    onSearch: (query) => {
+      els.searchInput.value = query;
+      saveSearchHistory(query);
+      closeSearchPanel();
+      renderSearchResults(query).catch(() => {
+        renderEmpty(els.grid, t("common.serverFailed"));
+        els.status.textContent = "";
+      });
+    },
+    onProductSelect: (productId) => {
+      saveSearchHistory(els.searchInput.value);
+      navigateToProduct(productId);
+    },
+  });
+
+  const megaMenu = document.getElementById("megaMenu");
+
+  megaMenu?.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-category]");
+    if (!btn) return;
+    megaMenu.classList.remove("open");
+    megaMenu.setAttribute("aria-hidden", "true");
+    els.catalogButton?.setAttribute("aria-expanded", "false");
+    handleCategoryClick(event);
+  });
+
+  document.getElementById("popularSearchesChips")?.addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-search-chip]");
+    if (!chip) return;
+    els.searchInput.value = chip.dataset.searchChip;
+    saveSearchHistory(chip.dataset.searchChip);
+    renderSearchResults(chip.dataset.searchChip).catch(() => {});
+  });
+
+  const mobileDrawer = document.getElementById("mobileDrawer");
+  const mobileToggle = document.getElementById("mobileMenuToggle");
+  const closeMobile = document.getElementById("closeMobileMenu");
+
+  mobileToggle?.addEventListener("click", () => {
+    mobileDrawer?.classList.add("open");
+    mobileDrawer?.setAttribute("aria-hidden", "false");
+    mobileToggle.setAttribute("aria-expanded", "true");
+    lockBody();
+  });
+
+  const closeMobileMenu = () => {
+    mobileDrawer?.classList.remove("open");
+    mobileDrawer?.setAttribute("aria-hidden", "true");
+    mobileToggle?.setAttribute("aria-expanded", "false");
+    unlockBodyIfNoOverlay();
+  };
+
+  closeMobile?.addEventListener("click", closeMobileMenu);
+  mobileDrawer?.addEventListener("click", (event) => {
+    if (event.target === mobileDrawer) closeMobileMenu();
+  });
+
+  document.getElementById("mobileNavLinks")?.addEventListener("click", (event) => {
+    const category = event.target.closest("[data-category]");
+    const action = event.target.closest("[data-mobile-action]");
+    if (category) {
+      closeMobileMenu();
+      handleCategoryClick(event);
+      return;
+    }
+    if (action) {
+      closeMobileMenu();
+      document.getElementById(action.dataset.mobileAction)?.click();
+    }
+  });
+
+  document.getElementById("currencySelect")?.addEventListener("change", (event) => {
+    showToast(`${t("header.currency")}: ${event.target.value}`, "info");
+  });
+
+  document.addEventListener("click", (event) => {
+    const primary = event.target.closest(".primary-button");
+    if (primary && !primary.disabled) ripple(event, primary);
+  });
 }
 
 function showHomeView() {
@@ -1278,6 +1462,8 @@ async function addToCart(productId, variantId, quantity) {
   renderAddToCartLoading(false);
 
   if (result !== null) {
+    const card = document.querySelector(`[data-product="${productId}"] .product-image`);
+    if (card) flyToCart(card.src, card.getBoundingClientRect());
     showToast(t("cart.added"), "success");
     await loadCart();
   }
@@ -1290,6 +1476,9 @@ function renderAddToCartLoading() {
     detailButton.disabled = loading;
     detailButton.textContent = loading ? t("product.adding") : (detailButton.closest(".mobile-buy-bar") ? t("product.addToCart") : t("product.addToCartFull"));
   });
+  if (state.products.length) {
+    renderProductList(els.grid, state.products, t("home.noProducts"), { screen: state.currentGridScreen });
+  }
 }
 
 async function loadCart() {
@@ -3211,10 +3400,14 @@ export function bindEvents() {
 function handleSearchInput(event) {
   clearTimeout(state.searchTimer);
   state.searchTimer = setTimeout(() => {
-    renderSearchResults(event.target.value).catch(() => {
+    const query = event.target.value;
+    renderSearchResults(query).catch(() => {
       renderEmpty(els.grid, "Qidiruv vaqtida xatolik yuz berdi.");
       els.status.textContent = "";
     });
+    if (query.trim().length >= 2) {
+      saveSearchHistory(query);
+    }
   }, CONFIG.searchDebounceMs);
 }
 
@@ -3236,11 +3429,26 @@ function handleProductGridClick(event) {
   const favorite = event.target.closest("[data-favorite]");
   const add = event.target.closest("[data-add]");
   const detail = event.target.closest("[data-detail]");
+  const quickView = event.target.closest("[data-quick-view]");
+  const compare = event.target.closest("[data-compare]");
   const card = event.target.closest("[data-product]");
 
   if (showAll) {
     event.stopPropagation();
     loadHome();
+    return;
+  }
+
+  if (compare) {
+    event.stopPropagation();
+    showToast(t("product.compareSoon"), "info");
+    return;
+  }
+
+  if (quickView) {
+    event.stopPropagation();
+    sendProductClick(quickView.dataset.quickView);
+    navigateToProduct(quickView.dataset.quickView);
     return;
   }
 
@@ -3403,6 +3611,17 @@ function closeCart() {
 }
 
 function openCatalog() {
+  const megaMenu = document.getElementById("megaMenu");
+  if (window.innerWidth > 680 && megaMenu) {
+    const isOpen = megaMenu.classList.toggle("open");
+    megaMenu.setAttribute("aria-hidden", String(!isOpen));
+    els.catalogButton.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen) {
+      els.catalogDrawer.classList.remove("open");
+      els.catalogDrawer.setAttribute("aria-hidden", "true");
+    }
+    return;
+  }
   els.catalogDrawer.classList.add("open");
   els.catalogDrawer.setAttribute("aria-hidden", "false");
   els.catalogButton.setAttribute("aria-expanded", "true");
@@ -3410,6 +3629,9 @@ function openCatalog() {
 }
 
 function closeCatalog() {
+  const megaMenu = document.getElementById("megaMenu");
+  megaMenu?.classList.remove("open");
+  megaMenu?.setAttribute("aria-hidden", "true");
   els.catalogDrawer.classList.remove("open");
   els.catalogDrawer.setAttribute("aria-hidden", "true");
   els.catalogButton.setAttribute("aria-expanded", "false");
@@ -3478,7 +3700,9 @@ async function toggleFavorite(productId) {
     renderProductDetail(state.selectedDetailProduct);
   }
   if (els.favoritesDialog.open) renderFavorites();
-  showToast(isFavorite ? "Added to favorites" : "Removed from favorites", "success");
+  const favBtn = document.querySelector(`[data-favorite="${productId}"]`);
+  if (favBtn && isFavorite) favoritePop(favBtn);
+  showToast(isFavorite ? t("favorites.added") : t("favorites.removed"), "success");
   if (isFavorite && !existingProduct) await loadFavorites({ render: els.favoritesDialog.open });
 }
 
@@ -3522,6 +3746,7 @@ export async function init() {
 
   try {
     bindEvents();
+    initPremiumUi();
     applyTranslations(state);
   } catch (error) {
     console.error("Init event binding failed:", error);

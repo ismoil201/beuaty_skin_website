@@ -1,30 +1,42 @@
-/* Pink theme tokens – loaded last to override defaults in marketplace.css */
-:root {
+/* Pink theme tokens — extends design-system.css */
+:root,
+[data-theme="light"] {
   color-scheme: light;
-  --primary: #FFC0CB;
-  --primary-dark: #f3a9b9;
-  --primary-soft: #ffe4ea;
-  --accent: #ffcc00;
-  --bg: #f8f8fa;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --accent: #1a1a2e;
+  --bg: #fafafa;
   --surface: #ffffff;
-  --text: #2b2b2b;
-  --muted: #7a7a85;
-  --border: #ececf1;
-  --danger: #ef4444;
-  --success: #0a9b68;
-  --warning: #ffe066;
-  --shadow: 0 16px 42px rgba(43, 43, 43, 0.1);
-  --radius: 8px;
-  --container: 1380px;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #e8e8ee;
+  --danger: #e53e3e;
+  --success: #0d9f6e;
+  --warning: #d97706;
+  --shadow: 0 16px 42px rgba(17, 17, 24, 0.1);
+  --radius: 10px;
+  --container: 1400px;
 }
 
-/* Ensure product prices stay black and discount badges red */
+[data-theme="dark"] {
+  --primary: #e8a0b4;
+  --primary-dark: #f0b8c8;
+  --primary-soft: #2a1f24;
+  --bg: #0f0f14;
+  --surface: #1a1a24;
+  --text: #f4f4f8;
+  --muted: #a0a0b4;
+  --border: #2a2a38;
+}
+
+/* Ensure product prices stay readable */
 .product-card .price-row span:first-child {
-  color: #111827;
+  color: var(--ds-text, #111118);
 }
 
 .product-card .badge:not(.today) {
-  background: #ef4444;
+  background: var(--ds-danger, #e53e3e);
   color: #ffffff;
 }
 

@@ -1,11 +1,16 @@
 const fs = require("fs");
 const path = require("path");
 const root = path.join(__dirname, "..");
-const marketplace = fs.readFileSync(path.join(root, "src/styles/marketplace.css"), "utf8");
-const variables = fs.readFileSync(path.join(root, "src/styles/variables.css"), "utf8");
-const polish = fs.readFileSync(path.join(root, "src/styles/polish.css"), "utf8");
-fs.writeFileSync(
-  path.join(root, "public/styles.css"),
-  `${marketplace}\n\n/* Theme overrides */\n${variables}\n\n/* UI polish layer (loaded last) */\n${polish}`
-);
+const files = [
+  "design-system.css",
+  "marketplace.css",
+  "variables.css",
+  "polish.css",
+  "premium.css",
+];
+const parts = files.map((file) => {
+  const filePath = path.join(root, "src/styles", file);
+  return `/* ===== ${file} ===== */\n${fs.readFileSync(filePath, "utf8")}`;
+});
+fs.writeFileSync(path.join(root, "public/styles.css"), parts.join("\n\n"));
 console.log("Synced public/styles.css");
