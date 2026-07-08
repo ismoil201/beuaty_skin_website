@@ -154,6 +154,7 @@ export default {
     "profile.loadUserFailed": "Profil ma’lumotlari yuklanmadi",
     "profile.loadOrdersFailed": "Buyurtmalar yuklanmadi",
     "profile.loadReviewsFailed": "Sharhlar yuklanmadi",
+    "profile.loadFailed": "Profil ma’lumotlari yuklanmadi",
     "reviews.my": "Mening sharhlarim",
     "reviews.write": "Sharh yozish",
     "reviews.submit": "Sharh yuborish",

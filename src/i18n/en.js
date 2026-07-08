@@ -141,6 +141,7 @@ export default {
   "profile.loadUserFailed": "Could not load profile",
   "profile.loadOrdersFailed": "Could not load orders",
   "profile.loadReviewsFailed": "Could not load reviews",
+  "profile.loadFailed": "Could not load profile data",
   "status.PENDING": "Pending",
   "api.title": "API settings",
   "api.save": "Save",

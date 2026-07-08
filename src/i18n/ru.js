@@ -111,6 +111,7 @@ export default {
   "profile.loadUserFailed": "Не удалось загрузить профиль",
   "profile.loadOrdersFailed": "Не удалось загрузить заказы",
   "profile.loadReviewsFailed": "Не удалось загрузить отзывы",
+  "profile.loadFailed": "Не удалось загрузить данные профиля",
   "status.NEW": "Новый",
   "status.PENDING": "Ожидает",
   "status.CONFIRMED": "Подтвержден",

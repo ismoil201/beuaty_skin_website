@@ -135,6 +135,7 @@ export default {
   "profile.loadUserFailed": "프로필을 불러오지 못했습니다",
   "profile.loadOrdersFailed": "주문을 불러오지 못했습니다",
   "profile.loadReviewsFailed": "리뷰를 불러오지 못했습니다",
+  "profile.loadFailed": "프로필 데이터를 불러오지 못했습니다",
   "status.PENDING": "대기 중",
   "api.title": "API 설정",
   "api.save": "저장",

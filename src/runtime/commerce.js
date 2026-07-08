@@ -122,7 +122,35 @@ async function validateAuthOnStartup() {
   localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(profile));
   updateAuthUi();
 
-  await Promise.allSettled([loadFavorites(), loadUnreadCount()]);
+  await Promise.allSettled([loadFavorites(), loadUnreadCount(), preloadProfileData()]);
+}
+
+async function preloadProfileData() {
+  if (!isLoggedIn()) return;
+
+  const [userResponse, ordersResponse, reviewsResponse] = await Promise.all([
+    apiFetch("/api/users/me", { requireAuth: true, showError: false }),
+    apiFetch("/api/orders", { requireAuth: true, showError: false }),
+    apiFetch("/api/reviews/my", { requireAuth: true, showError: false }),
+    ensureRecentlyViewedState(),
+  ]);
+
+  if (userResponse) {
+    state.user = userResponse;
+    localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(userResponse));
+    updateAuthUi();
+  }
+
+  if (ordersResponse !== null) {
+    state.orders = getPageContent(ordersResponse);
+    state.orders = await enrichProfileOrders(state.orders);
+  }
+
+  if (reviewsResponse !== null) {
+    state.myReviews = getMyReviewsContent(reviewsResponse).map(normalizeMyReviewItem);
+  }
+
+  if (els.profileDrawer?.classList.contains("open")) renderProfile();
 }
 
 function updateAuthUi() {
@@ -3645,6 +3673,7 @@ async function finishLogin(response) {
   await loadCart();
   await loadFavorites();
   await loadUnreadCount();
+  preloadProfileData();
 }
 
 async function submitFirebaseLogin() {
@@ -3787,6 +3816,8 @@ async function loadProfileSnapshot() {
   state.profileSnapshotError = "";
   renderProfile();
 
+  const errors = [];
+
   try {
     const [userResponse, ordersResponse, reviewsResponse] = await Promise.all([
       apiFetch("/api/users/me", { requireAuth: true, showError: false }),
@@ -3796,9 +3827,7 @@ async function loadProfileSnapshot() {
       ensureRecentlyViewedState(),
     ]);
 
-    if (loadId !== state.profileLoadSeq || !els.profileDrawer.classList.contains("open")) return;
-
-    const errors = [];
+    if (loadId !== state.profileLoadSeq) return;
 
     if (userResponse) {
       state.user = userResponse;
@@ -3809,9 +3838,12 @@ async function loadProfileSnapshot() {
     }
 
     if (ordersResponse !== null) {
-      const orders = getPageContent(ordersResponse);
-      state.orders = await enrichProfileOrders(orders);
-      if (loadId !== state.profileLoadSeq || !els.profileDrawer.classList.contains("open")) return;
+      state.orders = getPageContent(ordersResponse);
+      state.profileLoading = false;
+      renderProfile();
+
+      state.orders = await enrichProfileOrders(state.orders);
+      if (loadId !== state.profileLoadSeq) return;
     } else {
       errors.push(t("profile.loadOrdersFailed"));
     }
@@ -3823,6 +3855,8 @@ async function loadProfileSnapshot() {
     }
 
     state.profileSnapshotError = errors.join(" · ");
+  } catch {
+    state.profileSnapshotError = t("profile.loadFailed");
   } finally {
     if (loadId === state.profileLoadSeq) {
       state.profileLoading = false;
@@ -3831,7 +3865,7 @@ async function loadProfileSnapshot() {
   }
 }
 
-function openProfile() {
+async function openProfile() {
   if (!isLoggedIn()) {
     showLoginRequired();
     return;
@@ -3842,7 +3876,7 @@ function openProfile() {
   els.profileDrawer.setAttribute("aria-hidden", "false");
   lockBody();
   renderProfile();
-  loadProfileSnapshot();
+  await loadProfileSnapshot();
 }
 
 function closeProfile() {
@@ -3928,7 +3962,7 @@ function renderProfile() {
           <button class="app-profile-see-all" type="button" data-profile-action="orders">${escapeHtml(t("profile.seeAll"))} ›</button>
         </div>
         <div class="app-profile-orders-rail">
-          ${state.profileLoading
+          ${state.profileLoading && !orderPreview.length
     ? `<div class="app-profile-order-card skeleton-card"></div><div class="app-profile-order-card skeleton-card"></div>`
     : orderPreview.length
       ? orderPreview.map((order) => renderProfileOrderPreviewCard(order)).join("")
