@@ -719,12 +719,13 @@ body.app-layout {
     --app-gutter: 24px;
   }
 
-  body.app-layout {
-    padding-bottom: 0;
-  }
-
   body.app-layout .mobile-bottom-nav {
-    display: none !important;
+    left: 50%;
+    right: auto;
+    width: min(100%, var(--app-shell));
+    max-width: var(--app-shell);
+    transform: translateX(-50%);
+    border-radius: 18px 18px 0 0;
   }
 
   body.app-layout .mini-bar,
