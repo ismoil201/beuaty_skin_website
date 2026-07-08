@@ -42,7 +42,7 @@ import {
   saveSearchHistory,
   closeSearchPanel,
 } from '../utils/searchPanel.js';
-import { initFilterState, setSourceProducts, getFilteredProducts, renderFilterSidebar, renderFilterChips, persistFilters, clearAllFilters, applyViewMode, renderCompareFab, renderCompareDrawer, renderComparePage, renderCartExtras, renderCheckoutStepper, renderFlashCountdown, renderBrandPage, FREE_SHIPPING_THRESHOLD, STANDARD_DELIVERY_FEE } from '../utils/phase2Ui.js';
+import { initFilterState, setSourceProducts, getFilteredProducts, renderFilterSidebar, renderFilterChips, persistFilters, clearAllFilters, applyViewMode, renderCompareFab, renderCompareDrawer, renderComparePage, renderCartExtras, renderFlashCountdown, renderBrandPage, FREE_SHIPPING_THRESHOLD, STANDARD_DELIVERY_FEE } from '../utils/phase2Ui.js';
 import { toggleCompareId, getCompareIds, removeCompareId, clearCompare, MAX_COMPARE } from '../store/compareStore.js';
 import { saveForLaterItem, removeSavedForLater, getSavedForLater } from '../store/savedForLaterStore.js';
 import { initLazyImages } from '../utils/imageLoader.js';
@@ -1307,7 +1307,7 @@ function handleCartExtrasClick(event) {
     const code = (input?.value || "").trim().toUpperCase();
     if (code === "BEAUTY10") {
       state.cartCoupon = code;
-      state.cartCouponDiscount = Math.round(state.cartTotal * 0.1);
+      state.cartCouponDiscount = Math.round(getCartTotals().subtotal * 0.1);
       showToast(t("cart.couponApplied"), "success");
     } else if (code) {
       showToast(t("cart.couponInvalid"), "warning");
@@ -2369,16 +2369,21 @@ async function prepareCheckout() {
   }
 
   await loadCart();
-  if (!state.cartItems.length) {
-    showToast("Your cart is empty", "warning");
+  const selectedItems = getSelectedCartItems();
+  if (!selectedItems.length) {
+    showToast(t("cart.emptySelection") || "Select items to checkout", "warning");
     return;
   }
 
   state.orderSuccess = null;
   state.checkoutError = "";
   state.checkoutStep = 1;
+  state.checkoutAddressPickerOpen = false;
+  state.checkoutReceiverPickerOpen = false;
+  state.checkoutCouponOpen = false;
   state.checkoutLoading = true;
   renderCheckout();
+  closeCart();
   els.checkoutDialog.showModal();
   lockBody();
   await Promise.all([loadReceivers(), loadAddresses()]);
@@ -2417,12 +2422,61 @@ async function loadAddresses(selectId) {
   }
 }
 
+function getCheckoutTotals() {
+  const items = getSelectedCartItems();
+  const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+  const catalogDiscount = items.reduce((sum, item) => {
+    const original = numberOrZero(item.product?.originalPrice);
+    if (original > item.unitPrice) return sum + (original - item.unitPrice) * item.quantity;
+    return sum;
+  }, 0);
+  const couponDiscount = state.cartCouponDiscount || 0;
+  const discount = catalogDiscount + couponDiscount;
+  const deliveryFee = !items.length || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
+  const total = Math.max(0, subtotal + deliveryFee - couponDiscount);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  return { items, subtotal, deliveryFee, discount, catalogDiscount, couponDiscount, total, itemCount };
+}
+
+function formatCheckoutDeliveryRange() {
+  const lang = getCurrentLanguage();
+  const start = new Date(Date.now() + 3 * 86400000);
+  const end = new Date(Date.now() + 5 * 86400000);
+  const fmt = (date) => date.toLocaleDateString(lang, { day: "numeric", month: "long" });
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+function renderCheckoutCartThumbs() {
+  return getSelectedCartItems().slice(0, 6).map((item) => {
+    const image = item.image || item.product?.image || CONFIG.placeholderImage;
+    return `<img src="${escapeHtml(image)}" alt="" class="app-checkout-item-thumb" loading="eager" decoding="async" />`;
+  }).join("");
+}
+
+function renderCheckoutPickerList(type) {
+  if (type === "address") {
+    return `
+      <div class="app-checkout-picker">
+        ${renderAddressList()}
+        ${renderAddressForm()}
+      </div>
+    `;
+  }
+  return `
+    <div class="app-checkout-picker">
+      ${renderReceiverList()}
+      ${renderReceiverForm()}
+    </div>
+  `;
+}
+
 function renderCheckout() {
   if (state.checkoutLoading) {
     els.checkoutContent.innerHTML = `
-      <div class="checkout-layout">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
+      <div class="app-checkout-page">
+        <div class="app-checkout-skeleton skeleton-card"></div>
+        <div class="app-checkout-skeleton skeleton-card"></div>
+        <div class="app-checkout-skeleton skeleton-card"></div>
       </div>
     `;
     return;
@@ -2435,54 +2489,126 @@ function renderCheckout() {
 
   const selectedReceiver = state.receivers.find((receiver) => String(receiver.id) === String(state.selectedReceiverId));
   const selectedAddress = state.addresses.find((address) => String(address.id) === String(state.selectedAddressId));
-
-  const discount = state.cartCouponDiscount || 0;
-  const total = Math.max(0, state.cartTotal - discount);
+  const totals = getCheckoutTotals();
+  const addressLabel = selectedAddress
+    ? `${escapeHtml(selectedAddress.title || "")} · ${escapeHtml(selectedAddress.address || "")}`
+    : escapeHtml(t("checkout.addressNotSelected"));
+  const receiverLabel = selectedReceiver
+    ? `${escapeHtml(selectedReceiver.fullName || "")} · ${escapeHtml(selectedReceiver.phone || "")}`
+    : escapeHtml(t("checkout.receiverNotSelected"));
 
   els.checkoutContent.innerHTML = `
-    ${renderCheckoutStepper(state.checkoutStep, t)}
-    <div class="checkout-layout checkout-step-panel">
-      ${state.checkoutError ? `<div class="checkout-error">${escapeHtml(state.checkoutError)}</div>` : ""}
-      ${state.checkoutStep === 1 ? `
-        <section class="checkout-step">
-          <h3>${escapeHtml(t("checkout.stepShipping"))}</h3>
-          ${renderReceiverList()}
-          ${renderReceiverForm()}
+    <div class="app-checkout-page">
+      <header class="app-checkout-header">
+        <button class="app-checkout-back" type="button" data-checkout-close aria-label="${escapeHtml(t("checkout.back"))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <h2>${escapeHtml(t("checkout.title"))}</h2>
+        <span class="app-checkout-header-spacer" aria-hidden="true"></span>
+      </header>
+
+      <div class="app-checkout-scroll">
+        ${state.checkoutError ? `<div class="app-checkout-error">${escapeHtml(state.checkoutError)}</div>` : ""}
+
+        <section class="app-checkout-card">
+          <h3>${escapeHtml(t("checkout.deliveryTitle"))}</h3>
+          <p class="app-checkout-muted">${escapeHtml(t("checkout.deliveryEta"))}</p>
+          <div class="app-checkout-address-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <span>${addressLabel}</span>
+          </div>
+          <button class="app-checkout-primary-btn" type="button" data-checkout-toggle-address>
+            ${escapeHtml(t("checkout.selectAddress"))}
+          </button>
+          ${state.checkoutAddressPickerOpen ? renderCheckoutPickerList("address") : ""}
+          <button class="app-checkout-receiver-row" type="button" data-checkout-toggle-receiver>
+            <span class="app-checkout-receiver-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
+            </span>
+            <span class="app-checkout-receiver-copy">
+              <strong>${escapeHtml(t("checkout.receiver"))}</strong>
+              <span>${receiverLabel}</span>
+            </span>
+            <svg class="app-checkout-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          ${state.checkoutReceiverPickerOpen ? renderCheckoutPickerList("receiver") : ""}
         </section>
-      ` : ""}
-      ${state.checkoutStep === 2 ? `
-        <section class="checkout-step">
-          <h3>${escapeHtml(t("checkout.stepAddress"))}</h3>
-          ${renderAddressList()}
-          ${renderAddressForm()}
+
+        <section class="app-checkout-card app-checkout-delivery-items">
+          <h3>${escapeHtml(t("checkout.deliveryOn", { dates: formatCheckoutDeliveryRange() }))}</h3>
+          <div class="app-checkout-item-thumbs">${renderCheckoutCartThumbs()}</div>
         </section>
-      ` : ""}
-      ${state.checkoutStep === 3 ? `
-        <section class="checkout-step">
-          <h3>${escapeHtml(t("checkout.stepPayment"))}</h3>
-          <p class="hint">${escapeHtml(t("trust.secure"))}</p>
-          <div class="delivery-info"><span>💳 ${escapeHtml(t("checkout.paymentPlaceholder"))}</span></div>
+
+        <section class="app-checkout-card">
+          <h3>${escapeHtml(t("checkout.paymentMethod"))}</h3>
+          <div class="app-checkout-payment">
+            <span class="app-checkout-payment-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </span>
+            <div>
+              <strong>${escapeHtml(t("checkout.paymentCod"))}</strong>
+              <p>${escapeHtml(t("checkout.paymentCodHint"))}</p>
+            </div>
+          </div>
         </section>
-      ` : ""}
-      ${state.checkoutStep === 4 ? `
-        <section class="checkout-step">
-          <h3>${escapeHtml(t("checkout.stepReview"))}</h3>
-          ${renderOrderSummary(selectedReceiver, selectedAddress)}
+
+        <div class="app-checkout-info">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <p>${escapeHtml(t("checkout.deliveryInfo"))}</p>
+        </div>
+
+        <section class="app-checkout-card app-checkout-coupon-card">
+          <h3>${escapeHtml(t("checkout.couponTitle"))}</h3>
+          <button class="app-checkout-coupon-row" type="button" data-checkout-toggle-coupon>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4H4z"/><path d="M12 8v8"/></svg>
+            <span>${state.cartCoupon ? escapeHtml(state.cartCoupon) : escapeHtml(t("checkout.applyCoupon"))}</span>
+            <svg class="app-checkout-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          ${state.checkoutCouponOpen ? `
+            <div class="app-checkout-coupon-form">
+              <input type="text" id="checkoutCouponInput" value="${escapeHtml(state.cartCoupon || "")}" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" />
+              <button type="button" class="app-checkout-secondary-btn" data-apply-coupon>${escapeHtml(t("cart.applyCoupon"))}</button>
+            </div>
+          ` : ""}
         </section>
-      ` : ""}
-      <aside class="order-summary">
-        <h3>${escapeHtml(t("checkout.orderSummary"))}</h3>
-        ${renderOrderSummary(selectedReceiver, selectedAddress)}
-        ${discount ? `<p class="hint">${escapeHtml(t("cart.couponApplied"))}: -${formatPrice(discount)}</p>` : ""}
-      </aside>
-    </div>
-    <div class="checkout-nav">
-      ${state.checkoutStep > 1 ? `<button class="secondary-button" type="button" data-checkout-prev>${escapeHtml(t("checkout.back"))}</button>` : "<span></span>"}
-      ${state.checkoutStep < 4
-    ? `<button class="primary-button" type="button" data-checkout-next>${escapeHtml(t("checkout.continue"))}</button>`
-    : `<button class="primary-button" type="button" data-place-order ${state.orderSubmitting ? "disabled" : ""}>${escapeHtml(state.orderSubmitting ? t("checkout.placing") : t("checkout.placeOrder"))}</button>`}
+
+        <section class="app-checkout-card app-checkout-summary-card">
+          <h3>${escapeHtml(t("checkout.yourOrder"))}</h3>
+          <div class="app-checkout-summary-line">
+            <span>${escapeHtml(t("checkout.itemsCount", { count: totals.itemCount }))}</span>
+            <strong>${formatPrice(totals.subtotal)}</strong>
+          </div>
+          <div class="app-checkout-summary-line app-checkout-summary-delivery">
+            <span>${escapeHtml(t("checkout.deliveryFee"))}</span>
+            <strong>${totals.deliveryFee ? formatPrice(totals.deliveryFee) : escapeHtml(t("cart.freeDelivery"))}</strong>
+          </div>
+          ${totals.discount > 0 ? `
+            <div class="app-checkout-summary-line app-checkout-summary-discount">
+              <span>${escapeHtml(t("cart.discount"))}</span>
+              <strong>- ${formatPrice(totals.discount)}</strong>
+            </div>
+          ` : ""}
+          <div class="app-checkout-summary-total">
+            <span>${escapeHtml(t("checkout.totalToPay"))}</span>
+            <strong>${formatPrice(totals.total)}</strong>
+          </div>
+          <p class="app-checkout-legal">${escapeHtml(t("checkout.legalNotice"))}</p>
+        </section>
+      </div>
+
+      <div class="app-checkout-sticky">
+        <div class="app-checkout-sticky-total">
+          <strong>${formatPrice(totals.total)}</strong>
+          <span>${escapeHtml(t("checkout.itemsCount", { count: totals.itemCount }))}</span>
+        </div>
+        <button class="app-checkout-confirm" type="button" data-place-order ${state.orderSubmitting ? "disabled" : ""}>
+          ${escapeHtml(state.orderSubmitting ? t("checkout.placing") : t("checkout.confirm"))}
+        </button>
+      </div>
     </div>
   `;
+
+  initLazyImages(els.checkoutContent);
 }
 
 function renderReceiverList() {
@@ -2581,16 +2707,22 @@ function renderOrderSummary(receiver, address) {
 function renderOrderSuccess() {
   const order = state.orderSuccess;
   els.checkoutContent.innerHTML = `
-    <div class="order-success-animation">
-      <div class="order-success-icon">✓</div>
-      <h3>${escapeHtml(t("checkout.orderCreated"))}</h3>
-      <p>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)} · ${escapeHtml(order.status || "NEW")}</p>
-      <strong>${formatPrice(order.totalAmount)}</strong>
-      <p class="hint">${escapeHtml(order.fullName || "")} ${order.phone ? `· ${escapeHtml(order.phone)}` : ""}</p>
-      <p class="hint">${escapeHtml(order.address || "")}</p>
-      <div class="hero-actions">
-        <button class="secondary-button" data-success-orders type="button">${escapeHtml(t("checkout.viewOrders"))}</button>
-        <button class="primary-button" data-success-continue type="button">${escapeHtml(t("checkout.continueShopping"))}</button>
+    <div class="app-checkout-page app-checkout-success">
+      <header class="app-checkout-header">
+        <span class="app-checkout-header-spacer" aria-hidden="true"></span>
+        <h2>${escapeHtml(t("checkout.orderCreated"))}</h2>
+        <span class="app-checkout-header-spacer" aria-hidden="true"></span>
+      </header>
+      <div class="app-checkout-scroll app-checkout-success-body">
+        <div class="order-success-icon">✓</div>
+        <p>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)} · ${escapeHtml(order.status || "NEW")}</p>
+        <strong class="app-checkout-success-total">${formatPrice(order.totalAmount)}</strong>
+        <p class="hint">${escapeHtml(order.fullName || "")} ${order.phone ? `· ${escapeHtml(order.phone)}` : ""}</p>
+        <p class="hint">${escapeHtml(order.address || "")}</p>
+        <div class="app-checkout-success-actions">
+          <button class="app-checkout-secondary-btn" data-success-orders type="button">${escapeHtml(t("checkout.viewOrders"))}</button>
+          <button class="app-checkout-primary-btn" data-success-continue type="button">${escapeHtml(t("checkout.continueShopping"))}</button>
+        </div>
       </div>
     </div>
   `;
@@ -4102,15 +4234,59 @@ async function handleProfileAction(event) {
 }
 
 async function handleCheckoutClick(event) {
+  const closeCheckout = event.target.closest("[data-checkout-close]");
+  const toggleAddress = event.target.closest("[data-checkout-toggle-address]");
+  const toggleReceiver = event.target.closest("[data-checkout-toggle-receiver]");
+  const toggleCoupon = event.target.closest("[data-checkout-toggle-coupon]");
+  const applyCoupon = event.target.closest("[data-apply-coupon]");
   const receiver = event.target.closest("[data-select-receiver]");
   const address = event.target.closest("[data-select-address]");
   const deleteReceiver = event.target.closest("[data-delete-receiver]");
   const deleteAddress = event.target.closest("[data-delete-address]");
   const placeOrderButton = event.target.closest("[data-place-order]");
-  const nextStep = event.target.closest("[data-checkout-next]");
-  const prevStep = event.target.closest("[data-checkout-prev]");
   const viewOrdersButton = event.target.closest("[data-success-orders]");
   const continueButton = event.target.closest("[data-success-continue]");
+
+  if (closeCheckout) {
+    els.checkoutDialog.close();
+    unlockBodyIfNoOverlay();
+    return;
+  }
+
+  if (toggleAddress) {
+    state.checkoutAddressPickerOpen = !state.checkoutAddressPickerOpen;
+    state.checkoutError = "";
+    renderCheckout();
+    return;
+  }
+
+  if (toggleReceiver) {
+    state.checkoutReceiverPickerOpen = !state.checkoutReceiverPickerOpen;
+    state.checkoutError = "";
+    renderCheckout();
+    return;
+  }
+
+  if (toggleCoupon) {
+    state.checkoutCouponOpen = !state.checkoutCouponOpen;
+    renderCheckout();
+    return;
+  }
+
+  if (applyCoupon) {
+    const input = document.getElementById("checkoutCouponInput");
+    const code = (input?.value || "").trim().toUpperCase();
+    if (code === "BEAUTY10") {
+      state.cartCoupon = code;
+      state.cartCouponDiscount = Math.round(getCartTotals().subtotal * 0.1);
+      showToast(t("cart.couponApplied"), "success");
+    } else if (code) {
+      showToast(t("cart.couponInvalid"), "warning");
+    }
+    renderCheckout();
+    renderCart();
+    return;
+  }
 
   if (deleteReceiver) {
     event.stopPropagation();
@@ -4126,36 +4302,16 @@ async function handleCheckoutClick(event) {
 
   if (receiver) {
     state.selectedReceiverId = receiver.dataset.selectReceiver;
+    state.checkoutReceiverPickerOpen = false;
+    state.checkoutError = "";
     renderCheckout();
     return;
   }
 
   if (address) {
     state.selectedAddressId = address.dataset.selectAddress;
-    renderCheckout();
-    return;
-  }
-
-  if (nextStep) {
-    if (state.checkoutStep === 1 && !state.selectedReceiverId) {
-      state.checkoutError = t("checkout.receiverRequired");
-      renderCheckout();
-      return;
-    }
-    if (state.checkoutStep === 2 && !state.selectedAddressId) {
-      state.checkoutError = t("checkout.addressRequired");
-      renderCheckout();
-      return;
-    }
+    state.checkoutAddressPickerOpen = false;
     state.checkoutError = "";
-    state.checkoutStep = Math.min(4, state.checkoutStep + 1);
-    renderCheckout();
-    return;
-  }
-
-  if (prevStep) {
-    state.checkoutError = "";
-    state.checkoutStep = Math.max(1, state.checkoutStep - 1);
     renderCheckout();
     return;
   }
@@ -4285,9 +4441,25 @@ async function deleteAddressById(id) {
 }
 
 async function placeOrder() {
-  if (!state.selectedReceiverId || !state.selectedAddressId || !state.cartItems.length) return;
+  const items = getSelectedCartItems();
+  if (!items.length) return;
+
+  if (!state.selectedAddressId) {
+    state.checkoutError = t("checkout.addressRequired");
+    state.checkoutAddressPickerOpen = true;
+    renderCheckout();
+    return;
+  }
+
+  if (!state.selectedReceiverId) {
+    state.checkoutError = t("checkout.receiverRequired");
+    state.checkoutReceiverPickerOpen = true;
+    renderCheckout();
+    return;
+  }
 
   state.orderSubmitting = true;
+  state.checkoutError = "";
   renderCheckout();
   const response = await apiFetch("/api/orders", {
     method: "POST",
@@ -4295,7 +4467,7 @@ async function placeOrder() {
     body: JSON.stringify({
       receiverId: Number(state.selectedReceiverId),
       addressId: Number(state.selectedAddressId),
-      cartItemIds: state.cartItems.map((item) => Number(item.id)),
+      cartItemIds: items.map((item) => Number(item.id)),
     }),
     showError: false,
   });

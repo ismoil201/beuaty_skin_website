@@ -1,0 +1,509 @@
+/* App checkout screen — BEAUTY SKIN KOREA */
+
+body.app-layout dialog.app-checkout-dialog {
+  width: 100%;
+  max-width: min(1240px, 100vw);
+  height: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: var(--app-bg, #f5f5f5);
+}
+
+body.app-layout dialog.app-checkout-dialog::backdrop {
+  background: var(--app-bg, #f5f5f5);
+}
+
+.app-checkout-form,
+.app-checkout-root {
+  height: 100%;
+}
+
+.app-checkout-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--app-bg, #f5f5f5);
+}
+
+.app-checkout-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--app-bg, #f5f5f5);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.app-checkout-header h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.app-checkout-back {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--app-surface, #fff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.app-checkout-back svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-checkout-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 16px 120px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-checkout-error {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff4f4;
+  color: #b42318;
+  font-size: 0.82rem;
+}
+
+.app-checkout-card {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-checkout-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.app-checkout-muted {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  color: var(--app-muted, #8a8a8a);
+  line-height: 1.4;
+}
+
+.app-checkout-address-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #f3f3f3;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.app-checkout-address-box svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--app-muted, #8a8a8a);
+  fill: none;
+  stroke-width: 1.8;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.app-checkout-primary-btn,
+.app-checkout-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-checkout-primary-btn {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.app-checkout-secondary-btn {
+  background: #f3f3f3;
+  color: var(--app-text, #1a1a1a);
+}
+
+.app-checkout-receiver-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--app-border, #ececec);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-checkout-receiver-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fde8ef;
+  color: #ff4d6d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-checkout-receiver-avatar svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.app-checkout-receiver-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.app-checkout-receiver-copy strong {
+  font-size: 0.92rem;
+}
+
+.app-checkout-receiver-copy span {
+  font-size: 0.82rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-checkout-chevron {
+  width: 18px;
+  height: 18px;
+  stroke: #c7c7cc;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-checkout-picker {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--app-border, #ececec);
+}
+
+.app-checkout-picker .selectable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.app-checkout-picker .selectable-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.app-checkout-picker .selectable-card.selected {
+  border-color: #1a1a1a;
+  background: #fff;
+}
+
+.app-checkout-picker .checkout-add-form {
+  margin-top: 8px;
+}
+
+.app-checkout-item-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-top: 4px;
+}
+
+.app-checkout-item-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.app-checkout-item-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f3f3f3;
+  flex-shrink: 0;
+}
+
+.app-checkout-payment {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.app-checkout-payment-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #fff0f0;
+  color: #ff3b30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-checkout-payment-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.app-checkout-payment strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.92rem;
+}
+
+.app-checkout-payment p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--app-muted, #8a8a8a);
+  line-height: 1.35;
+}
+
+.app-checkout-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f3ecff;
+  color: #5b4b7a;
+}
+
+.app-checkout-info svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.app-checkout-info p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.app-checkout-coupon-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 0 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.app-checkout-coupon-row svg:first-child {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.app-checkout-coupon-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.app-checkout-coupon-form input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 12px;
+  padding: 0 12px;
+}
+
+.app-checkout-summary-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-checkout-summary-line strong {
+  color: var(--app-text, #1a1a1a);
+}
+
+.app-checkout-summary-delivery strong {
+  color: #16a34a;
+}
+
+.app-checkout-summary-discount strong {
+  color: #16a34a;
+}
+
+.app-checkout-summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0 10px;
+  margin-top: 6px;
+  border-top: 1px solid var(--app-border, #ececec);
+  font-weight: 800;
+}
+
+.app-checkout-summary-total strong {
+  font-size: 1.2rem;
+}
+
+.app-checkout-legal {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--app-muted, #8a8a8a);
+  line-height: 1.45;
+}
+
+.app-checkout-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--app-surface, #fff);
+  border-top: 1px solid var(--app-border, #ececec);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+}
+
+body.app-layout .app-checkout-sticky {
+  margin-bottom: 64px;
+}
+
+.app-checkout-sticky-total strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.app-checkout-sticky-total span {
+  font-size: 0.78rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-checkout-confirm {
+  flex-shrink: 0;
+  min-width: 148px;
+  height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 14px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-checkout-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.app-checkout-skeleton {
+  height: 120px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+}
+
+.app-checkout-success-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 40px;
+}
+
+.app-checkout-success .order-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e8f8ef;
+  color: #16a34a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.app-checkout-success-total {
+  font-size: 1.4rem;
+  margin: 8px 0 12px;
+}
+
+.app-checkout-success-actions {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 20px;
+}
+
+@media (min-width: 960px) {
+  body.app-layout .app-checkout-sticky {
+    margin-bottom: 72px;
+  }
+}

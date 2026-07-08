@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/app-mobile-ui.css" />
     <link rel="stylesheet" href="/app-cart-ui.css" />
     <link rel="stylesheet" href="/app-profile-ui.css" />
+    <link rel="stylesheet" href="/app-checkout-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -381,18 +382,12 @@
       </form>
     </dialog>
 
-    <dialog id="checkoutDialog" class="checkout-dialog">
-      <form class="dialog-card checkout-card" method="dialog" id="checkoutForm" novalidate>
-        <div class="dialog-head">
-          <h2 data-i18n="checkout.title">Checkout</h2>
-          <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="checkout-content" id="checkoutContent"></div>
+    <dialog id="checkoutDialog" class="app-checkout-dialog">
+      <form class="app-checkout-form" method="dialog" id="checkoutForm" novalidate>
+        <div id="checkoutContent" class="app-checkout-root"></div>
         <select id="receiverSelect" hidden></select>
         <select id="addressSelect" hidden></select>
-        <p class="hint" id="checkoutHint"></p>
+        <p class="hint" id="checkoutHint" hidden></p>
       </form>
     </dialog>
 
