@@ -36,6 +36,8 @@ export async function apiFetch(path, options = {}) {
     showError = true,
     requireAuth = false,
     silentAuth = false,
+    timeoutMs = 0,
+    signal: externalSignal,
     ...fetchOptions
   } = options;
   const url = buildApiUrl(path, query);
@@ -70,9 +72,26 @@ export async function apiFetch(path, options = {}) {
     });
   }
 
+  const controller = new AbortController();
+  let timedOut = false;
+  const timeoutId = timeoutMs > 0
+    ? setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, timeoutMs)
+    : null;
+
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort();
+    } else {
+      externalSignal.addEventListener("abort", () => controller.abort(), { once: true });
+    }
+  }
+
   try {
     state.lastApiError = "";
-    const response = await fetch(url, { ...fetchOptions, headers });
+    const response = await fetch(url, { ...fetchOptions, headers, signal: controller.signal });
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
 
@@ -102,11 +121,21 @@ export async function apiFetch(path, options = {}) {
 
     return payload;
   } catch (error) {
-    state.lastApiError = "Server bilan aloqa bo‘lmadi";
+    if (error?.name === "AbortError") {
+      state.lastApiError = timedOut
+        ? "So‘rov vaqti tugadi. Qayta urinib ko‘ring."
+        : "So‘rov bekor qilindi.";
+    } else {
+      state.lastApiError = "Server bilan aloqa bo‘lmadi";
+    }
     if (isDevMode()) {
       console.error("[API ERROR]", { requestUrl: url, error });
     }
-    if (showError) handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.", "error");
+    if (showError && error?.name !== "AbortError") {
+      handlers.showToast("Server bilan aloqa vaqtincha ishlamayapti.", "error");
+    }
     return null;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }

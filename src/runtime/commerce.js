@@ -546,6 +546,7 @@ let bannerAutoTimer = null;
 let bannerPaused = false;
 let bannerScrollListener = null;
 let bannerScrollEndTimer = 0;
+let orderAbortController = null;
 
 function getBannerTrack() {
   return els.banners?.querySelector(".banner-track");
@@ -2520,6 +2521,7 @@ function renderCheckoutConfirmModal(receiver, address) {
           </p>
         </div>
         <p class="app-checkout-modal-disclaimer">${escapeHtml(t("checkout.confirmDisclaimer"))}</p>
+        ${state.checkoutError ? `<div class="app-checkout-modal-error">${escapeHtml(state.checkoutError)}</div>` : ""}
         <div class="app-checkout-modal-actions">
           <button class="app-checkout-modal-cancel" type="button" data-checkout-confirm-cancel>${escapeHtml(t("checkout.cancel"))}</button>
           <button class="app-checkout-modal-confirm" type="button" data-checkout-confirm-submit ${state.orderSubmitting ? "disabled" : ""}>
@@ -4322,8 +4324,12 @@ async function handleCheckoutClick(event) {
   const continueButton = event.target.closest("[data-success-continue]");
 
   if (closeCheckout) {
+    orderAbortController?.abort();
+    orderAbortController = null;
     state.checkoutConfirmOpen = false;
+    state.orderSubmitting = false;
     state.orderSuccess = null;
+    state.checkoutError = "";
     els.checkoutDialog.close();
     unlockBodyIfNoOverlay();
     return;
@@ -4398,7 +4404,11 @@ async function handleCheckoutClick(event) {
   }
 
   if (confirmCancel) {
+    orderAbortController?.abort();
+    orderAbortController = null;
     state.checkoutConfirmOpen = false;
+    state.orderSubmitting = false;
+    state.checkoutError = "";
     renderCheckout();
     return;
   }
@@ -4559,39 +4569,88 @@ function openCheckoutConfirm() {
 }
 
 async function submitOrder() {
+  if (state.orderSubmitting) return;
+
   const items = getSelectedCartItems();
-  if (!items.length) return;
+  if (!items.length) {
+    state.checkoutError = t("checkout.noItems");
+    renderCheckout();
+    return;
+  }
+
+  const cartItemIds = items
+    .map((item) => Number(item.id))
+    .filter((id) => Number.isFinite(id) && id > 0);
+
+  if (!cartItemIds.length) {
+    state.checkoutError = t("checkout.invalidItems");
+    renderCheckout();
+    return;
+  }
+
+  orderAbortController?.abort();
+  orderAbortController = new AbortController();
 
   state.orderSubmitting = true;
   state.checkoutError = "";
   renderCheckout();
-  const response = await apiFetch("/api/orders", {
-    method: "POST",
-    requireAuth: true,
-    body: JSON.stringify({
-      receiverId: Number(state.selectedReceiverId),
-      addressId: Number(state.selectedAddressId),
-      cartItemIds: items.map((item) => Number(item.id)),
-    }),
-    showError: false,
-  });
-  state.orderSubmitting = false;
 
-  if (response === null) {
-    state.checkoutError = state.lastApiError || "Order could not be created.";
-    state.checkoutConfirmOpen = false;
-    renderCheckout();
+  try {
+    const response = await apiFetch("/api/orders", {
+      method: "POST",
+      requireAuth: true,
+      timeoutMs: 25000,
+      signal: orderAbortController.signal,
+      body: JSON.stringify({
+        receiverId: Number(state.selectedReceiverId),
+        addressId: Number(state.selectedAddressId),
+        cartItemIds,
+      }),
+      showError: false,
+    });
+
+    if (response === null) {
+      state.checkoutError = state.lastApiError || t("checkout.orderFailed");
+      showToast(state.checkoutError, "error");
+      return;
+    }
+
+    finishCheckoutAndGoHome();
+    showToast(t("checkout.orderCreated"), "success");
+    void loadCart().then(() => renderCart());
+    void loadUnreadCount();
+  } catch (error) {
+    state.checkoutError = error?.message || t("checkout.orderFailed");
     showToast(state.checkoutError, "error");
-    return;
+  } finally {
+    state.orderSubmitting = false;
+    orderAbortController = null;
+    if (els.checkoutDialog?.open) {
+      renderCheckout();
+    }
   }
+}
 
-  state.checkoutConfirmOpen = false;
-  state.orderSuccess = response;
-  await loadCart();
-  await loadUnreadCount();
-  closeCart();
-  renderCheckout();
-  showToast(t("checkout.orderCreated"), "success");
+function finishCheckoutAndGoHome() {
+  try {
+    state.checkoutConfirmOpen = false;
+    state.orderSuccess = null;
+    state.checkoutError = "";
+    els.checkoutDialog?.close();
+    closeCart();
+    unlockBodyIfNoOverlay();
+    showHomeView();
+    if (window.location.hash && window.location.hash !== "#/" && window.location.hash !== "#") {
+      window.location.hash = "#/";
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (error) {
+    console.error("finishCheckoutAndGoHome failed:", error);
+    state.checkoutConfirmOpen = false;
+    state.orderSubmitting = false;
+    els.checkoutDialog?.close();
+    unlockBodyIfNoOverlay();
+  }
 }
 
 async function placeOrder() {
@@ -4599,10 +4658,7 @@ async function placeOrder() {
 }
 
 function dismissCheckoutSuccess() {
-  state.orderSuccess = null;
-  state.checkoutConfirmOpen = false;
-  els.checkoutDialog.close();
-  unlockBodyIfNoOverlay();
+  finishCheckoutAndGoHome();
 }
 
 async function submitProfileEdit(event) {
@@ -4763,8 +4819,12 @@ export function bindEvents() {
   els.authDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.apiDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.checkoutDialog.addEventListener("close", () => {
+    orderAbortController?.abort();
+    orderAbortController = null;
     state.checkoutConfirmOpen = false;
+    state.orderSubmitting = false;
     state.orderSuccess = null;
+    state.checkoutError = "";
     unlockBodyIfNoOverlay();
   });
   els.ordersDialog.addEventListener("close", unlockBodyIfNoOverlay);

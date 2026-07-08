@@ -592,6 +592,17 @@ body.app-layout .app-checkout-sticky {
   text-align: left;
 }
 
+.app-checkout-modal-error {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4f4;
+  color: #b42318;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
 .app-checkout-modal-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
