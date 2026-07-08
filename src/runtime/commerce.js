@@ -445,14 +445,8 @@ export async function loadHomeApi() {
 }
 
 function renderHomeApiSections(sections) {
-  const trending = sections.hits || [];
   const editors = sections.discounts || [];
   const arrivals = sections.newArrivals || [];
-
-  const trendingGrid = document.getElementById("trendingKoreaGrid");
-  if (trendingGrid) {
-    renderProductList(trendingGrid, trending.slice(0, 10), t("home.noProducts"), { screen: "home-trending" });
-  }
 
   const editorsGrid = document.getElementById("editorsPicksGrid");
   if (editorsGrid) {
@@ -464,62 +458,9 @@ function renderHomeApiSections(sections) {
     renderProductList(arrivalsGrid, arrivals.slice(0, 10), t("home.noProducts"), { screen: "home-new" });
   }
 
-  renderBrandSpotlight([...trending, ...editors, ...arrivals]);
-  renderRoutineProducts(arrivals.length ? arrivals : trending);
-  renderSocialGalleryTiles([...trending, ...arrivals]);
-
   // Keep legacy container for compatibility, but hide it in new homepage narrative.
   els.homeApiSections.hidden = true;
   els.homeApiSections.innerHTML = "";
-}
-
-function renderBrandSpotlight(products) {
-  const container = document.getElementById("brandSpotlightGrid");
-  if (!container) return;
-  const brands = new Map();
-  products.forEach((product) => {
-    const brand = String(product.brand || "").trim();
-    if (!brand || brands.has(brand)) return;
-    brands.set(brand, product);
-  });
-  const featured = [...brands.entries()].slice(0, 4);
-  container.innerHTML = featured.map(([brand, product]) => `
-    <article class="brand-spotlight-card" data-brand="${escapeHtml(brand)}">
-      <div class="brand-spotlight-media">
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(brand)}" loading="lazy" />
-      </div>
-      <div class="brand-spotlight-content">
-        <p class="eyebrow">Brand Story</p>
-        <h3>${escapeHtml(brand)}</h3>
-        <p>${escapeHtml(shortText(product.description || "Premium Korean beauty philosophy.", 78))}</p>
-        <button class="secondary-button" type="button" data-brand="${escapeHtml(brand)}">Explore Brand</button>
-      </div>
-    </article>
-  `).join("");
-  initLazyImages(container);
-}
-
-function renderRoutineProducts(products) {
-  const container = document.getElementById("routineGrid");
-  if (!container) return;
-  const picks = (products || []).slice(0, 4);
-  container.innerHTML = picks.map((product, index) => productCard(product, { screen: "home-routine", position: index })).join("");
-  observeProductImpressions(container);
-  initLazyImages(container);
-}
-
-function renderSocialGalleryTiles(products) {
-  const tiles = document.querySelectorAll("#socialGalleryGrid .social-tile");
-  if (!tiles.length) return;
-  tiles.forEach((tile, index) => {
-    const product = products[index % Math.max(products.length, 1)];
-    if (!product) {
-      tile.innerHTML = "";
-      return;
-    }
-    tile.innerHTML = `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />`;
-  });
-  initLazyImages(document.getElementById("socialGalleryGrid"));
 }
 
 function uniqueProductById(product, index, list) {
@@ -1010,10 +951,6 @@ function initPremiumUi() {
     els.searchInput.value = chip.dataset.searchChip;
     saveSearchHistory(chip.dataset.searchChip);
     renderSearchResults(chip.dataset.searchChip).catch(() => {});
-  });
-
-  document.querySelector("[data-scroll-home]")?.addEventListener("click", () => {
-    document.getElementById("quickCategoriesSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   document.querySelector(".mobile-bottom-nav")?.addEventListener("click", (event) => {
