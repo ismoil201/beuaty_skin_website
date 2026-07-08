@@ -504,6 +504,27 @@ body.app-layout .app-main-catalog #productGrid {
   gap: 12px 10px !important;
 }
 
+body.app-layout .product-card {
+  cursor: pointer;
+}
+
+body.app-layout .product-card:focus-visible {
+  outline: 3px solid rgba(74, 63, 84, 0.35);
+  outline-offset: 2px;
+}
+
+body.app-layout #productDetailPage:not([hidden]) {
+  display: block !important;
+  padding: 12px var(--app-gutter) calc(80px + env(safe-area-inset-bottom, 0px)) !important;
+  max-width: var(--app-shell);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+body.app-layout #homeView[hidden] {
+  display: none !important;
+}
+
 body.app-layout .app-main-catalog .product-card {
   min-height: 0 !important;
   max-height: none !important;

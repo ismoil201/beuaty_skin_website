@@ -276,7 +276,7 @@ function productCard(product, meta = {}) {
     : "";
 
   return `
-    <article class="product-card" data-product="${escapeHtml(product.id)}" data-screen="${escapeHtml(screen)}" data-position="${escapeHtml(position)}">
+    <article class="product-card" data-product="${escapeHtml(product.id)}" data-screen="${escapeHtml(screen)}" data-position="${escapeHtml(position)}" role="link" tabindex="0" aria-label="${escapeHtml(product.name)}">
       <div class="card-media">
         <div class="badge-row">
           ${product.discountPercent ? `<span class="badge ds-badge--sale">-${product.discountPercent}%</span>` : ""}
@@ -1433,6 +1433,7 @@ async function openProductDetail(productId) {
 }
 
 async function loadProductDetailPage(productId) {
+  showProductView();
   state.currentRoute = "product";
   state.detailLoading = true;
   state.detailError = "";
@@ -3900,11 +3901,9 @@ export function bindEvents() {
   els.quickCategoryGrid.addEventListener("click", handleCategoryClick);
   els.catalogList.addEventListener("click", handleCategoryClick);
   els.banners.addEventListener("click", handleBannerClick);
-  els.grid.addEventListener("click", handleProductGridClick);
-  els.dealsGrid.addEventListener("click", handleProductGridClick);
-  els.homeApiSections.addEventListener("click", handleProductGridClick);
+  els.homeView?.addEventListener("click", handleProductGridClick);
+  els.homeView?.addEventListener("keydown", handleProductCardKeydown);
   document.getElementById("brandViewContent")?.addEventListener("click", handleProductGridClick);
-  document.getElementById("personalizationSection")?.addEventListener("click", handleProductGridClick);
   els.detailContent.addEventListener("click", handleDetailClick);
   els.productDetailPageContent.addEventListener("click", (event) => {
     if (!handleDetailClick(event)) {
@@ -4038,6 +4037,17 @@ function handleCategoryClick(event) {
   }, 0);
 }
 
+function handleProductCardKeydown(event) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const card = event.target.closest("[data-product]");
+  if (!card) return;
+  event.preventDefault();
+  const productId = card.dataset.product;
+  if (!productId) return;
+  sendProductClick(productId);
+  openProductDetail(productId);
+}
+
 function handleProductGridClick(event) {
   const showAll = event.target.closest("[data-show-all]");
   const favorite = event.target.closest("[data-favorite]");
@@ -4078,9 +4088,20 @@ function handleProductGridClick(event) {
     return;
   }
 
-  if (detail || (card && !event.target.closest("button"))) {
+  if (detail) {
     event.stopPropagation();
-    const productId = (detail || card).dataset.detail || card.dataset.product;
+    const productId = detail.dataset.detail;
+    if (!productId) return;
+    sendProductClick(productId);
+    openProductDetail(productId);
+    return;
+  }
+
+  if (card && !event.target.closest("button, a")) {
+    event.preventDefault();
+    event.stopPropagation();
+    const productId = card.dataset.product;
+    if (!productId) return;
     sendProductClick(productId);
     openProductDetail(productId);
   }
