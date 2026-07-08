@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/app-mobile-ui.css" />
     <link rel="stylesheet" href="/app-cart-ui.css" />
+    <link rel="stylesheet" href="/app-profile-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -291,15 +292,9 @@
       </div>
     </aside>
 
-    <aside class="drawer" id="profileDrawer" aria-hidden="true">
-      <div class="drawer-panel profile-panel">
-        <div class="drawer-head">
-          <h2 data-i18n="profile.myProfile">Profile</h2>
-          <button class="icon-button" id="closeProfile" type="button" aria-label="Profilni yopish">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="drawer-body" id="profileContent"></div>
+    <aside class="drawer app-profile-drawer" id="profileDrawer" aria-hidden="true">
+      <div class="drawer-panel app-profile-panel">
+        <div class="drawer-body app-profile-body" id="profileContent"></div>
       </div>
     </aside>
 

@@ -10,6 +10,8 @@ export const state = {
   authMode: "login",
   authLoading: false,
   profileEditing: false,
+  profileLoading: false,
+  profileMenuOpen: false,
   lastApiError: "",
   products: [],
   todayDeals: [],

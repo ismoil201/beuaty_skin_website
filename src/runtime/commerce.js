@@ -1,5 +1,5 @@
 import { CONFIG } from '../config/config.js';
-import { CATEGORY_LABELS, QUICK_CATEGORIES } from '../config/constants.js';
+import { CATEGORY_LABELS, QUICK_CATEGORIES, SUPPORTED_LANGUAGES } from '../config/constants.js';
 import { state } from '../store/state.js';
 import { els } from '../utils/dom.js';
 import { normalizeSavedBaseUrl } from '../config/apiBase.js';
@@ -3699,19 +3699,95 @@ async function submitRegister() {
   els.loginEmail.value = els.registerEmail.value.trim();
 }
 
+function getLanguageLabel(lang = getCurrentLanguage()) {
+  const labels = {
+    uz: "O'zbek",
+    en: "English",
+    ru: "Русский",
+    ko: "한국어",
+  };
+  return labels[lang] || labels.en;
+}
+
+function profileOrderStatusLabel(status = "") {
+  const key = String(status || "").toUpperCase();
+  if (key === "NEW" || key === "CONFIRMED" || key === "PACKED") return t("status.PENDING");
+  return statusLabel(status);
+}
+
+function renderProfileStatCard(action, icon, label, value) {
+  const valueHtml = value !== "" && value !== null && value !== undefined
+    ? `<strong class="app-profile-stat-value">${escapeHtml(String(value))}</strong>`
+    : "";
+  return `
+    <button class="app-profile-stat" type="button" data-profile-action="${escapeHtml(action)}">
+      <span class="app-profile-stat-icon app-profile-stat-icon--${escapeHtml(action)}">${icon}</span>
+      <span class="app-profile-stat-label">${escapeHtml(label)}</span>
+      ${valueHtml}
+    </button>
+  `;
+}
+
+function renderProfileOrderPreviewCard(order) {
+  const items = (Array.isArray(order.items) ? order.items : []).map((item) => normalizeOrderItem({ ...item, orderId: order.id }));
+  const thumbs = items.slice(0, 4).map((item) => `
+    <img src="${escapeHtml(item.image || CONFIG.placeholderImage)}" alt="" loading="eager" decoding="async" class="app-profile-order-thumb" />
+  `).join("");
+  const extra = items.length > 4 ? `<span class="app-profile-order-more">+${items.length - 4}</span>` : "";
+
+  return `
+    <button class="app-profile-order-card" type="button" data-profile-order="${escapeHtml(order.id)}">
+      <span class="app-profile-order-status">${escapeHtml(profileOrderStatusLabel(order.status))}</span>
+      <div class="app-profile-order-thumbs">${thumbs || `<span class="app-profile-order-empty">${escapeHtml(t("orders.items", { count: 0 }))}</span>`}${extra}</div>
+    </button>
+  `;
+}
+
+function renderProfileMenuRow(action, icon, label, trailing = "") {
+  return `
+    <button class="app-profile-menu-row" type="button" data-profile-action="${escapeHtml(action)}">
+      <span class="app-profile-menu-icon" aria-hidden="true">${icon}</span>
+      <span class="app-profile-menu-label">${escapeHtml(label)}</span>
+      ${trailing ? `<span class="app-profile-menu-trailing">${trailing}</span>` : ""}
+      <svg class="app-profile-menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
+  `;
+}
+
+async function loadProfileSnapshot() {
+  if (!isLoggedIn()) return;
+  state.profileLoading = true;
+  renderProfile();
+
+  const [ordersResponse, reviewsResponse] = await Promise.all([
+    apiFetch("/api/orders", { requireAuth: true, showError: false }),
+    apiFetch("/api/reviews/my", { requireAuth: true, showError: false }),
+    loadUnreadCount(),
+  ]);
+
+  if (ordersResponse !== null) state.orders = getPageContent(ordersResponse);
+  if (reviewsResponse !== null) state.myReviews = getMyReviewsContent(reviewsResponse).map(normalizeMyReviewItem);
+
+  state.profileLoading = false;
+  renderProfile();
+}
+
 function openProfile() {
   if (!isLoggedIn()) {
     showLoginRequired();
     return;
   }
   state.profileEditing = false;
-  renderProfile();
+  state.profileMenuOpen = false;
   els.profileDrawer.classList.add("open");
   els.profileDrawer.setAttribute("aria-hidden", "false");
   lockBody();
+  renderProfile();
+  loadProfileSnapshot();
 }
 
 function closeProfile() {
+  state.profileMenuOpen = false;
   els.profileDrawer.classList.remove("open");
   els.profileDrawer.setAttribute("aria-hidden", "true");
   unlockBodyIfNoOverlay();
@@ -3720,63 +3796,162 @@ function closeProfile() {
 function renderProfile() {
   const user = state.user || {};
   const avatar = user.profileImage
-    ? `<img class="profile-avatar" src="${escapeHtml(user.profileImage)}" alt="${escapeHtml(user.fullName || "Profile")}" />`
-    : `<div class="profile-avatar">${escapeHtml(firstName(user.fullName || user.email || "U").charAt(0) || "U")}</div>`;
+    ? `<img class="app-profile-avatar" src="${escapeHtml(user.profileImage)}" alt="${escapeHtml(user.fullName || "Profile")}" loading="eager" decoding="async" />`
+    : `<div class="app-profile-avatar app-profile-avatar--placeholder" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
+      </div>`;
+
+  const ordersCount = state.orders?.length || 0;
+  const reviewsCount = state.myReviews?.length || 0;
+  const couponsCount = state.cartCoupon ? 1 : 0;
+  const recentProducts = (state.recentlyViewed || []).slice(0, 6);
+  const recentHtml = recentProducts.map((product, index) => productCard(product, { screen: "profile-recent", position: index })).join("");
+  const orderPreview = (state.orders || []).slice(0, 2);
+  const unreadBadge = state.unreadCount > 0
+    ? `<span class="app-profile-notify-badge">${state.unreadCount > 99 ? "99+" : state.unreadCount}</span>`
+    : "";
+
+  const statIcons = {
+    orders: `<svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>`,
+    reviews: `<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+    coupons: `<svg viewBox="0 0 24 24"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4H4z"/><path d="M12 8v8"/></svg>`,
+    feedback: `<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`,
+  };
+
+  const menuIcons = {
+    promotions: `<svg viewBox="0 0 24 24"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M12 3 20 8v4H4V8z"/></svg>`,
+    help: `<svg viewBox="0 0 24 24"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H3z"/><path d="M14 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3z"/><path d="M8.5 11V7a3.5 3.5 0 1 1 7 0v4"/></svg>`,
+    news: `<svg viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11 6v12"/></svg>`,
+    language: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    privacy: `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`,
+    terms: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>`,
+    licenses: `<svg viewBox="0 0 24 24"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>`,
+  };
 
   els.profileContent.innerHTML = `
-    <div class="profile-card">
-      <div class="profile-summary">
-        ${avatar}
-        <div>
-          <h3>${escapeHtml(user.fullName || "Profile")}</h3>
-          <p class="hint">${escapeHtml(user.email || "")}</p>
-          <p class="hint">${escapeHtml(user.phone || "")}</p>
-          <p class="hint">Role: ${escapeHtml(state.role || "USER")}</p>
+    <div class="app-profile-page ${state.profileLoading ? "is-loading" : ""}">
+      <header class="app-profile-header">
+        <h2>${escapeHtml(t("profile.myProfile"))}</h2>
+        <div class="app-profile-header-actions">
+          <button class="app-profile-icon-btn" type="button" data-profile-action="notifications" aria-label="${escapeHtml(t("notifications.title"))}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            ${unreadBadge}
+          </button>
+          <button class="app-profile-icon-btn" type="button" data-profile-action="menu" aria-label="${escapeHtml(t("profile.menu"))}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
         </div>
-      </div>
-      <div class="profile-actions">
-        <button class="secondary-button full" data-profile-action="edit" type="button">Edit Profile</button>
-        <button class="secondary-button full" data-profile-action="orders" type="button">My Orders</button>
-        <button class="secondary-button full" data-profile-action="addresses" type="button">Addresses</button>
-        <button class="secondary-button full" data-profile-action="receivers" type="button">Receivers</button>
-        <button class="secondary-button full" data-profile-action="favorites" type="button">Favorites</button>
-        <button class="secondary-button full" data-profile-action="notifications" type="button">Notifications</button>
-        <button class="secondary-button full" data-profile-action="reviews" type="button">My Reviews</button>
-        <button class="primary-button full" data-profile-action="logout" type="button">Logout</button>
-      </div>
+      </header>
+
+      <section class="app-profile-user">
+        ${avatar}
+        <div class="app-profile-user-meta">
+          <div class="app-profile-user-top">
+            <h3>${escapeHtml(user.fullName || t("profile.myProfile"))}</h3>
+            <span class="app-profile-tier">${escapeHtml(t("profile.tierWhite"))}</span>
+          </div>
+          <p class="app-profile-email">${escapeHtml(user.email || "")}</p>
+        </div>
+      </section>
+
+      <section class="app-profile-stats">
+        ${renderProfileStatCard("orders", statIcons.orders, t("profile.ordersStat"), ordersCount)}
+        ${renderProfileStatCard("reviews", statIcons.reviews, t("profile.reviewsStat"), reviewsCount)}
+        ${renderProfileStatCard("promotions", statIcons.coupons, t("profile.couponsStat"), couponsCount)}
+        ${renderProfileStatCard("help", statIcons.feedback, t("profile.feedbackStat"), "")}
+      </section>
+
+      <section class="app-profile-section">
+        <div class="app-profile-section-head">
+          <h3>${escapeHtml(t("profile.myOrders"))}</h3>
+          <button class="app-profile-see-all" type="button" data-profile-action="orders">${escapeHtml(t("profile.seeAll"))} ›</button>
+        </div>
+        <div class="app-profile-orders-rail">
+          ${state.profileLoading
+    ? `<div class="app-profile-order-card skeleton-card"></div><div class="app-profile-order-card skeleton-card"></div>`
+    : orderPreview.length
+      ? orderPreview.map((order) => renderProfileOrderPreviewCard(order)).join("")
+      : `<div class="app-profile-empty-block">${escapeHtml(t("orders.none"))}</div>`}
+        </div>
+      </section>
+
+      ${recentHtml ? `
+        <section class="app-profile-section app-profile-recent">
+          <div class="app-profile-section-head">
+            <h3>${escapeHtml(t("home.recentlyViewed"))}</h3>
+          </div>
+          <div class="product-grid app-rail-grid">${recentHtml}</div>
+        </section>
+      ` : ""}
+
+      <nav class="app-profile-menu" aria-label="${escapeHtml(t("profile.settings"))}">
+        ${renderProfileMenuRow("promotions", menuIcons.promotions, t("profile.promotions"))}
+        ${renderProfileMenuRow("help", menuIcons.help, t("profile.help"))}
+        ${renderProfileMenuRow("news", menuIcons.news, t("profile.news"))}
+        ${renderProfileMenuRow("language", menuIcons.language, t("profile.language"), `<span>${escapeHtml(getLanguageLabel())}</span>`)}
+        ${renderProfileMenuRow("privacy", menuIcons.privacy, t("profile.privacy"))}
+        ${renderProfileMenuRow("terms", menuIcons.terms, t("profile.terms"))}
+        ${renderProfileMenuRow("licenses", menuIcons.licenses, t("profile.licenses"))}
+      </nav>
+
       ${state.profileEditing ? renderProfileEditForm(user) : ""}
+      ${state.profileMenuOpen ? `
+        <div class="app-profile-menu-sheet open" id="profileMenuSheet">
+          <button class="app-profile-menu-row" type="button" data-profile-action="edit">${escapeHtml(t("profile.edit"))}</button>
+          <button class="app-profile-menu-row app-profile-menu-row--danger" type="button" data-profile-action="logout">${escapeHtml(t("profile.logout"))}</button>
+        </div>
+      ` : ""}
     </div>
   `;
+
+  initLazyImages(els.profileContent);
 }
 
 function renderProfileEditForm(user) {
   return `
-    <form class="profile-edit" id="profileEditForm">
+    <form class="app-profile-edit profile-edit" id="profileEditForm">
+      <h3>${escapeHtml(t("profile.edit"))}</h3>
       <label>Email<input value="${escapeHtml(user.email || "")}" readonly /></label>
-      <label>Full name<input id="profileFullName" value="${escapeHtml(user.fullName || "")}" required /></label>
-      <label>Phone<input id="profilePhone" value="${escapeHtml(user.phone || "")}" required /></label>
-      <label>Profile image URL<input id="profileImage" value="${escapeHtml(user.profileImage || "")}" /></label>
-      <button class="primary-button full" id="profileSaveButton" type="submit">Save profile</button>
+      <label>${escapeHtml(t("profile.fullName"))}<input id="profileFullName" value="${escapeHtml(user.fullName || "")}" required /></label>
+      <label>${escapeHtml(t("profile.phone"))}<input id="profilePhone" value="${escapeHtml(user.phone || "")}" required /></label>
+      <label>${escapeHtml(t("profile.imageUrl"))}<input id="profileImage" value="${escapeHtml(user.profileImage || "")}" /></label>
+      <button class="primary-button full" id="profileSaveButton" type="submit">${escapeHtml(t("profile.save"))}</button>
       <p class="form-message" id="profileMessage"></p>
     </form>
   `;
 }
 
 async function handleProfileAction(event) {
+  const orderPreview = event.target.closest("[data-profile-order]");
+  if (orderPreview) {
+    closeProfile();
+    await showOrders();
+    await openOrderDetail(orderPreview.dataset.profileOrder);
+    return;
+  }
+
   const button = event.target.closest("[data-profile-action]");
   if (!button) return;
   const action = button.dataset.profileAction;
 
+  if (action === "menu") {
+    state.profileMenuOpen = !state.profileMenuOpen;
+    renderProfile();
+    return;
+  }
+
   if (action === "edit") {
+    state.profileMenuOpen = false;
     state.profileEditing = !state.profileEditing;
     renderProfile();
     return;
   }
 
   if (action === "logout") {
+    state.profileMenuOpen = false;
     clearAuth();
     closeProfile();
-    showToast("Logged out.");
+    showToast(t("profile.loggedOut"));
     return;
   }
 
@@ -3803,13 +3978,34 @@ async function handleProfileAction(event) {
     return;
   }
 
+  if (action === "language") {
+    const langs = SUPPORTED_LANGUAGES;
+    const idx = langs.indexOf(getCurrentLanguage());
+    const next = langs[(idx + 1) % langs.length];
+    setLanguage(next);
+    if (els.languageSelect) els.languageSelect.value = next;
+    applyTranslations(state);
+    renderProfile();
+    return;
+  }
+
+  if (action === "promotions" || action === "news" || action === "privacy" || action === "terms" || action === "licenses") {
+    showToast(t("profile.comingSoon"), "info");
+    return;
+  }
+
+  if (action === "help") {
+    showToast(t("profile.helpMessage"), "info");
+    return;
+  }
+
   if (action === "addresses" || action === "receivers") {
     closeProfile();
     await prepareCheckout();
     return;
   }
 
-  showToast("Bu bo‘lim keyingi bosqichga tayyor.");
+  showToast(t("profile.comingSoon"), "info");
 }
 
 async function handleCheckoutClick(event) {
@@ -4148,8 +4344,10 @@ export function bindEvents() {
   els.writeReviewForm.addEventListener("submit", submitReview);
   els.closeWriteReview.addEventListener("click", closeWriteReview);
   els.reviewRatingSelector.addEventListener("click", handleRatingSelectorClick);
-  els.closeProfile.addEventListener("click", closeProfile);
-  els.profileContent.addEventListener("click", handleProfileAction);
+  els.closeProfile?.addEventListener("click", closeProfile);
+  els.profileContent.addEventListener("click", (event) => {
+    if (!handleProductGridClick(event)) handleProfileAction(event);
+  });
   els.profileContent.addEventListener("submit", submitProfileEdit);
   els.ordersButton.addEventListener("click", showOrders);
   els.refreshHome.addEventListener("click", loadHome);
@@ -4637,6 +4835,7 @@ function rerenderLanguageSensitiveUi() {
     if (state.homeApiSections) renderHomeApiSections(state.homeApiSections);
   }
   if (els.cartDrawer.classList.contains("open")) renderCart();
+  if (els.profileDrawer.classList.contains("open")) renderProfile();
   if (els.favoritesDialog.open) renderFavorites();
   if (els.ordersDialog.open) renderOrders();
   if (els.notificationsDrawer.classList.contains("open")) renderNotifications();
