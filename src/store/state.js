@@ -105,6 +105,7 @@ export const state = {
   checkoutReceiverPickerOpen: false,
   checkoutCouponOpen: false,
   checkoutConfirmOpen: false,
+  supportFaqOpen: 0,
   reviewSort: "newest",
   reviewFilterRating: 0,
   reviewSearchQuery: "",

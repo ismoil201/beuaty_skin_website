@@ -3526,6 +3526,317 @@ function handleFavoritesClick(event) {
   handleProductGridClick(event);
 }
 
+/* ================= SUPPORT / HELP ================= */
+
+const SUPPORT_CONTACT = {
+  email: "ismoiljoraxonov1@gmail.com",
+  phone: "+821065110757",
+  phoneDisplay: "+82 10 6511 0757",
+};
+
+const SUPPORT_FAQ_KEYS = ["delivery", "cancel", "return"];
+
+function openSupport() {
+  state.supportFaqOpen = 0;
+  renderSupport();
+  els.supportDialog.showModal();
+  lockBody();
+}
+
+function closeSupport() {
+  els.supportDialog.close();
+  unlockBodyIfNoOverlay();
+}
+
+function renderSupportFaqItem(key, index) {
+  const isOpen = state.supportFaqOpen === index;
+  return `
+    <div class="app-support-faq ${isOpen ? "is-open" : ""}">
+      <button class="app-support-faq-q" type="button" data-support-faq="${index}">
+        <span>${escapeHtml(t(`support.faq.${key}.q`))}</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      ${isOpen ? `<div class="app-support-faq-a">${escapeHtml(t(`support.faq.${key}.a`))}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderSupport() {
+  els.supportContent.innerHTML = `
+    <div class="app-support-page">
+      <header class="app-support-header">
+        <button class="app-support-back" type="button" data-support-close aria-label="${escapeHtml(t("checkout.back"))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <h2>${escapeHtml(t("support.title"))}</h2>
+        <span aria-hidden="true"></span>
+      </header>
+      <div class="app-support-scroll">
+        <p class="app-support-intro">${escapeHtml(t("support.intro"))}</p>
+
+        <section class="app-support-card">
+          <h3>${escapeHtml(t("support.faqTitle"))}</h3>
+          ${SUPPORT_FAQ_KEYS.map((key, index) => renderSupportFaqItem(key, index)).join("")}
+        </section>
+
+        <section class="app-support-card">
+          <h3>${escapeHtml(t("support.originalTitle"))}</h3>
+          <p class="app-support-text">${escapeHtml(t("support.originalText"))}</p>
+          <p class="app-support-subtitle">${escapeHtml(t("support.whyTitle"))}</p>
+          <ul class="app-support-list">
+            <li>${escapeHtml(t("support.why1"))}</li>
+            <li>${escapeHtml(t("support.why2"))}</li>
+            <li>${escapeHtml(t("support.why3"))}</li>
+            <li>${escapeHtml(t("support.why4"))}</li>
+            <li>${escapeHtml(t("support.why5"))}</li>
+          </ul>
+          <p class="app-support-guarantee">${escapeHtml(t("support.guarantee"))}</p>
+        </section>
+
+        <section class="app-support-card">
+          <h3>${escapeHtml(t("support.contactTitle"))}</h3>
+          <div class="app-support-contact-row">
+            <span class="app-support-contact-icon" aria-hidden="true">✉️</span>
+            <span>Email: <a href="mailto:${escapeHtml(SUPPORT_CONTACT.email)}">${escapeHtml(SUPPORT_CONTACT.email)}</a></span>
+          </div>
+          <div class="app-support-contact-row">
+            <span class="app-support-contact-icon" aria-hidden="true">📞</span>
+            <span>${escapeHtml(t("support.phoneLabel"))} <a href="tel:${escapeHtml(SUPPORT_CONTACT.phone)}">${escapeHtml(SUPPORT_CONTACT.phoneDisplay)}</a></span>
+          </div>
+          <div class="app-support-contact-row">
+            <span class="app-support-contact-icon" aria-hidden="true">🕘</span>
+            <span>${escapeHtml(t("support.hoursLabel"))} ${escapeHtml(t("support.hoursValue"))}</span>
+          </div>
+          <p class="app-support-contact-note">${escapeHtml(t("support.contactNote"))}</p>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function handleSupportClick(event) {
+  const close = event.target.closest("[data-support-close]");
+  const faq = event.target.closest("[data-support-faq]");
+
+  if (close) {
+    closeSupport();
+    return;
+  }
+
+  if (faq) {
+    const index = Number(faq.dataset.supportFaq);
+    state.supportFaqOpen = state.supportFaqOpen === index ? -1 : index;
+    renderSupport();
+  }
+}
+
+/* ================= PRIVACY POLICY ================= */
+
+function openPrivacy() {
+  renderPrivacy();
+  els.privacyDialog.showModal();
+  lockBody();
+}
+
+function closePrivacy() {
+  els.privacyDialog.close();
+  unlockBodyIfNoOverlay();
+}
+
+function renderPrivacyBullets(keys) {
+  return `<ul class="app-support-doc-list">${keys
+    .map((key) => `<li>${escapeHtml(t(key))}</li>`)
+    .join("")}</ul>`;
+}
+
+function renderPrivacy() {
+  els.privacyContent.innerHTML = `
+    <div class="app-support-page">
+      <header class="app-support-header app-support-header--doc">
+        <button class="app-support-back" type="button" data-privacy-close aria-label="${escapeHtml(t("checkout.back"))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <h2>${escapeHtml(t("privacy.title"))}</h2>
+      </header>
+      <div class="app-support-scroll">
+        <p class="app-support-doc-updated">${escapeHtml(t("privacy.updated"))}</p>
+        <p class="app-support-doc-intro">${escapeHtml(t("privacy.intro"))}</p>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("privacy.s1title"))}</h3>
+          ${renderPrivacyBullets(["privacy.s1a", "privacy.s1b", "privacy.s1c", "privacy.s1d"])}
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("privacy.s2title"))}</h3>
+          <p>${escapeHtml(t("privacy.s2intro"))}</p>
+          ${renderPrivacyBullets(["privacy.s2a", "privacy.s2b", "privacy.s2c", "privacy.s2d"])}
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("privacy.s3title"))}</h3>
+          <p>${escapeHtml(t("privacy.s3text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("privacy.s4title"))}</h3>
+          <p>${escapeHtml(t("privacy.s4text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("privacy.s5title"))}</h3>
+          <p>${escapeHtml(t("privacy.s5text"))}</p>
+          <p class="app-support-doc-contact">✉️ <a href="mailto:${escapeHtml(SUPPORT_CONTACT.email)}">${escapeHtml(SUPPORT_CONTACT.email)}</a></p>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function handlePrivacyClick(event) {
+  if (event.target.closest("[data-privacy-close]")) {
+    closePrivacy();
+  }
+}
+
+/* ================= TERMS OF SERVICE ================= */
+
+function openTerms() {
+  renderTerms();
+  els.termsDialog.showModal();
+  lockBody();
+}
+
+function closeTerms() {
+  els.termsDialog.close();
+  unlockBodyIfNoOverlay();
+}
+
+function renderTerms() {
+  els.termsContent.innerHTML = `
+    <div class="app-support-page">
+      <header class="app-support-header app-support-header--doc">
+        <button class="app-support-back" type="button" data-terms-close aria-label="${escapeHtml(t("checkout.back"))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <h2>${escapeHtml(t("terms.title"))}</h2>
+      </header>
+      <div class="app-support-scroll">
+        <p class="app-support-doc-updated">${escapeHtml(t("terms.updated"))}</p>
+        <p class="app-support-doc-intro">${escapeHtml(t("terms.intro"))}</p>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s1title"))}</h3>
+          <p>${escapeHtml(t("terms.s1text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s2title"))}</h3>
+          <p>${escapeHtml(t("terms.s2text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s3title"))}</h3>
+          <p>${escapeHtml(t("terms.s3text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s4title"))}</h3>
+          <p>${escapeHtml(t("terms.s4text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s5title"))}</h3>
+          <p>${escapeHtml(t("terms.s5text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s6title"))}</h3>
+          <p>${escapeHtml(t("terms.s6text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("terms.s7title"))}</h3>
+          <p>${escapeHtml(t("terms.s7text"))}</p>
+        </section>
+
+        <section class="app-support-doc-section">
+          <p class="app-support-doc-contact">✉️ <a href="mailto:${escapeHtml(SUPPORT_CONTACT.email)}">${escapeHtml(SUPPORT_CONTACT.email)}</a></p>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function handleTermsClick(event) {
+  if (event.target.closest("[data-terms-close]")) {
+    closeTerms();
+  }
+}
+
+/* ================= OPEN SOURCE LICENSES ================= */
+
+function openLicenses() {
+  renderLicenses();
+  els.licensesDialog.showModal();
+  lockBody();
+}
+
+function closeLicenses() {
+  els.licensesDialog.close();
+  unlockBodyIfNoOverlay();
+}
+
+function renderLicenseBullets(keys) {
+  return `<ul class="app-support-doc-list">${keys
+    .map((key) => `<li>${escapeHtml(t(key))}</li>`)
+    .join("")}</ul>`;
+}
+
+function renderLicenses() {
+  els.licensesContent.innerHTML = `
+    <div class="app-support-page">
+      <header class="app-support-header app-support-header--doc">
+        <button class="app-support-back" type="button" data-licenses-close aria-label="${escapeHtml(t("checkout.back"))}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <h2>${escapeHtml(t("licenses.title"))}</h2>
+      </header>
+      <div class="app-support-scroll">
+        <p class="app-support-doc-intro">${escapeHtml(t("licenses.intro"))}</p>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("licenses.frontendTitle"))}</h3>
+          ${renderLicenseBullets(["licenses.fe1", "licenses.fe2", "licenses.fe3", "licenses.fe4", "licenses.fe5"])}
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("licenses.backendTitle"))}</h3>
+          ${renderLicenseBullets(["licenses.be1", "licenses.be2", "licenses.be3", "licenses.be4", "licenses.be5"])}
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("licenses.infraTitle"))}</h3>
+          ${renderLicenseBullets(["licenses.inf1", "licenses.inf2"])}
+        </section>
+
+        <section class="app-support-doc-section">
+          <h3>${escapeHtml(t("licenses.securityTitle"))}</h3>
+          ${renderLicenseBullets(["licenses.sec1", "licenses.sec2", "licenses.sec3"])}
+        </section>
+
+        <p class="app-support-contact-note">${escapeHtml(t("licenses.footer"))}</p>
+      </div>
+    </div>
+  `;
+}
+
+function handleLicensesClick(event) {
+  if (event.target.closest("[data-licenses-close]")) {
+    closeLicenses();
+  }
+}
+
 /* ================= NOTIFICATIONS RENDERERS ================= */
 
 function clearNotificationsState() {
@@ -4675,13 +4986,36 @@ async function handleProfileAction(event) {
     return;
   }
 
-  if (action === "promotions" || action === "news" || action === "privacy" || action === "terms" || action === "licenses") {
+  if (action === "privacy") {
+    state.profileMenuOpen = false;
+    closeProfile();
+    openPrivacy();
+    return;
+  }
+
+  if (action === "terms") {
+    state.profileMenuOpen = false;
+    closeProfile();
+    openTerms();
+    return;
+  }
+
+  if (action === "licenses") {
+    state.profileMenuOpen = false;
+    closeProfile();
+    openLicenses();
+    return;
+  }
+
+  if (action === "promotions" || action === "news") {
     showToast(t("profile.comingSoon"), "info");
     return;
   }
 
   if (action === "help") {
-    showToast(t("profile.helpMessage"), "info");
+    state.profileMenuOpen = false;
+    closeProfile();
+    openSupport();
     return;
   }
 
@@ -5200,6 +5534,15 @@ export function bindEvents() {
   });
   els.profileContent.addEventListener("submit", submitProfileEdit);
   els.ordersButton.addEventListener("click", showOrders);
+  els.supportButton?.addEventListener("click", openSupport);
+  els.supportContent?.addEventListener("click", handleSupportClick);
+  els.supportDialog?.addEventListener("close", unlockBodyIfNoOverlay);
+  els.privacyContent?.addEventListener("click", handlePrivacyClick);
+  els.privacyDialog?.addEventListener("close", unlockBodyIfNoOverlay);
+  els.termsContent?.addEventListener("click", handleTermsClick);
+  els.termsDialog?.addEventListener("close", unlockBodyIfNoOverlay);
+  els.licensesContent?.addEventListener("click", handleLicensesClick);
+  els.licensesDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.refreshHome.addEventListener("click", loadHome);
   els.loadMore.addEventListener("click", loadMoreProducts);
   window.addEventListener("hashchange", handleRoute);
@@ -5613,7 +5956,7 @@ function lockBody() {
 function unlockBodyIfNoOverlay() {
   const compareOpen = document.getElementById("compareDrawer")?.classList.contains("open");
   const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || compareOpen;
-  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
+  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.licensesDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
   if (!hasOpenDrawer && !hasOpenDialog) {
     document.body.classList.remove("locked");
   }

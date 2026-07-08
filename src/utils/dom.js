@@ -101,6 +101,15 @@ export const els = {
   reviewUploadStatus: null,
   reviewFormMessage: null,
   submitReviewButton: null,
+  supportButton: null,
+  supportDialog: null,
+  supportContent: null,
+  privacyDialog: null,
+  privacyContent: null,
+  termsDialog: null,
+  termsContent: null,
+  licensesDialog: null,
+  licensesContent: null,
   toast: null,
 };
 
@@ -207,6 +216,15 @@ const ELEMENT_IDS = {
   reviewUploadStatus: "reviewUploadStatus",
   reviewFormMessage: "reviewFormMessage",
   submitReviewButton: "submitReviewButton",
+  supportButton: "supportButton",
+  supportDialog: "supportDialog",
+  supportContent: "supportContent",
+  privacyDialog: "privacyDialog",
+  privacyContent: "privacyContent",
+  termsDialog: "termsDialog",
+  termsContent: "termsContent",
+  licensesDialog: "licensesDialog",
+  licensesContent: "licensesContent",
   toast: "toast",
 };
 

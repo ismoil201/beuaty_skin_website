@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/app-checkout-ui.css" />
     <link rel="stylesheet" href="/app-orders-ui.css" />
     <link rel="stylesheet" href="/app-favorites-ui.css" />
+    <link rel="stylesheet" href="/app-support-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -19,7 +20,7 @@
         <nav aria-label="Qo‘shimcha havolalar" data-i18n-aria-label="header.extraLinks">
           <button class="mini-link" type="button" data-i18n="header.pickupPoints">Punktlar</button>
           <button class="mini-link" type="button" data-i18n="header.sell">Sotuvchi bo‘lish</button>
-          <button class="mini-link" type="button" data-i18n="header.support">Savol-javob</button>
+          <button class="mini-link" id="supportButton" type="button" data-i18n="header.support">Savol-javob</button>
           <button class="mini-link" id="ordersButton" type="button" data-i18n="header.orders">Buyurtmalar</button>
           <button class="mini-link" id="apiButton" type="button">API</button>
           <label class="language-picker" aria-label="Language" data-i18n-aria-label="header.language">
@@ -404,6 +405,22 @@
       <button id="closeFavorites" type="button" hidden aria-hidden="true"></button>
       <button id="refreshFavorites" type="button" hidden aria-hidden="true"></button>
       <span id="favoritesSummary" hidden aria-hidden="true"></span>
+    </dialog>
+
+    <dialog id="supportDialog" class="app-support-dialog">
+      <div class="app-support-root" id="supportContent"></div>
+    </dialog>
+
+    <dialog id="privacyDialog" class="app-support-dialog">
+      <div class="app-support-root" id="privacyContent"></div>
+    </dialog>
+
+    <dialog id="termsDialog" class="app-support-dialog">
+      <div class="app-support-root" id="termsContent"></div>
+    </dialog>
+
+    <dialog id="licensesDialog" class="app-support-dialog">
+      <div class="app-support-root" id="licensesContent"></div>
     </dialog>
 
     <dialog id="myReviewsDialog" class="reviews-dialog">
