@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/app-profile-ui.css" />
     <link rel="stylesheet" href="/app-checkout-ui.css" />
     <link rel="stylesheet" href="/app-orders-ui.css" />
+    <link rel="stylesheet" href="/app-favorites-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -398,22 +399,11 @@
       <button id="refreshOrders" type="button" hidden aria-hidden="true"></button>
     </dialog>
 
-    <dialog id="favoritesDialog" class="favorites-dialog">
-      <div class="favorites-card">
-        <div class="dialog-head">
-          <div>
-            <h2 data-i18n="favorites.title">Favorites</h2>
-            <p class="hint" id="favoritesSummary">0 products</p>
-          </div>
-          <div class="head-actions">
-            <button class="secondary-button" id="refreshFavorites" type="button" data-i18n="orders.refresh">Refresh</button>
-            <button class="icon-button" id="closeFavorites" type="button" aria-label="Favorites oynasini yopish">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="favorites-content" id="favoritesContent"></div>
-      </div>
+    <dialog id="favoritesDialog" class="app-favorites-dialog">
+      <div class="app-favorites-root" id="favoritesContent"></div>
+      <button id="closeFavorites" type="button" hidden aria-hidden="true"></button>
+      <button id="refreshFavorites" type="button" hidden aria-hidden="true"></button>
+      <span id="favoritesSummary" hidden aria-hidden="true"></span>
     </dialog>
 
     <dialog id="myReviewsDialog" class="reviews-dialog">

@@ -3384,51 +3384,117 @@ async function loadFavorites(options = {}) {
 }
 
 function updateFavoritesUi() {
-  els.favoritesCount.textContent = state.favoritesCount;
-  els.favoritesSummary.textContent = `${state.favoritesCount} product${state.favoritesCount === 1 ? "" : "s"}`;
+  if (els.favoritesCount) els.favoritesCount.textContent = state.favoritesCount;
+  if (els.favoritesSummary) {
+    els.favoritesSummary.textContent = `${state.favoritesCount} product${state.favoritesCount === 1 ? "" : "s"}`;
+  }
+}
+
+function renderFavoritesShell(bodyHtml) {
+  return `
+    <div class="app-favorites-page">
+      <header class="app-favorites-header">
+        <div class="app-favorites-header-top">
+          <button class="app-favorites-back" type="button" data-favorites-close aria-label="${escapeHtml(t("checkout.back"))}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+          </button>
+          <h2>${escapeHtml(t("favorites.title"))}</h2>
+          <span aria-hidden="true"></span>
+        </div>
+        <p class="app-favorites-count">${escapeHtml(t("favorites.count", { count: state.favoritesCount || 0 }))}</p>
+      </header>
+      <div class="app-favorites-scroll">
+        ${bodyHtml}
+      </div>
+    </div>
+  `;
+}
+
+function renderFavoriteCard(product) {
+  const categoryLabelText = product.category ? categoryLabel(product.category) : (product.brand || "");
+  const rating = numberOrZero(product.ratingAvg);
+  const reviews = numberOrZero(product.reviewCount);
+
+  return `
+    <div class="app-fav-card" data-product="${escapeHtml(product.id)}" data-screen="favorites" role="link" tabindex="0" aria-label="${escapeHtml(product.name)}">
+      <div class="app-fav-media">
+        <img src="${escapeHtml(product.image || CONFIG.placeholderImage)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />
+        <button class="app-fav-heart" type="button" data-favorite="${escapeHtml(product.id)}" aria-label="${escapeHtml(t("favorites.title"))}" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C.8 9.6 2 6 5.2 6c1.9 0 3.2 1 3.8 2 .6-1 1.9-2 3.8-2 3.2 0 4.4 3.6 2.7 6.5C19 16.65 12 21 12 21Z"/></svg>
+        </button>
+      </div>
+      <div class="app-fav-body">
+        <div class="app-fav-price-row">
+          ${product.discountPercent ? `<span class="app-fav-discount">-${product.discountPercent}%</span>` : ""}
+          ${product.discountPercent ? `<span class="app-fav-old-price">${formatPrice(product.originalPrice)}</span>` : ""}
+        </div>
+        <p class="app-fav-price">${formatPrice(product.finalPrice)}</p>
+        ${categoryLabelText ? `<p class="app-fav-category">${escapeHtml(categoryLabelText)}</p>` : ""}
+        <h3 class="app-fav-name">${escapeHtml(product.name)}</h3>
+        <div class="app-fav-rating">
+          <span class="star" aria-hidden="true">★</span>
+          <span>${rating.toFixed(1)}</span>
+          <span class="count">(${reviews})</span>
+          <span class="flags" aria-hidden="true">🇰🇷 🚚</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFavoritesHeartIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21s-8.5-5.2-11-9.6C-.4 8 1 3.5 5.2 3.5c2.4 0 4 1.3 4.8 2.6.8-1.3 2.4-2.6 4.8-2.6C19 3.5 20.4 8 18 11.4 15.5 15.8 12 21 12 21Z"/>
+    </svg>
+  `;
 }
 
 function renderFavorites() {
   updateFavoritesUi();
 
   if (state.favoritesLoading) {
-    els.favoritesContent.innerHTML = `
-      <div class="favorites-grid">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
+    els.favoritesContent.innerHTML = renderFavoritesShell(`
+      <div class="app-favorites-grid">
+        <div class="app-favorites-skeleton skeleton-card"></div>
+        <div class="app-favorites-skeleton skeleton-card"></div>
+        <div class="app-favorites-skeleton skeleton-card"></div>
+        <div class="app-favorites-skeleton skeleton-card"></div>
       </div>
-    `;
+    `);
     return;
   }
 
   if (state.favoritesError) {
-    els.favoritesContent.innerHTML = `
-      <div class="favorites-empty">
-        <strong>Favorites unavailable</strong>
+    els.favoritesContent.innerHTML = renderFavoritesShell(`
+      <div class="app-favorites-state">
+        <span class="app-favorites-state-icon" aria-hidden="true">${renderFavoritesHeartIcon()}</span>
+        <h3>${escapeHtml(t("favorites.unavailable"))}</h3>
         <p>${escapeHtml(state.favoritesError)}</p>
-        <button class="secondary-button" data-favorites-retry type="button">Retry</button>
+        <button class="app-favorites-state-btn" data-favorites-retry type="button">${escapeHtml(t("common.tryAgain"))}</button>
       </div>
-    `;
+    `);
     return;
   }
 
   if (!state.favoriteProducts.length) {
-    els.favoritesContent.innerHTML = `
-      <div class="favorites-empty">
-        <strong>No favorite products yet</strong>
-        <p>Save products with the heart button and they will appear here.</p>
-        <button class="primary-button" data-favorites-start type="button">Start shopping</button>
+    els.favoritesContent.innerHTML = renderFavoritesShell(`
+      <div class="app-favorites-state">
+        <span class="app-favorites-state-icon" aria-hidden="true">${renderFavoritesHeartIcon()}</span>
+        <h3>${escapeHtml(t("favorites.empty"))}</h3>
+        <p>${escapeHtml(t("favorites.emptyHint"))}</p>
+        <button class="app-favorites-state-btn" data-favorites-start type="button">${escapeHtml(t("favorites.browse"))}</button>
       </div>
-    `;
+    `);
     return;
   }
 
-  els.favoritesContent.innerHTML = `
-    <div class="favorites-grid product-grid">
-      ${state.favoriteProducts.map((product) => productCard({ ...product, favorite: true })).join("")}
+  els.favoritesContent.innerHTML = renderFavoritesShell(`
+    <div class="app-favorites-grid">
+      ${state.favoriteProducts.map((product) => renderFavoriteCard(product)).join("")}
     </div>
-  `;
+  `);
+  initLazyImages(els.favoritesContent);
 }
 
 function closeFavorites() {
@@ -3437,8 +3503,14 @@ function closeFavorites() {
 }
 
 function handleFavoritesClick(event) {
+  const close = event.target.closest("[data-favorites-close]");
   const retry = event.target.closest("[data-favorites-retry]");
   const start = event.target.closest("[data-favorites-start]");
+
+  if (close) {
+    closeFavorites();
+    return;
+  }
 
   if (retry) {
     loadFavorites({ render: true });
