@@ -1008,10 +1008,21 @@ function initPremiumUi() {
     const button = event.target.closest("[data-mobile-action]");
     if (!button) return;
     const action = button.dataset.mobileAction;
+
     if (action === "home") {
-      window.location.hash = "#/";
+      if (els.cartDrawer?.classList.contains("open")) closeCart();
+      if (els.favoritesDialog?.open) closeFavorites();
+      if (els.profileDrawer?.classList.contains("open")) closeProfile();
+      if (window.location.hash && window.location.hash !== "#/" && window.location.hash !== "#") {
+        window.location.hash = "#/";
+      } else {
+        showHomeView();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      syncBottomNav();
       return;
     }
+
     document.getElementById(action)?.click();
   });
 
@@ -1354,12 +1365,29 @@ function hideBrandView() {
   document.getElementById("brandView")?.setAttribute("hidden", "");
 }
 
+function syncBottomNav() {
+  const nav = document.querySelector(".mobile-bottom-nav");
+  if (!nav) return;
+  let activeAction = "home";
+  if (els.profileDrawer?.classList.contains("open")) {
+    activeAction = "loginButton";
+  } else if (els.favoritesDialog?.open) {
+    activeAction = "favoritesButton";
+  } else if (els.cartDrawer?.classList.contains("open")) {
+    activeAction = "cartButton";
+  }
+  nav.querySelectorAll("[data-mobile-action]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mobileAction === activeAction);
+  });
+}
+
 function showHomeView() {
   state.currentRoute = "home";
   els.homeView.hidden = false;
   els.productDetailPage.hidden = true;
   hideBrandView();
   document.title = "BEAUTY SKIN KOREA";
+  syncBottomNav();
 }
 
 function showProductView() {
@@ -3340,6 +3368,7 @@ async function openFavorites() {
 
   els.favoritesDialog.showModal();
   lockBody();
+  syncBottomNav();
   await loadFavorites({ render: true });
 }
 
@@ -3500,6 +3529,7 @@ function renderFavorites() {
 function closeFavorites() {
   els.favoritesDialog.close();
   unlockBodyIfNoOverlay();
+  syncBottomNav();
 }
 
 function handleFavoritesClick(event) {
@@ -3771,69 +3801,6 @@ function renderTerms() {
 function handleTermsClick(event) {
   if (event.target.closest("[data-terms-close]")) {
     closeTerms();
-  }
-}
-
-/* ================= OPEN SOURCE LICENSES ================= */
-
-function openLicenses() {
-  renderLicenses();
-  els.licensesDialog.showModal();
-  lockBody();
-}
-
-function closeLicenses() {
-  els.licensesDialog.close();
-  unlockBodyIfNoOverlay();
-}
-
-function renderLicenseBullets(keys) {
-  return `<ul class="app-support-doc-list">${keys
-    .map((key) => `<li>${escapeHtml(t(key))}</li>`)
-    .join("")}</ul>`;
-}
-
-function renderLicenses() {
-  els.licensesContent.innerHTML = `
-    <div class="app-support-page">
-      <header class="app-support-header app-support-header--doc">
-        <button class="app-support-back" type="button" data-licenses-close aria-label="${escapeHtml(t("checkout.back"))}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
-        </button>
-        <h2>${escapeHtml(t("licenses.title"))}</h2>
-      </header>
-      <div class="app-support-scroll">
-        <p class="app-support-doc-intro">${escapeHtml(t("licenses.intro"))}</p>
-
-        <section class="app-support-doc-section">
-          <h3>${escapeHtml(t("licenses.frontendTitle"))}</h3>
-          ${renderLicenseBullets(["licenses.fe1", "licenses.fe2", "licenses.fe3", "licenses.fe4", "licenses.fe5"])}
-        </section>
-
-        <section class="app-support-doc-section">
-          <h3>${escapeHtml(t("licenses.backendTitle"))}</h3>
-          ${renderLicenseBullets(["licenses.be1", "licenses.be2", "licenses.be3", "licenses.be4", "licenses.be5"])}
-        </section>
-
-        <section class="app-support-doc-section">
-          <h3>${escapeHtml(t("licenses.infraTitle"))}</h3>
-          ${renderLicenseBullets(["licenses.inf1", "licenses.inf2"])}
-        </section>
-
-        <section class="app-support-doc-section">
-          <h3>${escapeHtml(t("licenses.securityTitle"))}</h3>
-          ${renderLicenseBullets(["licenses.sec1", "licenses.sec2", "licenses.sec3"])}
-        </section>
-
-        <p class="app-support-contact-note">${escapeHtml(t("licenses.footer"))}</p>
-      </div>
-    </div>
-  `;
-}
-
-function handleLicensesClick(event) {
-  if (event.target.closest("[data-licenses-close]")) {
-    closeLicenses();
   }
 }
 
@@ -4777,6 +4744,7 @@ async function openProfile() {
   els.profileDrawer.classList.add("open");
   els.profileDrawer.setAttribute("aria-hidden", "false");
   lockBody();
+  syncBottomNav();
   renderProfile();
   await loadProfileSnapshot();
 }
@@ -4787,6 +4755,7 @@ function closeProfile() {
   els.profileDrawer.classList.remove("open");
   els.profileDrawer.setAttribute("aria-hidden", "true");
   unlockBodyIfNoOverlay();
+  syncBottomNav();
 }
 
 function renderProfile() {
@@ -4887,7 +4856,6 @@ function renderProfile() {
         ${renderProfileMenuRow("language", menuIcons.language, t("profile.language"), `<span>${escapeHtml(getLanguageLabel())}</span>`)}
         ${renderProfileMenuRow("privacy", menuIcons.privacy, t("profile.privacy"))}
         ${renderProfileMenuRow("terms", menuIcons.terms, t("profile.terms"))}
-        ${renderProfileMenuRow("licenses", menuIcons.licenses, t("profile.licenses"))}
       </nav>
 
       ${state.profileEditing ? renderProfileEditForm(user) : ""}
@@ -4997,13 +4965,6 @@ async function handleProfileAction(event) {
     state.profileMenuOpen = false;
     closeProfile();
     openTerms();
-    return;
-  }
-
-  if (action === "licenses") {
-    state.profileMenuOpen = false;
-    closeProfile();
-    openLicenses();
     return;
   }
 
@@ -5541,8 +5502,6 @@ export function bindEvents() {
   els.privacyDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.termsContent?.addEventListener("click", handleTermsClick);
   els.termsDialog?.addEventListener("close", unlockBodyIfNoOverlay);
-  els.licensesContent?.addEventListener("click", handleLicensesClick);
-  els.licensesDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.refreshHome.addEventListener("click", loadHome);
   els.loadMore.addEventListener("click", loadMoreProducts);
   window.addEventListener("hashchange", handleRoute);
@@ -5583,7 +5542,10 @@ export function bindEvents() {
     unlockBodyIfNoOverlay();
   });
   els.ordersDialog.addEventListener("close", unlockBodyIfNoOverlay);
-  els.favoritesDialog.addEventListener("close", unlockBodyIfNoOverlay);
+  els.favoritesDialog.addEventListener("close", () => {
+    unlockBodyIfNoOverlay();
+    syncBottomNav();
+  });
   els.myReviewsDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.writeReviewDialog.addEventListener("close", unlockBodyIfNoOverlay);
 
@@ -5912,6 +5874,7 @@ function openCart() {
   els.cartDrawer.classList.add("open");
   els.cartDrawer.setAttribute("aria-hidden", "false");
   lockBody();
+  syncBottomNav();
   loadCart();
 }
 
@@ -5919,6 +5882,7 @@ function closeCart() {
   els.cartDrawer.classList.remove("open");
   els.cartDrawer.setAttribute("aria-hidden", "true");
   unlockBodyIfNoOverlay();
+  syncBottomNav();
 }
 
 function openCatalog() {
@@ -5956,7 +5920,7 @@ function lockBody() {
 function unlockBodyIfNoOverlay() {
   const compareOpen = document.getElementById("compareDrawer")?.classList.contains("open");
   const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || compareOpen;
-  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.licensesDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
+  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
   if (!hasOpenDrawer && !hasOpenDialog) {
     document.body.classList.remove("locked");
   }

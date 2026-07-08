@@ -108,8 +108,6 @@ export const els = {
   privacyContent: null,
   termsDialog: null,
   termsContent: null,
-  licensesDialog: null,
-  licensesContent: null,
   toast: null,
 };
 
@@ -223,8 +221,6 @@ const ELEMENT_IDS = {
   privacyContent: "privacyContent",
   termsDialog: "termsDialog",
   termsContent: "termsContent",
-  licensesDialog: "licensesDialog",
-  licensesContent: "licensesContent",
   toast: "toast",
 };
 
