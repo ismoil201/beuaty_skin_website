@@ -59,6 +59,7 @@ export default {
   "cart.deliveryCourier": "택배 배송",
   "cart.deliveryEta": "3일 내 배송",
   "cart.selectAll": "전체 선택 ({selected}/{total})",
+  "cart.selectItem": "상품 선택",
   "cart.deleteSelected": "삭제",
   "cart.yourOrder": "주문 내역",
   "cart.goodsCount": "상품 {count}개",

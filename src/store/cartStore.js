@@ -13,4 +13,5 @@ export function clearCartState() {
   state.cartError = "";
   state.cartUpdatingIds = new Set();
   state.cartSelectedIds = new Set();
+  state.cartKnownItemIds = new Set();
 }

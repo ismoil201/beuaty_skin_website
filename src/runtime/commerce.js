@@ -2042,11 +2042,40 @@ function getCartSelectedIds() {
 function syncCartSelection() {
   const ids = getCartSelectedIds();
   const itemIds = state.cartItems.map((item) => String(item.id));
+  const known = state.cartKnownItemIds || new Set();
+
   [...ids].forEach((id) => {
     if (!itemIds.includes(id)) ids.delete(id);
   });
-  if (itemIds.length && !itemIds.some((id) => ids.has(id))) {
+
+  itemIds.forEach((id) => {
+    if (!known.has(id)) ids.add(id);
+  });
+
+  if (itemIds.length && !ids.size && !known.size) {
     itemIds.forEach((id) => ids.add(id));
+  }
+
+  state.cartKnownItemIds = new Set(itemIds);
+}
+
+function applyCartCheckboxUi() {
+  const selectAll = els.cartItems?.querySelector("[data-cart-select-all]");
+  if (!selectAll) return;
+
+  const selectedCount = getSelectedCartItems().length;
+  const totalCount = state.cartItems.length;
+  const allSelected = totalCount > 0 && selectedCount === totalCount;
+  const someSelected = selectedCount > 0 && selectedCount < totalCount;
+
+  selectAll.checked = allSelected;
+  selectAll.indeterminate = someSelected;
+
+  const ui = selectAll.closest(".app-cart-check")?.querySelector(".app-cart-check-ui")
+    || selectAll.nextElementSibling;
+  if (ui?.classList.contains("app-cart-check-ui")) {
+    ui.classList.toggle("is-indeterminate", someSelected);
+    ui.classList.toggle("is-checked", allSelected);
   }
 }
 
@@ -2081,9 +2110,14 @@ function renderCartItemRow(item) {
 
   return `
     <article class="app-cart-item ${loading ? "loading" : ""}">
-      <label class="app-cart-check">
-        <input type="checkbox" data-cart-item-check="${escapeHtml(item.id)}" ${selected ? "checked" : ""} />
-        <span class="app-cart-check-ui" aria-hidden="true"></span>
+      <label class="app-cart-check" title="${escapeHtml(t("cart.selectItem"))}">
+        <input
+          type="checkbox"
+          data-cart-item-check="${escapeHtml(item.id)}"
+          ${selected ? "checked" : ""}
+          aria-label="${escapeHtml(t("cart.selectItem"))}: ${escapeHtml(item.name)}"
+        />
+        <span class="app-cart-check-ui ${selected ? "is-checked" : ""}" aria-hidden="true"></span>
       </label>
       <div class="app-cart-item-body">
         <button class="app-cart-item-remove" data-remove="${escapeHtml(item.id)}" type="button" aria-label="${escapeHtml(t("cart.remove"))}">×</button>
@@ -2174,7 +2208,8 @@ function renderCart() {
 
   const selectedCount = totals.uniqueCount;
   const totalCount = state.cartItems.length;
-  const allSelected = selectedCount === totalCount;
+  const allSelected = totalCount > 0 && selectedCount === totalCount;
+  const someSelected = selectedCount > 0 && selectedCount < totalCount;
 
   els.cartItems.innerHTML = `
     <div class="app-cart-delivery-card">
@@ -2183,9 +2218,16 @@ function renderCart() {
     </div>
     <div class="app-cart-toolbar">
       <label class="app-cart-select-all">
-        <input type="checkbox" data-cart-select-all ${allSelected ? "checked" : ""} />
-        <span class="app-cart-check-ui" aria-hidden="true"></span>
-        <span>${escapeHtml(t("cart.selectAll", { selected: selectedCount, total: totalCount }))}</span>
+        <span class="app-cart-check app-cart-check--toolbar">
+          <input
+            type="checkbox"
+            data-cart-select-all
+            ${allSelected ? "checked" : ""}
+            aria-label="${escapeHtml(t("cart.selectAll", { selected: selectedCount, total: totalCount }))}"
+          />
+          <span class="app-cart-check-ui ${allSelected ? "is-checked" : ""} ${someSelected ? "is-indeterminate" : ""}" aria-hidden="true"></span>
+        </span>
+        <span class="app-cart-select-all-text">${escapeHtml(t("cart.selectAll", { selected: selectedCount, total: totalCount }))}</span>
       </label>
       <button class="app-cart-delete-selected" data-cart-delete-selected type="button" ${selectedCount ? "" : "disabled"}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-1 5v6m-6-6v6m-2-11 1 16h8l1-16"/></svg>
@@ -2223,6 +2265,7 @@ function renderCart() {
     </div>
   `;
 
+  applyCartCheckboxUi();
   renderCartStickyProgress(totals.subtotal);
 }
 
@@ -4407,9 +4450,12 @@ function handleDetailClick(event) {
 }
 
 function handleCartChange(event) {
-  if (event.target.matches("[data-cart-select-all]")) {
+  const target = event.target;
+  if (!target.matches("[data-cart-select-all], [data-cart-item-check]")) return;
+
+  if (target.matches("[data-cart-select-all]")) {
     const ids = getCartSelectedIds();
-    if (event.target.checked) {
+    if (target.checked) {
       state.cartItems.forEach((item) => ids.add(String(item.id)));
     } else {
       ids.clear();
@@ -4417,12 +4463,12 @@ function handleCartChange(event) {
     renderCart();
     return;
   }
-  if (event.target.matches("[data-cart-item-check]")) {
-    const id = event.target.dataset.cartItemCheck;
-    if (event.target.checked) getCartSelectedIds().add(id);
-    else getCartSelectedIds().delete(id);
-    renderCart();
-  }
+
+  const id = String(target.dataset.cartItemCheck || "");
+  if (!id) return;
+  if (target.checked) getCartSelectedIds().add(id);
+  else getCartSelectedIds().delete(id);
+  renderCart();
 }
 
 function handleCartClick(event) {

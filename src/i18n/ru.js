@@ -60,6 +60,7 @@ export default {
   "cart.deliveryCourier": "Доставка курьером",
   "cart.deliveryEta": "Доставим за 3 дня",
   "cart.selectAll": "Выбрать все ({selected}/{total})",
+  "cart.selectItem": "Выбрать товар",
   "cart.deleteSelected": "Удалить",
   "cart.yourOrder": "Ваш заказ",
   "cart.goodsCount": "{count} товаров",

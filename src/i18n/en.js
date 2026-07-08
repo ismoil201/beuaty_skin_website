@@ -74,6 +74,7 @@ export default {
   "cart.deliveryCourier": "Courier delivery",
   "cart.deliveryEta": "Delivered in 3 days",
   "cart.selectAll": "Select all ({selected}/{total})",
+  "cart.selectItem": "Select item",
   "cart.deleteSelected": "Delete",
   "cart.yourOrder": "Your order",
   "cart.goodsCount": "{count} items",

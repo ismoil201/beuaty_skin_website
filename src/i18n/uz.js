@@ -93,6 +93,7 @@ export default {
     "cart.deliveryCourier": "Kuryer orqali yetkazib berish",
     "cart.deliveryEta": "3 kun ichida yetkazamiz",
     "cart.selectAll": "Hammasini tanlash ({selected}/{total})",
+    "cart.selectItem": "Mahsulotni tanlash",
     "cart.deleteSelected": "O‘chirish",
     "cart.yourOrder": "Sizning buyurtmangiz",
     "cart.goodsCount": "{count} ta mahsulot",
