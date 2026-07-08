@@ -371,3 +371,220 @@ body.app-layout dialog.app-orders-dialog::backdrop {
   color: #b42318;
   font-size: 0.8rem;
 }
+
+/* Order detail — hero card */
+.app-orders-detail-hero {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-orders-detail-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.app-orders-detail-hero-top h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-date {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.app-orders-detail-status-pill svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-orders-stepper {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.app-orders-stepper::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #e5e5e5;
+  z-index: 0;
+}
+
+.app-orders-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.app-orders-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #b0b0b0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-orders-step-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-orders-step-label {
+  font-size: 0.58rem;
+  line-height: 1.2;
+  text-align: center;
+  color: #b0b0b0;
+  word-break: break-word;
+}
+
+.app-orders-step.is-active .app-orders-step-icon,
+.app-orders-step.is-done .app-orders-step-icon {
+  background: #2563eb;
+  color: #fff;
+}
+
+.app-orders-step.is-active .app-orders-step-label,
+.app-orders-step.is-done .app-orders-step-label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.app-orders-stepper.is-canceled .app-orders-step-icon {
+  background: #f3f3f3;
+  color: #c0c0c0;
+}
+
+.app-orders-detail-summary {
+  border-top: 1px solid var(--app-border, #ececec);
+  padding-top: 12px;
+}
+
+.app-orders-detail-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.88rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-summary-row strong {
+  color: var(--app-text, #1a1a1a);
+  font-size: 0.95rem;
+}
+
+.app-orders-detail-section {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-orders-detail-section h4 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-name {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-muted {
+  margin: 0 0 6px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-section .app-orders-details-btn {
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.app-orders-detail-product {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+}
+
+.app-orders-detail-product + .app-orders-detail-product {
+  border-top: 1px solid var(--app-border, #ececec);
+}
+
+.app-orders-detail-product img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f3f3f3;
+}
+
+.app-orders-detail-product strong {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.app-orders-feedback-btn {
+  margin-top: 4px;
+}
+
+@media (max-width: 380px) {
+  .app-orders-step-label {
+    font-size: 0.52rem;
+  }
+
+  .app-orders-step-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
