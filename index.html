@@ -6,6 +6,7 @@
     <title>BEAUTY SKIN KOREA</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/app-mobile-ui.css" />
+    <link rel="stylesheet" href="/app-cart-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -265,22 +266,27 @@
       </div>
     </aside>
 
-    <aside class="drawer" id="cartDrawer" aria-hidden="true">
-      <div class="drawer-panel">
-        <div class="drawer-head">
-          <div>
-            <h2 data-i18n="cart.title">Cart</h2>
-            <p class="hint" id="cartSummary">0 items</p>
-          </div>
-          <button class="icon-button" id="closeCart" type="button" aria-label="Yopish">
+    <aside class="drawer app-cart-drawer" id="cartDrawer" aria-hidden="true">
+      <div class="drawer-panel app-cart-panel">
+        <div class="app-cart-header">
+          <h2 data-i18n="cart.title">Cart</h2>
+          <button class="icon-button app-cart-close" id="closeCart" type="button" aria-label="Yopish">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
-        <div class="drawer-body" id="cartItems"></div>
-        <div id="cartExtras"></div>
-        <div class="checkout">
-          <div class="total-line"><span data-i18n="cart.subtotal">Jami</span><strong id="cartTotal">0 so‘m</strong></div>
-          <button class="primary-button full" id="checkoutButton" type="button" disabled data-i18n="cart.checkout">Checkout</button>
+        <div class="app-cart-scroll">
+          <div class="drawer-body app-cart-body" id="cartItems"></div>
+          <div id="cartExtras" class="app-cart-extras"></div>
+        </div>
+        <div class="app-cart-sticky" id="cartStickyBar">
+          <div class="app-cart-sticky-progress" id="cartStickyProgress"></div>
+          <div class="app-cart-sticky-row">
+            <div class="app-cart-sticky-total">
+              <strong id="cartTotal">0 so‘m</strong>
+              <span class="hint" id="cartSummary">0 items</span>
+            </div>
+            <button class="app-cart-checkout" id="checkoutButton" type="button" disabled data-i18n="cart.checkout">Checkout</button>
+          </div>
         </div>
       </div>
     </aside>

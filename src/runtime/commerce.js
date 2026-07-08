@@ -42,7 +42,7 @@ import {
   saveSearchHistory,
   closeSearchPanel,
 } from '../utils/searchPanel.js';
-import { initFilterState, setSourceProducts, getFilteredProducts, renderFilterSidebar, renderFilterChips, persistFilters, clearAllFilters, applyViewMode, renderCompareFab, renderCompareDrawer, renderComparePage, renderCartExtras, renderCheckoutStepper, renderFlashCountdown, renderBrandPage } from '../utils/phase2Ui.js';
+import { initFilterState, setSourceProducts, getFilteredProducts, renderFilterSidebar, renderFilterChips, persistFilters, clearAllFilters, applyViewMode, renderCompareFab, renderCompareDrawer, renderComparePage, renderCartExtras, renderCheckoutStepper, renderFlashCountdown, renderBrandPage, FREE_SHIPPING_THRESHOLD, STANDARD_DELIVERY_FEE } from '../utils/phase2Ui.js';
 import { toggleCompareId, getCompareIds, removeCompareId, clearCompare, MAX_COMPARE } from '../store/compareStore.js';
 import { saveForLaterItem, removeSavedForLater, getSavedForLater } from '../store/savedForLaterStore.js';
 import { initLazyImages } from '../utils/imageLoader.js';
@@ -1280,7 +1280,9 @@ function handleCartExtrasClick(event) {
     removeSavedForLater(restore.dataset.restoreSaved);
     showToast(t("cart.restored"), "info");
     renderCart();
+    return;
   }
+  handleProductGridClick(event);
 }
 
 async function loadBrandPage(brand) {
@@ -2032,62 +2034,210 @@ async function loadCart() {
   renderCart();
 }
 
+function getCartSelectedIds() {
+  if (!state.cartSelectedIds) state.cartSelectedIds = new Set();
+  return state.cartSelectedIds;
+}
+
+function syncCartSelection() {
+  const ids = getCartSelectedIds();
+  const itemIds = state.cartItems.map((item) => String(item.id));
+  [...ids].forEach((id) => {
+    if (!itemIds.includes(id)) ids.delete(id);
+  });
+  if (itemIds.length && !itemIds.some((id) => ids.has(id))) {
+    itemIds.forEach((id) => ids.add(id));
+  }
+}
+
+function getSelectedCartItems() {
+  syncCartSelection();
+  const ids = getCartSelectedIds();
+  return state.cartItems.filter((item) => ids.has(String(item.id)));
+}
+
+function getCartTotals() {
+  const items = getSelectedCartItems();
+  const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+  const discount = items.reduce((sum, item) => {
+    const original = numberOrZero(item.product?.originalPrice);
+    if (original > item.unitPrice) return sum + (original - item.unitPrice) * item.quantity;
+    return sum;
+  }, 0);
+  const deliveryFee = !items.length || subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
+  const couponDiscount = state.cartCouponDiscount || 0;
+  const total = Math.max(0, subtotal + deliveryFee - couponDiscount);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  return { items, subtotal, discount, deliveryFee, couponDiscount, total, itemCount, uniqueCount: items.length };
+}
+
+function renderCartItemRow(item) {
+  const selected = getCartSelectedIds().has(String(item.id));
+  const product = item.product || {};
+  const originalLine = numberOrZero(product.originalPrice) * item.quantity;
+  const hasDiscount = product.originalPrice > item.unitPrice;
+  const variantText = [item.variantLabel, product.brand ? `(${product.brand})` : ""].filter(Boolean).join(" ");
+  const loading = state.cartUpdatingIds.has(String(item.id));
+
+  return `
+    <article class="app-cart-item ${loading ? "loading" : ""}">
+      <label class="app-cart-check">
+        <input type="checkbox" data-cart-item-check="${escapeHtml(item.id)}" ${selected ? "checked" : ""} />
+        <span class="app-cart-check-ui" aria-hidden="true"></span>
+      </label>
+      <div class="app-cart-item-body">
+        <button class="app-cart-item-remove" data-remove="${escapeHtml(item.id)}" type="button" aria-label="${escapeHtml(t("cart.remove"))}">×</button>
+        <div class="app-cart-item-main">
+          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" class="img-loading" />
+          <div class="app-cart-item-info">
+            <h3>${escapeHtml(item.name)}</h3>
+            ${variantText ? `<p class="app-cart-variant">${escapeHtml(variantText)}</p>` : ""}
+            <p class="app-cart-ship">${escapeHtml(t("cart.shipsToday"))}</p>
+          </div>
+        </div>
+        <div class="app-cart-item-foot">
+          <div class="cart-stepper app-cart-stepper">
+            <button data-cart-qty="minus" data-cart-id="${escapeHtml(item.id)}" ${item.quantity <= 1 ? "disabled" : ""} type="button" aria-label="Decrease">-</button>
+            <span aria-live="polite">${item.quantity}</span>
+            <button data-cart-qty="plus" data-cart-id="${escapeHtml(item.id)}" type="button" aria-label="Increase">+</button>
+          </div>
+          <div class="app-cart-prices">
+            ${hasDiscount ? `<span class="old-price">${formatPrice(originalLine)}</span>` : ""}
+            <strong>${formatPrice(item.lineTotal)}</strong>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderCartStickyProgress(subtotal) {
+  const progressEl = document.getElementById("cartStickyProgress");
+  if (!progressEl) return;
+  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  progressEl.innerHTML = subtotal >= FREE_SHIPPING_THRESHOLD ? "" : `
+    <div class="app-cart-free-banner">
+      <span>${escapeHtml(t("cart.freeToHome"))}</span>
+      <div class="app-cart-free-bar"><div style="width:${progress}%"></div></div>
+      <span class="hint">${escapeHtml(t("cart.freeShippingRemaining", { amount: formatPrice(remaining) }))}</span>
+    </div>
+  `;
+}
+
 function renderCart() {
+  syncCartSelection();
+  const totals = getCartTotals();
   els.cartCount.textContent = state.cartCount;
-  els.cartSummary.textContent = t("orders.items", { count: state.cartCount });
-  els.cartTotal.textContent = formatPrice(state.cartTotal);
+  els.cartSummary.textContent = t("orders.items", { count: totals.itemCount });
+  els.cartTotal.textContent = formatPrice(totals.subtotal);
 
   if (state.cartLoading) {
-    els.cartItems.innerHTML = "<div class=\"cart-loading\"><div class=\"skeleton-card\"></div><div class=\"skeleton-card\"></div></div>";
+    els.cartItems.innerHTML = "<div class=\"cart-loading app-cart-loading\"><div class=\"skeleton-card\"></div><div class=\"skeleton-card\"></div></div>";
     els.checkoutButton.disabled = true;
+    document.getElementById("cartExtras").innerHTML = "";
+    renderCartStickyProgress(0);
     return;
   }
 
   if (state.cartError) {
     els.cartItems.innerHTML = `
-      <div class="cart-empty">
+      <div class="cart-empty app-cart-empty">
         <strong>${escapeHtml(t("cart.unavailable"))}</strong>
         <p>${escapeHtml(state.cartError)}</p>
         <button class="secondary-button" data-cart-retry type="button">${escapeHtml(t("common.tryAgain"))}</button>
       </div>
     `;
     els.checkoutButton.disabled = true;
+    document.getElementById("cartExtras").innerHTML = "";
+    renderCartStickyProgress(0);
     return;
   }
 
-  els.checkoutButton.disabled = !state.cartItems.length;
-  const crossSell = state.products.slice(0, 4).map((p, i) => productCard(p, { screen: "cart-cross", position: i })).join("");
-  renderCartExtras(state, t, crossSell ? `<p class="cart-section-title">${escapeHtml(t("home.recommended"))}</p><div class="product-grid">${crossSell}</div>` : "");
+  els.checkoutButton.disabled = !totals.items.length;
 
-  els.cartItems.innerHTML = state.cartItems.length
-    ? state.cartItems.map((item) => `
-      <article class="cart-item ${state.cartUpdatingIds.has(String(item.id)) ? "loading" : ""}">
-        <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" class="img-loading" />
-        <div>
-          <h3>${escapeHtml(item.name)}</h3>
-          <p class="hint">${escapeHtml(item.brand || "BEAUTY SKIN KOREA")} ${item.variantLabel ? `· ${escapeHtml(item.variantLabel)}` : ""}</p>
-          <p>${formatPrice(item.unitPrice)} · ${escapeHtml(t("common.total"))}: ${formatPrice(item.lineTotal)}</p>
-          <div class="cart-stepper">
-            <button data-cart-qty="minus" data-cart-id="${escapeHtml(item.id)}" ${item.quantity <= 1 ? "disabled" : ""} type="button" aria-label="Decrease">-</button>
-            <span aria-live="polite">${item.quantity}</span>
-            <button data-cart-qty="plus" data-cart-id="${escapeHtml(item.id)}" type="button" aria-label="Increase">+</button>
-          </div>
-          <div class="cart-item-actions">
-            <button class="cart-save-later" data-save-later="${escapeHtml(item.id)}" type="button">${escapeHtml(t("cart.saveForLater"))}</button>
-          </div>
-        </div>
-        <button class="icon-button" data-remove="${escapeHtml(item.id)}" type="button" aria-label="${escapeHtml(t("cart.remove"))}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-1 5v6m-6-6v6m-2-11 1 16h8l1-16"/></svg>
-        </button>
-      </article>
-    `).join("")
-    : `
-      <div class="cart-empty">
+  const recommendedHtml = state.products.slice(0, 8).map((product, index) => productCard(product, { screen: "cart-cross", position: index })).join("");
+  const recentHtml = (state.recentlyViewed || []).slice(0, 6).map((product, index) => productCard(product, { screen: "cart-recent", position: index })).join("");
+  renderCartExtras(state, t, { recommendedHtml, recentHtml, subtotal: totals.subtotal });
+
+  if (!state.cartItems.length) {
+    els.cartItems.innerHTML = `
+      <div class="cart-empty app-cart-empty">
         <strong>${escapeHtml(t("cart.empty"))}</strong>
-        <p>Add products you like and they will appear here.</p>
+        <p>${escapeHtml(t("cart.emptyHint"))}</p>
         <button class="primary-button" data-start-shopping type="button">${escapeHtml(t("home.startShopping"))}</button>
       </div>
     `;
+    renderCartStickyProgress(0);
+    return;
+  }
+
+  const selectedCount = totals.uniqueCount;
+  const totalCount = state.cartItems.length;
+  const allSelected = selectedCount === totalCount;
+
+  els.cartItems.innerHTML = `
+    <div class="app-cart-delivery-card">
+      <strong>${escapeHtml(t("cart.deliveryCourier"))}</strong>
+      <span>${escapeHtml(t("cart.deliveryEta"))}</span>
+    </div>
+    <div class="app-cart-toolbar">
+      <label class="app-cart-select-all">
+        <input type="checkbox" data-cart-select-all ${allSelected ? "checked" : ""} />
+        <span class="app-cart-check-ui" aria-hidden="true"></span>
+        <span>${escapeHtml(t("cart.selectAll", { selected: selectedCount, total: totalCount }))}</span>
+      </label>
+      <button class="app-cart-delete-selected" data-cart-delete-selected type="button" ${selectedCount ? "" : "disabled"}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-1 5v6m-6-6v6m-2-11 1 16h8l1-16"/></svg>
+        ${escapeHtml(t("cart.deleteSelected"))}
+      </button>
+    </div>
+    <div class="app-cart-items">
+      ${state.cartItems.map((item) => renderCartItemRow(item)).join("")}
+    </div>
+    <div class="app-cart-order-card">
+      <h3>${escapeHtml(t("cart.yourOrder"))}</h3>
+      <div class="app-cart-order-lines">
+        <div class="app-cart-order-line">
+          <span>${escapeHtml(t("cart.goodsCount", { count: totals.itemCount }))}</span>
+        </div>
+        ${totals.discount > 0 ? `
+          <div class="app-cart-order-line app-cart-order-discount">
+            <span>${escapeHtml(t("cart.discount"))}</span>
+            <span>-${formatPrice(totals.discount)}</span>
+          </div>
+        ` : ""}
+        <div class="app-cart-order-line">
+          <span>${escapeHtml(t("cart.deliveryCost"))}</span>
+          <span>${totals.deliveryFee ? formatPrice(totals.deliveryFee) : escapeHtml(t("cart.freeDelivery"))}</span>
+        </div>
+        <div class="app-cart-order-line">
+          <span>${escapeHtml(t("cart.products"))}</span>
+          <strong>${formatPrice(totals.subtotal)}</strong>
+        </div>
+      </div>
+      <div class="app-cart-order-total">
+        <span>${escapeHtml(t("common.total"))}</span>
+        <strong>${formatPrice(totals.total)}</strong>
+      </div>
+    </div>
+  `;
+
+  renderCartStickyProgress(totals.subtotal);
+}
+
+async function removeSelectedCartItems() {
+  const items = getSelectedCartItems();
+  if (!items.length) return;
+  items.forEach((item) => state.cartUpdatingIds.add(String(item.id)));
+  renderCart();
+  for (const item of items) {
+    await apiFetch(`/api/cart/${item.id}`, { method: "DELETE", requireAuth: true });
+    state.cartUpdatingIds.delete(String(item.id));
+    getCartSelectedIds().delete(String(item.id));
+  }
+  showToast(t("cart.itemRemoved"), "success");
+  await loadCart();
 }
 
 async function removeCartItem(cartItemId) {
@@ -3913,6 +4063,7 @@ export function bindEvents() {
     }
   });
   els.cartItems.addEventListener("click", handleCartClick);
+  els.cartItems.addEventListener("change", handleCartChange);
   els.catalogButton.addEventListener("click", openCatalog);
   els.closeCatalog.addEventListener("click", closeCatalog);
   els.cartButton.addEventListener("click", openCart);
@@ -4255,16 +4406,40 @@ function handleDetailClick(event) {
   return false;
 }
 
+function handleCartChange(event) {
+  if (event.target.matches("[data-cart-select-all]")) {
+    const ids = getCartSelectedIds();
+    if (event.target.checked) {
+      state.cartItems.forEach((item) => ids.add(String(item.id)));
+    } else {
+      ids.clear();
+    }
+    renderCart();
+    return;
+  }
+  if (event.target.matches("[data-cart-item-check]")) {
+    const id = event.target.dataset.cartItemCheck;
+    if (event.target.checked) getCartSelectedIds().add(id);
+    else getCartSelectedIds().delete(id);
+    renderCart();
+  }
+}
+
 function handleCartClick(event) {
   const retry = event.target.closest("[data-cart-retry]");
   const startShopping = event.target.closest("[data-start-shopping]");
   const qty = event.target.closest("[data-cart-qty]");
   const remove = event.target.closest("[data-remove]");
   const saveLater = event.target.closest("[data-save-later]");
+  const deleteSelected = event.target.closest("[data-cart-delete-selected]");
   if (retry) loadCart();
   if (startShopping) {
     closeCart();
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (deleteSelected && !deleteSelected.disabled) {
+    removeSelectedCartItems();
+    return;
   }
   if (saveLater) {
     const item = state.cartItems.find((i) => String(i.id) === String(saveLater.dataset.saveLater));

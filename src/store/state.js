@@ -21,6 +21,7 @@ export const state = {
   cartCount: 0,
   cartTotal: 0,
   cartUpdatingIds: new Set(),
+  cartSelectedIds: new Set(),
   addingProductIds: new Set(),
   receivers: [],
   addresses: [],

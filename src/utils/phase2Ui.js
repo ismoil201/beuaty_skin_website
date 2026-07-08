@@ -7,6 +7,7 @@ import { getSavedForLater } from "../store/savedForLaterStore.js";
 import { numberOrZero } from "./productMapper.js";
 
 const FREE_SHIPPING_THRESHOLD = 500000;
+const STANDARD_DELIVERY_FEE = 30000;
 const ORIGINS = ["Korea", "Japan", "USA"];
 const SELLERS = ["Official Store", "Beauty Skin Korea", "Verified Seller"];
 
@@ -213,39 +214,60 @@ export function renderComparePage(products, t) {
   `;
 }
 
-export function renderCartExtras(state, t, crossSellHtml = "") {
+function renderCartProductRail(title, productsHtml) {
+  if (!productsHtml) return "";
+  return `
+    <section class="app-feed-block app-feed-rail app-cart-rail">
+      <div class="app-section-head">
+        <h2>${escapeHtml(title)}</h2>
+      </div>
+      <div class="product-grid app-rail-grid">${productsHtml}</div>
+    </section>
+  `;
+}
+
+export function renderCartExtras(state, t, options = {}) {
   const el = document.getElementById("cartExtras");
   if (!el) return;
 
-  const progress = Math.min(100, (state.cartTotal / FREE_SHIPPING_THRESHOLD) * 100);
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - state.cartTotal);
+  const subtotal = numberOrZero(options.subtotal ?? state.cartTotal);
+  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const saved = getSavedForLater();
+  const recommendedHtml = options.recommendedHtml || "";
+  const recentHtml = options.recentHtml || "";
 
   el.innerHTML = `
-    <div class="cart-free-shipping">
-      ${state.cartTotal >= FREE_SHIPPING_THRESHOLD
-    ? `<strong>${escapeHtml(t("cart.freeShippingUnlocked"))}</strong>`
-    : `<span>${escapeHtml(t("cart.freeShippingRemaining", { amount: formatPrice(remaining) }))}</span>`}
-      <div class="cart-free-shipping-bar"><div class="cart-free-shipping-fill" style="width:${progress}%"></div></div>
+    <div class="app-cart-free-block">
+      <div class="app-cart-free-head">
+        <strong>${escapeHtml(t("cart.freeToHome"))}</strong>
+        ${subtotal >= FREE_SHIPPING_THRESHOLD
+    ? `<span class="app-cart-free-done">${escapeHtml(t("cart.freeShippingUnlocked"))}</span>`
+    : `<span class="hint">${escapeHtml(t("cart.freeShippingRemaining", { amount: formatPrice(remaining) }))}</span>`}
+      </div>
+      <div class="app-cart-free-bar"><div style="width:${progress}%"></div></div>
     </div>
-    <div class="cart-coupon">
+    ${renderCartProductRail(t("home.recommended"), recommendedHtml)}
+    ${renderCartProductRail(t("home.recentlyViewed"), recentHtml)}
+    ${saved.length ? `
+      <section class="app-cart-saved">
+        <h3>${escapeHtml(t("cart.savedForLater"))}</h3>
+        ${saved.map((item) => `
+          <div class="app-cart-saved-item">
+            <img src="${escapeHtml(item.image)}" alt="" loading="lazy" />
+            <div>
+              <strong>${escapeHtml(item.name)}</strong>
+              <p>${formatPrice(item.unitPrice)}</p>
+              <button class="cart-save-later" data-restore-saved="${escapeHtml(item.id)}" type="button">${escapeHtml(t("cart.moveToCart"))}</button>
+            </div>
+          </div>
+        `).join("")}
+      </section>
+    ` : ""}
+    <div class="cart-coupon app-cart-coupon">
       <input type="text" id="cartCouponInput" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" value="${escapeHtml(state.cartCoupon || "")}" />
       <button class="secondary-button" type="button" data-apply-coupon>${escapeHtml(t("cart.applyCoupon"))}</button>
     </div>
-    ${saved.length ? `
-      <p class="cart-section-title">${escapeHtml(t("cart.savedForLater"))}</p>
-      ${saved.map((item) => `
-        <div class="cart-item" style="grid-template-columns:60px 1fr">
-          <img src="${escapeHtml(item.image)}" alt="" />
-          <div>
-            <strong>${escapeHtml(item.name)}</strong>
-            <p>${formatPrice(item.unitPrice)}</p>
-            <button class="cart-save-later" data-restore-saved="${escapeHtml(item.id)}" type="button">${escapeHtml(t("cart.moveToCart"))}</button>
-          </div>
-        </div>
-      `).join("")}
-    ` : ""}
-    ${crossSellHtml ? `<div class="cart-cross-sell">${crossSellHtml}</div>` : ""}
   `;
 }
 
@@ -299,4 +321,4 @@ export function renderBrandPage(brand, products, t, productCardHtml) {
   `;
 }
 
-export { FREE_SHIPPING_THRESHOLD, MAX_COMPARE };
+export { FREE_SHIPPING_THRESHOLD, STANDARD_DELIVERY_FEE, MAX_COMPARE };
