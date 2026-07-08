@@ -12,7 +12,8 @@
   --app-sale: #ff4d6d;
   --app-radius: 16px;
   --app-radius-sm: 12px;
-  --app-shell: min(100%, 480px);
+  --app-shell: 100%;
+  --app-gutter: 14px;
 }
 
 html,
@@ -30,8 +31,11 @@ body.app-layout main,
 body.app-layout .site-header .topbar,
 body.app-layout .site-header .category-nav,
 body.app-layout #homeView > section {
+  width: 100%;
   max-width: var(--app-shell);
   margin-inline: auto;
+  padding-inline: var(--app-gutter);
+  box-sizing: border-box;
 }
 
 /* Header — app style */
@@ -150,7 +154,7 @@ body.app-layout #homeView {
 }
 
 body.app-layout #homeView > section {
-  padding: 0 14px 18px !important;
+  padding: 0 var(--app-gutter) 18px !important;
   margin: 0 !important;
   background: transparent !important;
   border: 0 !important;
@@ -158,7 +162,7 @@ body.app-layout #homeView > section {
 }
 
 body.app-layout #banners {
-  padding: 10px 14px 6px !important;
+  padding: 10px var(--app-gutter) 6px !important;
 }
 
 body.app-layout .banner-track {
@@ -285,7 +289,7 @@ body.app-layout .quick-card:nth-child(n+6) span { background: linear-gradient(14
 
 /* Promo block */
 body.app-layout .app-promo-block {
-  margin-inline: 14px !important;
+  margin-inline: var(--app-gutter) !important;
   padding: 14px 12px 12px !important;
   border-radius: 20px !important;
   background: var(--app-pink) !important;
@@ -639,8 +643,9 @@ body.app-layout .mobile-bottom-nav {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
-  max-width: var(--app-shell);
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(255, 255, 255, 0.96);
@@ -683,46 +688,156 @@ body.app-layout {
   padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Desktop: centered phone-like shell */
-@media (min-width: 520px) {
-  body.app-layout {
-    background:
-      linear-gradient(180deg, #f3f3f3, #ececec) !important;
+/* Tablet */
+@media (min-width: 768px) {
+  :root {
+    --app-shell: min(100%, 960px);
+    --app-gutter: 20px;
   }
 
-  body.app-layout .site-header,
-  body.app-layout .mobile-bottom-nav {
-    left: 50%;
-    right: auto;
-    width: var(--app-shell);
-    transform: translateX(-50%);
-  }
-
-  body.app-layout .site-header {
-    border-radius: 0 0 18px 18px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
-  }
-
-  body.app-layout main {
-    background: var(--app-bg);
-    border-left: 1px solid rgba(0, 0, 0, 0.05);
-    border-right: 1px solid rgba(0, 0, 0, 0.05);
-    min-height: 100vh;
-  }
-}
-
-@media (min-width: 900px) {
   body.app-layout .app-main-catalog #productGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px 14px !important;
+  }
+
+  body.app-layout .app-feed-rail .product-card {
+    flex: 0 0 190px !important;
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+  }
+
+  body.app-layout .banner-card {
+    aspect-ratio: 16 / 5.5 !important;
   }
 }
 
-@media (min-width: 1200px) {
+/* Desktop */
+@media (min-width: 1024px) {
   :root {
-    --app-shell: 520px;
+    --app-shell: min(100%, 1240px);
+    --app-gutter: 24px;
+  }
+
+  body.app-layout {
+    padding-bottom: 0;
+  }
+
+  body.app-layout .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body.app-layout .mini-bar,
+  body.app-layout .brand,
+  body.app-layout .catalog-button,
+  body.app-layout #favoritesButton,
+  body.app-layout .cart-button {
+    display: flex !important;
+  }
+
+  body.app-layout .mini-bar {
+    display: flex !important;
+    max-width: var(--app-shell);
+    margin-inline: auto;
+    padding-inline: var(--app-gutter);
+    box-sizing: border-box;
+  }
+
+  body.app-layout .topbar {
+    grid-template-columns: auto auto minmax(280px, 1fr) auto !important;
+    gap: 12px !important;
+    padding: 12px var(--app-gutter) !important;
+  }
+
+  body.app-layout .catalog-button span,
+  body.app-layout #favoritesButton span,
+  body.app-layout .cart-button span {
+    display: inline !important;
+  }
+
+  body.app-layout .search-actions {
+    display: flex !important;
+  }
+
+  body.app-layout .search-button {
+    display: inline-flex !important;
+  }
+
+  body.app-layout .search::before {
+    display: none;
+  }
+
+  body.app-layout .search {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    padding: 0 !important;
+    border: 1px solid var(--app-border) !important;
+    background: #fff !important;
+  }
+
+  body.app-layout .search input {
+    padding: 0 14px !important;
+  }
+
+  body.app-layout .category-nav {
+    display: flex !important;
+    max-width: var(--app-shell);
+    padding: 0 var(--app-gutter) 10px !important;
+  }
+
+  body.app-layout .app-main-catalog .catalog-toolbar {
+    display: flex !important;
+  }
+
+  body.app-layout .app-main-catalog .filter-sidebar {
+    display: block !important;
+  }
+
+  body.app-layout .app-main-catalog .catalog-layout {
+    display: grid !important;
+    grid-template-columns: 240px minmax(0, 1fr) !important;
+    gap: 20px !important;
   }
 
   body.app-layout .app-main-catalog #productGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 18px 16px !important;
+  }
+
+  body.app-layout .quick-grid.app-category-rail {
+    display: grid !important;
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+  }
+
+  body.app-layout .app-rail-grid,
+  body.app-layout .deals-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+    scroll-snap-type: none !important;
+  }
+
+  body.app-layout .app-feed-rail .product-card {
+    flex: unset !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1440px) {
+  :root {
+    --app-shell: min(100%, 1360px);
+  }
+
+  body.app-layout .app-main-catalog #productGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  body.app-layout .app-rail-grid,
+  body.app-layout .deals-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 }
