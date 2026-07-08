@@ -2381,6 +2381,7 @@ async function prepareCheckout() {
   state.checkoutAddressPickerOpen = false;
   state.checkoutReceiverPickerOpen = false;
   state.checkoutCouponOpen = false;
+  state.checkoutConfirmOpen = false;
   state.checkoutLoading = true;
   renderCheckout();
   closeCart();
@@ -2393,7 +2394,7 @@ async function prepareCheckout() {
 
 async function submitCheckout(event) {
   event.preventDefault();
-  await placeOrder();
+  openCheckoutConfirm();
 }
 
 async function loadReceivers(selectId) {
@@ -2470,6 +2471,78 @@ function renderCheckoutPickerList(type) {
   `;
 }
 
+function renderCheckoutConfirmIllustration() {
+  return `
+    <div class="app-checkout-modal-art app-checkout-modal-art--confirm" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none">
+        <circle cx="60" cy="60" r="52" fill="#E8F4FF"/>
+        <path d="M38 72c0-8 6-14 14-14h16c8 0 14 6 14 14v6H38v-6Z" fill="#D4A574"/>
+        <path d="M36 78h48v8H36v-8Z" fill="#C49563"/>
+        <path d="M44 58h32l4 8H40l4-8Z" fill="#E8C9A0"/>
+        <path d="M28 64c6-10 16-16 32-16s26 6 32 16" stroke="#F4B8A8" stroke-width="6" stroke-linecap="round"/>
+        <path d="M24 68c8-12 20-18 36-18s28 6 36 18" stroke="#F4B8A8" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+    </div>
+  `;
+}
+
+function renderCheckoutSuccessIllustration() {
+  return `
+    <div class="app-checkout-modal-art app-checkout-modal-art--success" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none">
+        <rect x="34" y="44" width="52" height="40" rx="4" fill="#D4A574"/>
+        <path d="M34 52h52" stroke="#C49563" stroke-width="2"/>
+        <path d="M48 44V36h24v8" stroke="#C49563" stroke-width="3"/>
+        <path d="M60 24v28" stroke="#22C55E" stroke-width="4" stroke-linecap="round"/>
+        <path d="M52 36l8-8 8 8" stroke="#22C55E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  `;
+}
+
+function renderCheckoutConfirmModal(receiver, address) {
+  const name = receiver?.fullName || "—";
+  const addressText = address?.address || "—";
+  return `
+    <div class="app-checkout-overlay" role="dialog" aria-modal="true" aria-labelledby="checkoutConfirmTitle">
+      <div class="app-checkout-modal">
+        ${renderCheckoutConfirmIllustration()}
+        <h3 id="checkoutConfirmTitle">${escapeHtml(t("checkout.confirmTitle"))}</h3>
+        <p class="app-checkout-modal-sub">${escapeHtml(t("checkout.confirmQuestion"))}</p>
+        <div class="app-checkout-modal-details">
+          <p>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
+            <span>${escapeHtml(t("checkout.confirmName", { name }))}</span>
+          </p>
+          <p>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <span>${escapeHtml(t("checkout.confirmAddress", { address: addressText }))}</span>
+          </p>
+        </div>
+        <p class="app-checkout-modal-disclaimer">${escapeHtml(t("checkout.confirmDisclaimer"))}</p>
+        <div class="app-checkout-modal-actions">
+          <button class="app-checkout-modal-cancel" type="button" data-checkout-confirm-cancel>${escapeHtml(t("checkout.cancel"))}</button>
+          <button class="app-checkout-modal-confirm" type="button" data-checkout-confirm-submit ${state.orderSubmitting ? "disabled" : ""}>
+            ${escapeHtml(state.orderSubmitting ? t("checkout.placing") : t("checkout.confirm"))}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCheckoutSuccessModal() {
+  return `
+    <div class="app-checkout-overlay app-checkout-overlay--success" role="dialog" aria-modal="true" aria-labelledby="checkoutSuccessTitle" data-checkout-success-dismiss>
+      <div class="app-checkout-modal app-checkout-modal--success" data-checkout-success-card>
+        ${renderCheckoutSuccessIllustration()}
+        <h3 id="checkoutSuccessTitle">${escapeHtml(t("checkout.successTitle"))}</h3>
+        <p class="app-checkout-modal-sub">${escapeHtml(t("checkout.successSubtitle"))}</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderCheckout() {
   if (state.checkoutLoading) {
     els.checkoutContent.innerHTML = `
@@ -2479,11 +2552,6 @@ function renderCheckout() {
         <div class="app-checkout-skeleton skeleton-card"></div>
       </div>
     `;
-    return;
-  }
-
-  if (state.orderSuccess) {
-    renderOrderSuccess();
     return;
   }
 
@@ -2605,6 +2673,8 @@ function renderCheckout() {
           ${escapeHtml(state.orderSubmitting ? t("checkout.placing") : t("checkout.confirm"))}
         </button>
       </div>
+      ${state.checkoutConfirmOpen ? renderCheckoutConfirmModal(selectedReceiver, selectedAddress) : ""}
+      ${state.orderSuccess ? renderCheckoutSuccessModal() : ""}
     </div>
   `;
 
@@ -4244,10 +4314,16 @@ async function handleCheckoutClick(event) {
   const deleteReceiver = event.target.closest("[data-delete-receiver]");
   const deleteAddress = event.target.closest("[data-delete-address]");
   const placeOrderButton = event.target.closest("[data-place-order]");
+  const confirmCancel = event.target.closest("[data-checkout-confirm-cancel]");
+  const confirmSubmit = event.target.closest("[data-checkout-confirm-submit]");
+  const successDismiss = event.target.closest("[data-checkout-success-dismiss]");
+  const successCard = event.target.closest("[data-checkout-success-card]");
   const viewOrdersButton = event.target.closest("[data-success-orders]");
   const continueButton = event.target.closest("[data-success-continue]");
 
   if (closeCheckout) {
+    state.checkoutConfirmOpen = false;
+    state.orderSuccess = null;
     els.checkoutDialog.close();
     unlockBodyIfNoOverlay();
     return;
@@ -4317,7 +4393,24 @@ async function handleCheckoutClick(event) {
   }
 
   if (placeOrderButton) {
-    await placeOrder();
+    openCheckoutConfirm();
+    return;
+  }
+
+  if (confirmCancel) {
+    state.checkoutConfirmOpen = false;
+    renderCheckout();
+    return;
+  }
+
+  if (confirmSubmit) {
+    await submitOrder();
+    return;
+  }
+
+  if (successDismiss && !successCard) {
+    dismissCheckoutSuccess();
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
 
@@ -4440,13 +4533,14 @@ async function deleteAddressById(id) {
   }
 }
 
-async function placeOrder() {
+function openCheckoutConfirm() {
   const items = getSelectedCartItems();
   if (!items.length) return;
 
   if (!state.selectedAddressId) {
     state.checkoutError = t("checkout.addressRequired");
     state.checkoutAddressPickerOpen = true;
+    state.checkoutConfirmOpen = false;
     renderCheckout();
     return;
   }
@@ -4454,9 +4548,19 @@ async function placeOrder() {
   if (!state.selectedReceiverId) {
     state.checkoutError = t("checkout.receiverRequired");
     state.checkoutReceiverPickerOpen = true;
+    state.checkoutConfirmOpen = false;
     renderCheckout();
     return;
   }
+
+  state.checkoutError = "";
+  state.checkoutConfirmOpen = true;
+  renderCheckout();
+}
+
+async function submitOrder() {
+  const items = getSelectedCartItems();
+  if (!items.length) return;
 
   state.orderSubmitting = true;
   state.checkoutError = "";
@@ -4475,17 +4579,30 @@ async function placeOrder() {
 
   if (response === null) {
     state.checkoutError = state.lastApiError || "Order could not be created.";
+    state.checkoutConfirmOpen = false;
     renderCheckout();
     showToast(state.checkoutError, "error");
     return;
   }
 
+  state.checkoutConfirmOpen = false;
   state.orderSuccess = response;
   await loadCart();
   await loadUnreadCount();
   closeCart();
   renderCheckout();
-  showToast("Order created", "success");
+  showToast(t("checkout.orderCreated"), "success");
+}
+
+async function placeOrder() {
+  openCheckoutConfirm();
+}
+
+function dismissCheckoutSuccess() {
+  state.orderSuccess = null;
+  state.checkoutConfirmOpen = false;
+  els.checkoutDialog.close();
+  unlockBodyIfNoOverlay();
 }
 
 async function submitProfileEdit(event) {
@@ -4645,7 +4762,11 @@ export function bindEvents() {
   els.detailDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.authDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.apiDialog.addEventListener("close", unlockBodyIfNoOverlay);
-  els.checkoutDialog.addEventListener("close", unlockBodyIfNoOverlay);
+  els.checkoutDialog.addEventListener("close", () => {
+    state.checkoutConfirmOpen = false;
+    state.orderSuccess = null;
+    unlockBodyIfNoOverlay();
+  });
   els.ordersDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.favoritesDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.myReviewsDialog.addEventListener("close", unlockBodyIfNoOverlay);

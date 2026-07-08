@@ -104,6 +104,7 @@ export const state = {
   checkoutAddressPickerOpen: false,
   checkoutReceiverPickerOpen: false,
   checkoutCouponOpen: false,
+  checkoutConfirmOpen: false,
   reviewSort: "newest",
   reviewFilterRating: 0,
   reviewSearchQuery: "",

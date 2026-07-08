@@ -507,3 +507,130 @@ body.app-layout .app-checkout-sticky {
     margin-bottom: 72px;
   }
 }
+
+/* Confirmation & success modals */
+.app-checkout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.app-checkout-modal {
+  width: min(100%, 340px);
+  padding: 28px 22px 22px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.app-checkout-modal h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.app-checkout-modal-sub {
+  margin: 0 0 18px;
+  font-size: 0.88rem;
+  color: #8a8a8a;
+  line-height: 1.4;
+}
+
+.app-checkout-modal-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.app-checkout-modal-art svg {
+  width: 108px;
+  height: 108px;
+}
+
+.app-checkout-modal-details {
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.app-checkout-modal-details p {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin: 0 0 10px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #333;
+}
+
+.app-checkout-modal-details svg {
+  width: 18px;
+  height: 18px;
+  stroke: #8a8a8a;
+  fill: none;
+  stroke-width: 1.8;
+  margin-top: 2px;
+}
+
+.app-checkout-modal-details p:last-child svg {
+  stroke: #ff3b30;
+}
+
+.app-checkout-modal-disclaimer {
+  margin: 0 0 20px;
+  font-size: 0.72rem;
+  color: #8a8a8a;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.app-checkout-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.app-checkout-modal-cancel,
+.app-checkout-modal-confirm {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-checkout-modal-cancel {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.app-checkout-modal-confirm {
+  background: #ff8c94;
+  color: #fff;
+}
+
+.app-checkout-modal-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.app-checkout-modal--success {
+  padding-bottom: 28px;
+}
+
+.app-checkout-overlay--success {
+  cursor: pointer;
+}
+
+.app-checkout-modal--success {
+  cursor: default;
+}
