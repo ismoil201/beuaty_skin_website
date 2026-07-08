@@ -1656,28 +1656,34 @@ function renderVariantSelectors(product) {
   return renderVariantButtons(product);
 }
 
+function renderPdpProductStrip(title, products, screen) {
+  if (!products.length) return "";
+  return `
+    <section class="recommended-section app-feed-block app-feed-rail">
+      <div class="app-section-head">
+        <h2>${escapeHtml(title)}</h2>
+      </div>
+      <div class="product-grid app-rail-grid">
+        ${products.map((product, index) => productCard(product, { screen, position: index })).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderFrequentlyBought(product) {
   const others = (state.recommendedOthers || state.recommendedProducts || []).slice(0, 3);
   if (!others.length) return "";
-  return `
-    <section class="recommended-section">
-      <div class="section-head"><h2>${escapeHtml(t("product.frequentlyBought"))}</h2></div>
-      <div class="product-grid">${others.map((p, i) => productCard(p, { screen: "fbt", position: i })).join("")}</div>
-    </section>
-  `;
+  return renderPdpProductStrip(t("product.frequentlyBought"), others, "fbt");
 }
 
 function renderRecentlyViewedStrip() {
   const ids = getRecentProductIds().filter((id) => String(id) !== String(state.selectedDetailProduct?.id));
   if (!ids.length || !state.recentlyViewed.length) return "";
-  return `
-    <section class="recommended-section app-feed-block app-feed-rail">
-      <div class="app-section-head">
-        <h2>${escapeHtml(t("home.recentlyViewed"))}</h2>
-      </div>
-      <div class="product-grid app-rail-grid">${state.recentlyViewed.slice(0, 6).map((p, i) => productCard(p, { screen: "recent", position: i })).join("")}</div>
-    </section>
-  `;
+  return renderPdpProductStrip(
+    t("home.recentlyViewed"),
+    state.recentlyViewed.slice(0, 6),
+    "recent",
+  );
 }
 
 function initPdpGallerySwipe(container) {
@@ -1756,9 +1762,11 @@ async function loadRecommendedProducts(product) {
 function renderRecommendations() {
   if (state.recommendationsLoading) {
     return `
-      <section class="recommended-section">
-        <div class="section-head"><div><p class="eyebrow">${escapeHtml(t("home.recommended"))}</p><h2>${escapeHtml(t("home.recommended"))}</h2></div></div>
-        <div class="recommended-grid product-grid">
+      <section class="recommended-section app-feed-block app-feed-rail">
+        <div class="app-section-head">
+          <h2>${escapeHtml(t("home.recommended"))}</h2>
+        </div>
+        <div class="product-grid app-rail-grid">
           <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
         </div>
       </section>
@@ -1767,7 +1775,7 @@ function renderRecommendations() {
 
   if (state.recommendationsError) {
     return `
-      <section class="recommended-section">
+      <section class="recommended-section app-feed-block app-feed-rail">
         <div class="detail-error-page compact">
           <strong>Recommendations unavailable</strong>
           <p>${escapeHtml(state.recommendationsError)}</p>
@@ -1777,41 +1785,17 @@ function renderRecommendations() {
   }
 
   const apiSections = [
-    [t("home.similar"), state.recommendedSimilar || [], "recommendations"],
-    [t("home.others"), state.recommendedOthers || [], "recommendations"],
+    [t("home.similar"), state.recommendedSimilar || [], "recommendations-similar"],
+    [t("home.others"), state.recommendedOthers || [], "recommendations-others"],
   ].filter(([, products]) => products.length);
 
   if (apiSections.length) {
-    return apiSections.map(([title, products, screen]) => `
-      <section class="recommended-section">
-        <div class="section-head">
-          <div>
-          <p class="eyebrow">${escapeHtml(t("home.recommended"))}</p>
-            <h2>${escapeHtml(title)}</h2>
-          </div>
-        </div>
-        <div class="recommended-grid product-grid">
-          ${products.map((product, index) => productCard(product, { screen, position: index })).join("")}
-        </div>
-      </section>
-    `).join("");
+    return apiSections.map(([title, products, screen]) => renderPdpProductStrip(title, products, screen)).join("");
   }
 
   if (!state.recommendedProducts.length) return "";
 
-  return `
-    <section class="recommended-section">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">${escapeHtml(t("home.recommended"))}</p>
-          <h2>${escapeHtml(t("home.recommended"))}</h2>
-        </div>
-      </div>
-      <div class="recommended-grid product-grid">
-        ${state.recommendedProducts.map(productCard).join("")}
-      </div>
-    </section>
-  `;
+  return renderPdpProductStrip(t("home.recommended"), state.recommendedProducts, "recommendations");
 }
 
 async function loadProductReviews(productId) {
