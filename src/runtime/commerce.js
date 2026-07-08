@@ -3756,6 +3756,15 @@ function profileOrderStatusLabel(status = "") {
   return statusLabel(status);
 }
 
+function isProfileActiveOrder(order) {
+  const status = String(order?.status || "").toUpperCase();
+  return Boolean(status) && !["DELIVERED", "CANCELED", "CANCELLED"].includes(status);
+}
+
+function getProfileOrderPreview() {
+  return (state.orders || []).filter(isProfileActiveOrder).slice(0, 2);
+}
+
 function renderProfileStatCard(action, icon, label, value) {
   const valueHtml = value !== "" && value !== null && value !== undefined
     ? `<strong class="app-profile-stat-value">${escapeHtml(String(value))}</strong>`
@@ -3813,10 +3822,7 @@ async function loadProfileSnapshot() {
 
   const loadId = ++state.profileLoadSeq;
   state.profileLoading = true;
-  state.profileSnapshotError = "";
   renderProfile();
-
-  const errors = [];
 
   try {
     const [userResponse, ordersResponse, reviewsResponse] = await Promise.all([
@@ -3833,8 +3839,6 @@ async function loadProfileSnapshot() {
       state.user = userResponse;
       localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(userResponse));
       updateAuthUi();
-    } else {
-      errors.push(t("profile.loadUserFailed"));
     }
 
     if (ordersResponse !== null) {
@@ -3844,19 +3848,13 @@ async function loadProfileSnapshot() {
 
       state.orders = await enrichProfileOrders(state.orders);
       if (loadId !== state.profileLoadSeq) return;
-    } else {
-      errors.push(t("profile.loadOrdersFailed"));
     }
 
     if (reviewsResponse !== null) {
       state.myReviews = getMyReviewsContent(reviewsResponse).map(normalizeMyReviewItem);
-    } else {
-      errors.push(t("profile.loadReviewsFailed"));
     }
-
-    state.profileSnapshotError = errors.join(" · ");
   } catch {
-    state.profileSnapshotError = t("profile.loadFailed");
+    // Keep cached profile data visible without surfacing an error banner.
   } finally {
     if (loadId === state.profileLoadSeq) {
       state.profileLoading = false;
@@ -3900,7 +3898,7 @@ function renderProfile() {
   const couponsCount = state.cartCoupon ? 1 : 0;
   const recentProducts = (state.recentlyViewed || []).slice(0, 6);
   const recentHtml = recentProducts.map((product, index) => productCard(product, { screen: "profile-recent", position: index })).join("");
-  const orderPreview = (state.orders || []).slice(0, 2);
+  const orderPreview = getProfileOrderPreview();
   const unreadBadge = state.unreadCount > 0
     ? `<span class="app-profile-notify-badge">${state.unreadCount > 99 ? "99+" : state.unreadCount}</span>`
     : "";
@@ -3924,7 +3922,6 @@ function renderProfile() {
 
   els.profileContent.innerHTML = `
     <div class="app-profile-page ${state.profileLoading ? "is-loading" : ""}">
-      ${state.profileSnapshotError ? `<div class="app-profile-error" role="status">${escapeHtml(state.profileSnapshotError)}</div>` : ""}
       <header class="app-profile-header">
         <h2>${escapeHtml(t("profile.myProfile"))}</h2>
         <div class="app-profile-header-actions">
