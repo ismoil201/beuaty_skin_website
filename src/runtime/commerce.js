@@ -693,10 +693,10 @@ function renderAnnouncements() {
   `).join("");
 }
 
-async function loadRecentlyViewed() {
+async function ensureRecentlyViewedState() {
   const ids = getRecentProductIds();
   if (!ids.length) {
-    els.recentlyViewedSection.hidden = true;
+    state.recentlyViewed = [];
     return;
   }
 
@@ -705,7 +705,19 @@ async function loadRecentlyViewed() {
     body: JSON.stringify(ids.map(Number).filter(Number.isFinite)),
     showError: false,
   });
-  const products = getPageContent(response).map(normalizeProduct).filter((product) => product.id);
+  state.recentlyViewed = getPageContent(response).map(normalizeProduct).filter((product) => product.id);
+}
+
+async function loadRecentlyViewed() {
+  const ids = getRecentProductIds();
+  if (!ids.length) {
+    state.recentlyViewed = [];
+    els.recentlyViewedSection.hidden = true;
+    return;
+  }
+
+  await ensureRecentlyViewedState();
+  const products = state.recentlyViewed || [];
   if (!products.length) {
     els.recentlyViewedSection.hidden = true;
     return;
@@ -3754,22 +3766,69 @@ function renderProfileMenuRow(action, icon, label, trailing = "") {
   `;
 }
 
+async function enrichProfileOrders(orders = []) {
+  const previewOrders = orders.slice(0, 2);
+  if (!previewOrders.length) return orders;
+
+  const enriched = await Promise.all(previewOrders.map(async (order) => {
+    if (Array.isArray(order.items) && order.items.length) return order;
+    const detail = await apiFetch(`/api/orders/${order.id}`, { requireAuth: true, showError: false });
+    return detail && typeof detail === "object" ? detail : order;
+  }));
+
+  return [...enriched, ...orders.slice(2)];
+}
+
 async function loadProfileSnapshot() {
   if (!isLoggedIn()) return;
+
+  const loadId = ++state.profileLoadSeq;
   state.profileLoading = true;
+  state.profileSnapshotError = "";
   renderProfile();
 
-  const [ordersResponse, reviewsResponse] = await Promise.all([
-    apiFetch("/api/orders", { requireAuth: true, showError: false }),
-    apiFetch("/api/reviews/my", { requireAuth: true, showError: false }),
-    loadUnreadCount(),
-  ]);
+  try {
+    const [userResponse, ordersResponse, reviewsResponse] = await Promise.all([
+      apiFetch("/api/users/me", { requireAuth: true, showError: false }),
+      apiFetch("/api/orders", { requireAuth: true, showError: false }),
+      apiFetch("/api/reviews/my", { requireAuth: true, showError: false }),
+      loadUnreadCount(),
+      ensureRecentlyViewedState(),
+    ]);
 
-  if (ordersResponse !== null) state.orders = getPageContent(ordersResponse);
-  if (reviewsResponse !== null) state.myReviews = getMyReviewsContent(reviewsResponse).map(normalizeMyReviewItem);
+    if (loadId !== state.profileLoadSeq || !els.profileDrawer.classList.contains("open")) return;
 
-  state.profileLoading = false;
-  renderProfile();
+    const errors = [];
+
+    if (userResponse) {
+      state.user = userResponse;
+      localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(userResponse));
+      updateAuthUi();
+    } else {
+      errors.push(t("profile.loadUserFailed"));
+    }
+
+    if (ordersResponse !== null) {
+      const orders = getPageContent(ordersResponse);
+      state.orders = await enrichProfileOrders(orders);
+      if (loadId !== state.profileLoadSeq || !els.profileDrawer.classList.contains("open")) return;
+    } else {
+      errors.push(t("profile.loadOrdersFailed"));
+    }
+
+    if (reviewsResponse !== null) {
+      state.myReviews = getMyReviewsContent(reviewsResponse).map(normalizeMyReviewItem);
+    } else {
+      errors.push(t("profile.loadReviewsFailed"));
+    }
+
+    state.profileSnapshotError = errors.join(" · ");
+  } finally {
+    if (loadId === state.profileLoadSeq) {
+      state.profileLoading = false;
+      if (els.profileDrawer.classList.contains("open")) renderProfile();
+    }
+  }
 }
 
 function openProfile() {
@@ -3788,6 +3847,7 @@ function openProfile() {
 
 function closeProfile() {
   state.profileMenuOpen = false;
+  state.profileLoadSeq += 1;
   els.profileDrawer.classList.remove("open");
   els.profileDrawer.setAttribute("aria-hidden", "true");
   unlockBodyIfNoOverlay();
@@ -3830,6 +3890,7 @@ function renderProfile() {
 
   els.profileContent.innerHTML = `
     <div class="app-profile-page ${state.profileLoading ? "is-loading" : ""}">
+      ${state.profileSnapshotError ? `<div class="app-profile-error" role="status">${escapeHtml(state.profileSnapshotError)}</div>` : ""}
       <header class="app-profile-header">
         <h2>${escapeHtml(t("profile.myProfile"))}</h2>
         <div class="app-profile-header-actions">
@@ -3956,6 +4017,7 @@ async function handleProfileAction(event) {
   }
 
   if (action === "orders") {
+    closeProfile();
     await showOrders();
     return;
   }

@@ -27,6 +27,16 @@ body.app-layout .app-profile-body {
   padding: 0 16px 24px;
 }
 
+.app-profile-error {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff4f4;
+  color: #b42318;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
 .app-profile-header {
   display: flex;
   align-items: center;

@@ -12,6 +12,8 @@ export const state = {
   profileEditing: false,
   profileLoading: false,
   profileMenuOpen: false,
+  profileLoadSeq: 0,
+  profileSnapshotError: "",
   lastApiError: "",
   products: [],
   todayDeals: [],
