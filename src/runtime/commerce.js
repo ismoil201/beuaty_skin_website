@@ -2103,6 +2103,7 @@ function getCartTotals() {
 function renderCartItemRow(item) {
   const selected = getCartSelectedIds().has(String(item.id));
   const product = item.product || {};
+  const image = item.image || product.image || CONFIG.placeholderImage;
   const originalLine = numberOrZero(product.originalPrice) * item.quantity;
   const hasDiscount = product.originalPrice > item.unitPrice;
   const variantText = [item.variantLabel, product.brand ? `(${product.brand})` : ""].filter(Boolean).join(" ");
@@ -2122,7 +2123,7 @@ function renderCartItemRow(item) {
       <div class="app-cart-item-body">
         <button class="app-cart-item-remove" data-remove="${escapeHtml(item.id)}" type="button" aria-label="${escapeHtml(t("cart.remove"))}">×</button>
         <div class="app-cart-item-main">
-          <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" class="img-loading" />
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(item.name)}" loading="eager" decoding="async" class="app-cart-item-image" />
           <div class="app-cart-item-info">
             <h3>${escapeHtml(item.name)}</h3>
             ${variantText ? `<p class="app-cart-variant">${escapeHtml(variantText)}</p>` : ""}
@@ -2267,6 +2268,8 @@ function renderCart() {
 
   applyCartCheckboxUi();
   renderCartStickyProgress(totals.subtotal);
+  initLazyImages(els.cartItems);
+  initLazyImages(document.getElementById("cartExtras"));
 }
 
 async function removeSelectedCartItems() {

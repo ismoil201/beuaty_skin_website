@@ -254,12 +254,17 @@ body.app-layout .app-cart-panel {
   padding-right: 24px;
 }
 
-.app-cart-item-main img {
+.app-cart-item-main img,
+.app-cart-item-image {
+  display: block;
   width: 72px;
   height: 72px;
+  min-width: 72px;
+  min-height: 72px;
   object-fit: cover;
   border-radius: var(--app-radius-sm, 12px);
   background: #f3f3f3;
+  opacity: 1;
 }
 
 .app-cart-item-info h3 {

@@ -78,7 +78,7 @@ export function normalizeCartItem(item = {}) {
     id: item.id || item.cartItemId,
     productId: product.id,
     product,
-    image: product.image,
+    image: imageValue(item.image || item.imageUrl || item.mainImageUrl) || product.image,
     name: product.name,
     brand: product.brand,
     variantId: item.variantId || item.variant?.id,
