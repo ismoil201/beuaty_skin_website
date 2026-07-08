@@ -1671,9 +1671,11 @@ function renderRecentlyViewedStrip() {
   const ids = getRecentProductIds().filter((id) => String(id) !== String(state.selectedDetailProduct?.id));
   if (!ids.length || !state.recentlyViewed.length) return "";
   return `
-    <section class="recommended-section">
-      <div class="section-head"><h2>${escapeHtml(t("home.recentlyViewed"))}</h2></div>
-      <div class="product-grid">${state.recentlyViewed.slice(0, 6).map((p, i) => productCard(p, { screen: "recent", position: i })).join("")}</div>
+    <section class="recommended-section app-feed-block app-feed-rail">
+      <div class="app-section-head">
+        <h2>${escapeHtml(t("home.recentlyViewed"))}</h2>
+      </div>
+      <div class="product-grid app-rail-grid">${state.recentlyViewed.slice(0, 6).map((p, i) => productCard(p, { screen: "recent", position: i })).join("")}</div>
     </section>
   `;
 }

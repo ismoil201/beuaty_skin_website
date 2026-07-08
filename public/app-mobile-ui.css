@@ -525,6 +525,30 @@ body.app-layout #homeView[hidden] {
   display: none !important;
 }
 
+/* Recently viewed — match other app feed sections */
+body.app-layout #recentlyViewedSection,
+body.app-layout .product-detail-page .recommended-section.app-feed-rail {
+  padding: 0 var(--app-gutter) 18px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.app-layout #recentlyViewedGrid.app-rail-grid {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+body.app-layout #recentlyViewedGrid.app-rail-grid::-webkit-scrollbar {
+  display: none;
+}
+
 body.app-layout .app-main-catalog .product-card {
   min-height: 0 !important;
   max-height: none !important;
@@ -833,7 +857,8 @@ body.app-layout {
   }
 
   body.app-layout .app-rail-grid,
-  body.app-layout .deals-grid {
+  body.app-layout .deals-grid,
+  body.app-layout #recentlyViewedGrid.app-rail-grid {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     overflow: visible !important;
@@ -859,7 +884,8 @@ body.app-layout {
   }
 
   body.app-layout .app-rail-grid,
-  body.app-layout .deals-grid {
+  body.app-layout .deals-grid,
+  body.app-layout #recentlyViewedGrid.app-rail-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 }
