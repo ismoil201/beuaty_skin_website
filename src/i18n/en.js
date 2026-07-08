@@ -32,6 +32,8 @@ export default {
   "home.all": "All",
   "home.categories": "Categories",
   "home.quickCategories": "Quick categories",
+  "home.lowPriceGuarantee": "Low price guarantee",
+  "home.seeAll": "All",
   "home.todayDeals": "Today deals",
   "home.discounts": "Discounts",
   "home.newArrivals": "New arrivals",

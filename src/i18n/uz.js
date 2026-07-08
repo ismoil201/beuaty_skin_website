@@ -38,6 +38,8 @@ export default {
     "home.all": "Hammasi",
     "home.categories": "Kategoriyalar",
     "home.quickCategories": "Tezkor kategoriyalar",
+    "home.lowPriceGuarantee": "Past narx kafolati",
+    "home.seeAll": "Hammasi",
     "home.todayDeals": "Bugungi takliflar",
     "home.discounts": "Chegirmalar",
     "home.newArrivals": "Yangi mahsulotlar",

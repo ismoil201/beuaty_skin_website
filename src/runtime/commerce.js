@@ -271,6 +271,9 @@ function productCard(product, meta = {}) {
   const ratingDisplay = product.ratingAvg
     ? `<span class="rating"><span class="star" aria-hidden="true">★</span> ${product.ratingAvg.toFixed(1)} <span class="review-count">(${product.reviewCount || 0})</span></span>`
     : `<span class="rating"><span class="star" aria-hidden="true">★</span> 0 <span class="review-count">(0)</span></span>`;
+  const ratingLine = product.ratingAvg
+    ? `<div class="rating-line"><span class="star" aria-hidden="true">★</span> ${product.ratingAvg.toFixed(1)} <span class="review-count">(${product.reviewCount || 0})</span></div>`
+    : "";
 
   return `
     <article class="product-card" data-product="${escapeHtml(product.id)}" data-screen="${escapeHtml(screen)}" data-position="${escapeHtml(position)}">
@@ -307,6 +310,7 @@ function productCard(product, meta = {}) {
           <span>${formatPrice(product.finalPrice)}</span>
           ${product.discountPercent ? `<span class="old-price">${formatPrice(product.originalPrice)}</span>` : ""}
         </div>
+        ${ratingLine}
         <p class="hint">${escapeHtml(t("product.sold", { count: product.soldCount }))}</p>
       </div>
       <div class="card-actions">
@@ -370,7 +374,7 @@ export async function loadHome() {
   state.currentSearchQuery = "";
   state.currentGridScreen = "home";
   state.feedPage = 0;
-  els.title.textContent = t("home.popular");
+  els.title.textContent = t("home.recommended");
   els.status.textContent = t("home.loading");
   renderSkeleton(els.grid, 12);
   renderSkeleton(els.dealsGrid, 6);
@@ -445,17 +449,23 @@ export async function loadHomeApi() {
 }
 
 function renderHomeApiSections(sections) {
-  const editors = sections.discounts || [];
+  const hits = sections.hits || [];
   const arrivals = sections.newArrivals || [];
 
-  const editorsGrid = document.getElementById("editorsPicksGrid");
-  if (editorsGrid) {
-    renderProductList(editorsGrid, editors.slice(0, 8), t("home.noProducts"), { screen: "home-editors" });
+  const forYouSection = document.getElementById("personalizationSection");
+  const forYouGrid = document.getElementById("personalizationGrid");
+  if (forYouGrid) {
+    const picks = hits.length ? hits : state.products.slice(0, 10);
+    if (forYouSection) forYouSection.hidden = !picks.length;
+    if (picks.length) {
+      renderProductList(forYouGrid, picks.slice(0, 10), t("home.noProducts"), { screen: "home-for-you" });
+    }
   }
 
   const arrivalsGrid = document.getElementById("newArrivalsGrid");
   if (arrivalsGrid) {
-    renderProductList(arrivalsGrid, arrivals.slice(0, 10), t("home.noProducts"), { screen: "home-new" });
+    const items = arrivals.length ? arrivals : state.products.slice(0, 10);
+    renderProductList(arrivalsGrid, items.slice(0, 10), t("home.noProducts"), { screen: "home-new" });
   }
 
   // Keep legacy container for compatibility, but hide it in new homepage narrative.
@@ -842,13 +852,13 @@ function renderCatalogList() {
 function renderPersonalizationSections() {
   const section = document.getElementById("personalizationSection");
   const grid = document.getElementById("personalizationGrid");
-  if (!section || !grid) return;
-  const picks = state.products.slice(0, 10);
+  if (!section || !grid || grid.children.length) return;
+  const picks = state.homeApiSections?.hits?.length
+    ? state.homeApiSections.hits
+    : state.products.slice(0, 10);
   section.hidden = !picks.length;
   if (!picks.length) return;
-  grid.innerHTML = picks.map((p, i) => productCard(p, { screen: "personalized", position: i })).join("");
-  observeProductImpressions(grid);
-  initLazyImages(grid);
+  renderProductList(grid, picks.slice(0, 10), t("home.noProducts"), { screen: "home-for-you" });
 }
 
 function renderQuickCategories() {

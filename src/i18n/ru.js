@@ -29,6 +29,8 @@ export default {
   "home.all": "Все",
   "home.categories": "Категории",
   "home.quickCategories": "Быстрые категории",
+  "home.lowPriceGuarantee": "Гарантия низких цен",
+  "home.seeAll": "Все",
   "home.todayDeals": "Предложения дня",
   "home.discounts": "Скидки",
   "home.newArrivals": "Новинки",
