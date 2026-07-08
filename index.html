@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/app-cart-ui.css" />
     <link rel="stylesheet" href="/app-profile-ui.css" />
     <link rel="stylesheet" href="/app-checkout-ui.css" />
+    <link rel="stylesheet" href="/app-orders-ui.css" />
   </head>
   <body class="app-layout">
     <header class="site-header">
@@ -391,19 +392,10 @@
       </form>
     </dialog>
 
-    <dialog id="ordersDialog" class="orders-dialog">
-      <div class="orders-card">
-        <div class="dialog-head">
-          <h2 data-i18n="orders.title">My Orders</h2>
-          <div class="head-actions">
-            <button class="secondary-button" id="refreshOrders" type="button" data-i18n="orders.refresh">Refresh</button>
-            <button class="icon-button" id="closeOrders" type="button" aria-label="Orders oynasini yopish">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="orders-content" id="ordersContent"></div>
-      </div>
+    <dialog id="ordersDialog" class="app-orders-dialog">
+      <div class="app-orders-root" id="ordersContent"></div>
+      <button id="closeOrders" type="button" hidden aria-hidden="true"></button>
+      <button id="refreshOrders" type="button" hidden aria-hidden="true"></button>
     </dialog>
 
     <dialog id="favoritesDialog" class="favorites-dialog">

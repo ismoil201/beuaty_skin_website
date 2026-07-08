@@ -2832,16 +2832,100 @@ async function loadOrders() {
     return;
   }
 
-  state.orders = getPageContent(response);
+  state.orders = await enrichOrdersList(getPageContent(response));
   renderOrders();
+}
+
+function ordersBackIcon() {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>`;
+}
+
+async function enrichOrdersList(orders = []) {
+  const missingItems = orders.filter((order) => !Array.isArray(order.items) || !order.items.length);
+  if (!missingItems.length) return orders;
+
+  const enriched = new Map();
+  await Promise.all(missingItems.slice(0, 30).map(async (order) => {
+    const detail = await apiFetch(`/api/orders/${order.id}`, { requireAuth: true, showError: false });
+    if (detail && typeof detail === "object") {
+      enriched.set(String(order.id), detail);
+    }
+  }));
+
+  return orders.map((order) => enriched.get(String(order.id)) || order);
+}
+
+function orderStatusModifier(status = "") {
+  const key = String(status || "").toUpperCase();
+  if (key === "DELIVERED") return "delivered";
+  if (key === "CANCELED" || key === "CANCELLED") return "canceled";
+  if (key === "SHIPPED") return "shipped";
+  return "pending";
+}
+
+function renderOrderStatusBadge(status = "") {
+  return `
+    <span class="app-orders-status app-orders-status--${orderStatusModifier(status)}">
+      ${escapeHtml(profileOrderStatusLabel(status))}
+    </span>
+  `;
+}
+
+function getOrderItemCount(order = {}) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  if (!items.length) return Number(order.itemCount) || 0;
+  return items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+}
+
+function getOrderLineCount(order = {}) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  return items.length || Number(order.itemCount) || 0;
+}
+
+function renderOrderListThumbs(order = {}) {
+  const items = (Array.isArray(order.items) ? order.items : [])
+    .map((item) => normalizeOrderItem({ ...item, orderId: order.id }));
+
+  if (!items.length) {
+    return `<span class="app-orders-thumb app-orders-thumb--empty" aria-hidden="true"></span>`;
+  }
+
+  return items.slice(0, 6).map((item) => `
+    <img
+      src="${escapeHtml(item.image || CONFIG.placeholderImage)}"
+      alt=""
+      class="app-orders-thumb"
+      loading="lazy"
+      decoding="async"
+    />
+  `).join("");
+}
+
+function renderOrdersHeader(title, backAction) {
+  const backAttrs = backAction === "close"
+    ? `data-orders-close type="button" aria-label="${escapeHtml(t("checkout.back"))}"`
+    : `data-orders-back type="button" aria-label="${escapeHtml(t("checkout.back"))}"`;
+
+  return `
+    <header class="app-orders-header">
+      <button class="app-orders-back" ${backAttrs}>
+        ${ordersBackIcon()}
+      </button>
+      <h2>${escapeHtml(title)}</h2>
+      <span aria-hidden="true"></span>
+    </header>
+  `;
 }
 
 function renderOrders() {
   if (state.ordersLoading) {
     els.ordersContent.innerHTML = `
-      <div class="orders-layout">
-        <div class="orders-list"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>
-        <div class="order-detail-panel"><div class="skeleton-card"></div></div>
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.title"), "close")}
+        <div class="app-orders-scroll">
+          <div class="app-orders-skeleton skeleton-card"></div>
+          <div class="app-orders-skeleton skeleton-card"></div>
+        </div>
       </div>
     `;
     return;
@@ -2849,10 +2933,15 @@ function renderOrders() {
 
   if (state.ordersError) {
     els.ordersContent.innerHTML = `
-      <div class="orders-empty">
-        <strong>Orders unavailable</strong>
-        <p>${escapeHtml(state.ordersError)}</p>
-        <button class="secondary-button" data-orders-retry type="button">Retry</button>
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.title"), "close")}
+        <div class="app-orders-scroll">
+          <div class="app-orders-error">
+            <strong>${escapeHtml(t("orders.unavailable"))}</strong>
+            <p>${escapeHtml(state.ordersError)}</p>
+            <button class="app-orders-details-btn" data-orders-retry type="button">${escapeHtml(t("common.tryAgain"))}</button>
+          </div>
+        </div>
       </div>
     `;
     return;
@@ -2860,45 +2949,185 @@ function renderOrders() {
 
   if (!state.orders.length) {
     els.ordersContent.innerHTML = `
-      <div class="orders-empty">
-        <strong>${escapeHtml(t("orders.none"))}</strong>
-        <p>Your completed purchases will appear here.</p>
-        <button class="primary-button" data-orders-start-shopping type="button">${escapeHtml(t("home.startShopping"))}</button>
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.title"), "close")}
+        <div class="app-orders-scroll">
+          <div class="app-orders-empty">
+            <strong>${escapeHtml(t("orders.none"))}</strong>
+            <p>${escapeHtml(t("orders.emptyHint"))}</p>
+            <button class="app-orders-details-btn" data-orders-start-shopping type="button">${escapeHtml(t("home.startShopping"))}</button>
+          </div>
+        </div>
       </div>
     `;
     return;
   }
 
+  if (state.orderDetailLoading || state.selectedOrder || state.orderDetailError) {
+    els.ordersContent.innerHTML = renderOrdersDetailView();
+    return;
+  }
+
   els.ordersContent.innerHTML = `
-    <div class="orders-layout">
-      <div class="orders-list">
+    <div class="app-orders-page">
+      ${renderOrdersHeader(t("orders.title"), "close")}
+      <div class="app-orders-scroll">
         ${state.orders.map(renderOrderCard).join("")}
       </div>
-      <div class="order-detail-panel">
-        ${renderOrderDetailPanel()}
+    </div>
+  `;
+  initLazyImages(els.ordersContent);
+}
+
+function renderOrderCard(order) {
+  const itemCount = getOrderItemCount(order);
+  const lineCount = getOrderLineCount(order);
+  const timestamp = order.createdAt ? String(order.createdAt) : "";
+
+  return `
+    <article class="app-orders-card">
+      <div class="app-orders-card-top">
+        <span class="app-orders-timestamp">${escapeHtml(timestamp)}</span>
+        ${renderOrderStatusBadge(order.status)}
+      </div>
+      <div class="app-orders-thumbs">${renderOrderListThumbs(order)}</div>
+      <h3 class="app-orders-card-title">
+        ${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)} · ${escapeHtml(t("orders.itemsCount", { count: lineCount }))}
+      </h3>
+      <p class="app-orders-card-meta">${escapeHtml(t("orders.items", { count: itemCount }))}</p>
+      <div class="app-orders-card-total">
+        <span>${escapeHtml(t("orders.totalLabel"))}</span>
+        <strong>${formatMoney(order.totalAmount)}</strong>
+      </div>
+      <p class="app-orders-card-name">${escapeHtml(order.fullName || "")}</p>
+      <p class="app-orders-card-phone">${escapeHtml(order.phone || "")}</p>
+      <p class="app-orders-card-address">${escapeHtml(t("orders.addressLabel"))} ${escapeHtml(order.address || "")}</p>
+      <button class="app-orders-details-btn" data-order-detail="${escapeHtml(order.id)}" type="button">
+        ${escapeHtml(t("orders.viewDetails"))}
+      </button>
+    </article>
+  `;
+}
+
+function renderOrdersDetailView() {
+  if (state.orderDetailLoading) {
+    return `
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.details"), "back")}
+        <div class="app-orders-scroll">
+          <div class="app-orders-skeleton skeleton-card"></div>
+          <div class="app-orders-skeleton skeleton-card"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (state.orderDetailError) {
+    return `
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.details"), "back")}
+        <div class="app-orders-scroll">
+          <div class="app-orders-error">
+            <strong>${escapeHtml(t("orders.detailUnavailable"))}</strong>
+            <p>${escapeHtml(state.orderDetailError)}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (!state.selectedOrder) {
+    return `
+      <div class="app-orders-page">
+        ${renderOrdersHeader(t("orders.title"), "close")}
+        <div class="app-orders-scroll">
+          ${state.orders.map(renderOrderCard).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  const order = state.selectedOrder;
+  const items = Array.isArray(order.items)
+    ? order.items.map((item) => normalizeOrderItem({ ...item, orderId: order.id }))
+    : [];
+
+  return `
+    <div class="app-orders-page">
+      ${renderOrdersHeader(t("orders.details"), "back")}
+      <div class="app-orders-scroll app-orders-detail">
+        <article class="app-orders-card">
+          <div class="app-orders-card-top">
+            <span class="app-orders-timestamp">${escapeHtml(String(order.createdAt || ""))}</span>
+            ${renderOrderStatusBadge(order.status)}
+          </div>
+          <div class="app-orders-thumbs">${renderOrderListThumbs(order)}</div>
+          <h3 class="app-orders-card-title">${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)}</h3>
+        </article>
+
+        <div class="app-orders-detail-box">
+          <strong>${escapeHtml(t("checkout.receiver"))}</strong>
+          <p>${escapeHtml(order.fullName || "")}${order.phone ? ` · ${escapeHtml(order.phone)}` : ""}</p>
+        </div>
+        <div class="app-orders-detail-box">
+          <strong>${escapeHtml(t("checkout.address"))}</strong>
+          <p>${escapeHtml(order.address || "")}</p>
+        </div>
+        <div class="app-orders-detail-total">
+          <span>${escapeHtml(t("common.total"))}</span>
+          <strong>${formatMoney(order.totalAmount)}</strong>
+        </div>
+
+        <section class="app-orders-detail-items">
+          <h4>${escapeHtml(t("orders.products"))}</h4>
+          ${items.length
+    ? items.map((item) => renderAppOrderDetailItem(item, order)).join("")
+    : `<p class="hint">${escapeHtml(t("orders.noItems"))}</p>`}
+        </section>
+
+        <section class="app-orders-detail-timeline">
+          <h4>${escapeHtml(t("orders.history"))}</h4>
+          ${state.orderHistoryWarning ? `<div class="app-orders-detail-warning">${escapeHtml(state.orderHistoryWarning)}</div>` : ""}
+          ${renderAppOrderTimeline(order)}
+        </section>
       </div>
     </div>
   `;
 }
 
-function renderOrderCard(order) {
-  const items = Array.isArray(order.items) ? order.items : [];
+function renderAppOrderDetailItem(item, order = {}) {
+  const delivered = String(order.status || "").toUpperCase() === "DELIVERED";
+  const canReview = delivered && item.productId && order.id;
   return `
-    <article class="order-card ${state.selectedOrder?.id === order.id ? "selected" : ""}">
+    <article class="app-orders-detail-item">
+      <img src="${escapeHtml(item.image || CONFIG.placeholderImage)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" />
       <div>
-        <h3>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)}</h3>
-        <p class="hint">${formatDateTime(order.createdAt)}</p>
-        <p class="hint">${escapeHtml(order.fullName || "")}</p>
-        <p class="hint">${escapeHtml(shortText(order.address || "", 72))}</p>
+        <strong>${escapeHtml(item.name)}</strong>
+        <p class="hint">${item.variantLabel ? escapeHtml(item.variantLabel) : "—"} · x${item.quantity}</p>
+        ${canReview ? `
+          <button class="app-orders-details-btn" data-order-write-review="${escapeHtml(item.productId)}" data-review-order="${escapeHtml(order.id)}" data-review-name="${escapeHtml(item.name)}" type="button">${escapeHtml(t("reviews.write"))}</button>
+        ` : ""}
       </div>
-      <div class="order-card-side">
-        <span class="status-badge status-${escapeHtml(String(order.status || "").toLowerCase())}">${escapeHtml(statusLabel(order.status))}</span>
-        <strong>${formatMoney(order.totalAmount)}</strong>
-        <span class="hint">${escapeHtml(t("orders.items", { count: items.length }))}</span>
-        <button class="secondary-button" data-order-detail="${escapeHtml(order.id)}" type="button">${escapeHtml(t("orders.viewDetails"))}</button>
-      </div>
+      <strong>${formatMoney(item.lineTotal || item.unitPrice * item.quantity)}</strong>
     </article>
   `;
+}
+
+function renderAppOrderTimeline(order) {
+  const history = state.selectedOrderHistory.length
+    ? state.selectedOrderHistory
+    : [{ status: order.status, createdAt: order.createdAt, note: "" }];
+
+  return history.map((item) => `
+    <div class="app-orders-timeline-item">
+      <span aria-hidden="true"></span>
+      <div>
+        <strong>${escapeHtml(statusLabel(item.status))}</strong>
+        <p class="hint">${formatDateTime(item.createdAt)}</p>
+        ${item.note ? `<p class="hint">${escapeHtml(item.note)}</p>` : ""}
+      </div>
+    </div>
+  `).join("");
 }
 
 function renderOrderDetailPanel() {
@@ -4438,10 +4667,27 @@ async function handleCheckoutClick(event) {
 }
 
 function handleOrdersClick(event) {
+  const closeOrders = event.target.closest("[data-orders-close]");
+  const ordersBack = event.target.closest("[data-orders-back]");
   const detail = event.target.closest("[data-order-detail]");
   const retry = event.target.closest("[data-orders-retry]");
   const startShopping = event.target.closest("[data-orders-start-shopping]");
   const writeReview = event.target.closest("[data-order-write-review]");
+
+  if (closeOrders) {
+    els.ordersDialog.close();
+    unlockBodyIfNoOverlay();
+    return;
+  }
+
+  if (ordersBack) {
+    state.selectedOrder = null;
+    state.selectedOrderHistory = [];
+    state.orderDetailError = "";
+    state.orderHistoryWarning = "";
+    renderOrders();
+    return;
+  }
 
   if (writeReview) {
     openWriteReview({
