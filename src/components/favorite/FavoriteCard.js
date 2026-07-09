@@ -2,11 +2,19 @@ import { CONFIG } from "../../config/config.js";
 import { escapeHtml } from "../../utils/html.js";
 import { numberOrZero } from "../../utils/productMapper.js";
 import { formatPrice } from "../../utils/format.js";
+import { getCurrentLanguage } from "../../i18n/index.js";
+
+function formatRating(value) {
+  const locale = getCurrentLanguage() === "uz" ? "uz-UZ" : getCurrentLanguage();
+  return numberOrZero(value).toLocaleString(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
+}
 
 export function FavoriteCard({ product, categoryLabel = "", favoritesTitle = "Favorites" }) {
-  const rating = numberOrZero(product.ratingAvg);
+  const rating = formatRating(product.ratingAvg);
   const reviews = numberOrZero(product.reviewCount);
-
   return `
     <div class="app-fav-card" data-product="${escapeHtml(product.id)}" data-screen="favorites" role="link" tabindex="0" aria-label="${escapeHtml(product.name)}">
       <div class="app-fav-media">
@@ -25,7 +33,7 @@ export function FavoriteCard({ product, categoryLabel = "", favoritesTitle = "Fa
         <h3 class="app-fav-name">${escapeHtml(product.name)}</h3>
         <div class="app-fav-rating">
           <span class="star" aria-hidden="true">★</span>
-          <span>${rating.toFixed(1)}</span>
+          <span>${rating}</span>
           <span class="count">(${reviews})</span>
           <span class="flags" aria-hidden="true">🇰🇷 🚚</span>
         </div>

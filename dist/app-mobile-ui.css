@@ -712,7 +712,7 @@ body.app-layout .mobile-bottom-nav {
   margin: 0;
   padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--app-pink, #fdf2f4);
   backdrop-filter: blur(14px);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
 }
@@ -739,8 +739,12 @@ body.app-layout .mobile-bottom-nav button svg {
 }
 
 body.app-layout .mobile-bottom-nav button.active {
-  color: #fff;
-  background: var(--app-accent);
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+}
+
+body.app-layout .mobile-bottom-nav button[data-mobile-action="favoritesButton"].active {
+  color: var(--app-sale, #ff4d6d);
 }
 
 body.app-layout .mobile-bottom-nav button.active svg {

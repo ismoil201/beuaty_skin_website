@@ -105,9 +105,11 @@ export function initPremiumUi() {
     }
 
     if (action === "favoritesButton") {
-      void FavoriteController.open().catch((error) => {
-        console.error("[FAVORITES OPEN FAILED]", error);
-      });
+      void FavoriteController.open()
+        .then(() => syncBottomNav())
+        .catch((error) => {
+          console.error("[FAVORITES OPEN FAILED]", error);
+        });
       return;
     }
 

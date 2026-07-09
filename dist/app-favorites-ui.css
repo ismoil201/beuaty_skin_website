@@ -36,6 +36,12 @@ body.app-layout dialog#favoritesDialog.app-favorites-dialog::backdrop {
   height: 100%;
 }
 
+body.app-layout dialog#favoritesDialog.app-favorites-dialog[open] .app-favorites-root {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
 .app-favorites-page {
   display: flex;
   flex-direction: column;
@@ -79,6 +85,13 @@ body.app-layout dialog#favoritesDialog.app-favorites-dialog::backdrop {
   cursor: pointer;
 }
 
+@media (max-width: 1023px) {
+  .app-favorites-back {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 .app-favorites-back svg {
   width: 24px;
   height: 24px;
@@ -98,7 +111,7 @@ body.app-layout dialog#favoritesDialog.app-favorites-dialog::backdrop {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 12px 16px 96px;
+  padding: 12px 16px 24px;
   -webkit-overflow-scrolling: touch;
 }
 
