@@ -29,6 +29,9 @@ export const FavoriteController = {
     }
     lockBody();
     syncBottomNav();
+    favoriteStore.favoritesLoading = true;
+    favoriteStore.favoritesError = "";
+    FavoritesPage.render();
     await FavoriteController.load({ render: true });
   },
 

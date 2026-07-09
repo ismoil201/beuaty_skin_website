@@ -98,11 +98,15 @@ export const FavoritesPage = {
     const { render = false } = options;
     if (!isLoggedIn?.()) {
       clearFavoritesState();
+      if (shouldRenderFavorites(options)) FavoritesPage.render();
       return;
     }
 
-    favoriteStore.favoritesLoading = true;
-    favoriteStore.favoritesError = "";
+    const alreadyLoading = favoriteStore.favoritesLoading;
+    if (!alreadyLoading) {
+      favoriteStore.favoritesLoading = true;
+      favoriteStore.favoritesError = "";
+    }
     if (shouldRenderFavorites(options)) FavoritesPage.render();
 
     try {
