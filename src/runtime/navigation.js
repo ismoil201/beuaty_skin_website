@@ -25,13 +25,17 @@ export function hideBrandView() {
   document.getElementById("brandView")?.setAttribute("hidden", "");
 }
 
+export function isFavoritesOpen() {
+  return Boolean(els.favoritesDialog?.classList.contains("open"));
+}
+
 export function syncBottomNav() {
   const nav = document.querySelector(".mobile-bottom-nav");
   if (!nav) return;
   let activeAction = "home";
   if (els.profileDrawer?.classList.contains("open")) {
     activeAction = "loginButton";
-  } else if (els.favoritesDialog?.open) {
+  } else if (els.favoritesDialog?.classList.contains("open")) {
     activeAction = "favoritesButton";
   } else if (els.cartDrawer?.classList.contains("open")) {
     activeAction = "cartButton";
@@ -129,8 +133,8 @@ export function lockBody() {
 
 export function unlockBodyIfNoOverlay() {
   const compareOpen = document.getElementById("compareDrawer")?.classList.contains("open");
-  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || compareOpen;
-  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.favoritesDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
+  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || els.favoritesDialog?.classList.contains("open") || compareOpen;
+  const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
   if (!hasOpenDrawer && !hasOpenDialog) {
     document.body.classList.remove("locked");
   }

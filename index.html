@@ -400,12 +400,14 @@
       <button id="refreshOrders" type="button" hidden aria-hidden="true"></button>
     </dialog>
 
-    <dialog id="favoritesDialog" class="app-favorites-dialog">
-      <div class="app-favorites-root" id="favoritesContent"></div>
+    <aside class="drawer app-favorites-drawer" id="favoritesDialog" aria-hidden="true">
+      <div class="drawer-panel app-favorites-panel">
+        <div class="drawer-body app-favorites-root" id="favoritesContent"></div>
+      </div>
       <button id="closeFavorites" type="button" hidden aria-hidden="true"></button>
       <button id="refreshFavorites" type="button" hidden aria-hidden="true"></button>
       <span id="favoritesSummary" hidden aria-hidden="true"></span>
-    </dialog>
+    </aside>
 
     <dialog id="supportDialog" class="app-support-dialog">
       <div class="app-support-root" id="supportContent"></div>

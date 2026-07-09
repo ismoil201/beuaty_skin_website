@@ -8,7 +8,7 @@ import { renderProductList } from "../pages/shared/productGrid.js";
 import { favoritePop } from "../utils/motion.js";
 import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
-import { lockBody, unlockBodyIfNoOverlay, syncBottomNav } from "../runtime/navigation.js";
+import { lockBody, unlockBodyIfNoOverlay, syncBottomNav, isFavoritesOpen } from "../runtime/navigation.js";
 import { AuthController } from "./AuthController.js";
 
 export const FavoriteController = {
@@ -24,9 +24,8 @@ export const FavoriteController = {
       return;
     }
     if (!els.favoritesDialog) return;
-    if (!els.favoritesDialog.open) {
-      els.favoritesDialog.show();
-    }
+    els.favoritesDialog.classList.add("open");
+    els.favoritesDialog.setAttribute("aria-hidden", "false");
     lockBody();
     syncBottomNav();
     favoriteStore.favoritesLoading = true;
@@ -36,7 +35,9 @@ export const FavoriteController = {
   },
 
   close() {
-    els.favoritesDialog.close();
+    if (!els.favoritesDialog) return;
+    els.favoritesDialog.classList.remove("open");
+    els.favoritesDialog.setAttribute("aria-hidden", "true");
     unlockBodyIfNoOverlay();
     syncBottomNav();
   },
@@ -45,7 +46,7 @@ export const FavoriteController = {
     return FavoritesPage.load(options, {
       isLoggedIn: AuthController.isLoggedIn,
       onSessionExpired: () => {
-        if (els.favoritesDialog.open) els.favoritesDialog.close();
+        if (isFavoritesOpen()) FavoriteController.close();
       },
     });
   },
@@ -85,10 +86,10 @@ export const FavoriteController = {
     if (productStore.selectedDetailProduct?.id !== undefined && String(productStore.selectedDetailProduct.id) === String(productId)) {
       ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     }
-    if (els.favoritesDialog.open) FavoritesPage.render();
+    if (isFavoritesOpen()) FavoritesPage.render();
     const favBtn = document.querySelector(`[data-favorite="${productId}"]`);
     if (favBtn && isFavorite) favoritePop(favBtn);
     showToast(isFavorite ? t("favorites.added") : t("favorites.removed"), "success");
-    if (isFavorite && !existingProduct) await FavoriteController.load({ render: els.favoritesDialog.open });
+    if (isFavorite && !existingProduct) await FavoriteController.load({ render: isFavoritesOpen() });
   },
 };

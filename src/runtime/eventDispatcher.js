@@ -49,6 +49,7 @@ import {
   showHomeView,
   syncBottomNav,
   navigateToProduct,
+  isFavoritesOpen,
 } from './navigation.js';
 import { handleRoute } from './router.js';
 import { openPdpFullscreen } from './uiInit.js';
@@ -176,7 +177,7 @@ export function bindEvents() {
       ProfileController.close();
       NotificationController.close();
       if (els.ordersDialog.open) els.ordersDialog.close();
-      if (els.favoritesDialog.open) els.favoritesDialog.close();
+      if (els.favoritesDialog?.classList.contains("open")) FavoriteController.close();
       if (els.myReviewsDialog.open) els.myReviewsDialog.close();
       if (els.writeReviewDialog.open) els.writeReviewDialog.close();
     }
@@ -193,10 +194,6 @@ export function bindEvents() {
     unlockBodyIfNoOverlay();
   });
   els.ordersDialog.addEventListener("close", unlockBodyIfNoOverlay);
-  els.favoritesDialog.addEventListener("close", () => {
-    unlockBodyIfNoOverlay();
-    syncBottomNav();
-  });
   els.myReviewsDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.writeReviewDialog.addEventListener("close", unlockBodyIfNoOverlay);
 
@@ -907,7 +904,7 @@ export function rerenderLanguageSensitiveUi() {
   }
   if (els.cartDrawer.classList.contains("open")) CartPage.render();
   if (els.profileDrawer.classList.contains("open")) ProfilePage.render();
-  if (els.favoritesDialog.open) FavoritesPage.render();
+  if (isFavoritesOpen()) FavoritesPage.render();
   if (els.ordersDialog.open) OrdersPage.render();
   if (els.notificationsDrawer.classList.contains("open")) NotificationsPage.render();
   if (els.myReviewsDialog.open) renderMyReviews();

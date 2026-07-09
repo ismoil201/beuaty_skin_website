@@ -92,7 +92,7 @@ export function initPremiumUi() {
 
     if (action === "home") {
       if (els.cartDrawer?.classList.contains("open")) closeCart();
-      if (els.favoritesDialog?.open) FavoriteController.close();
+      if (els.favoritesDialog?.classList.contains("open")) FavoriteController.close();
       if (els.profileDrawer?.classList.contains("open")) ProfileController.close();
       if (window.location.hash && window.location.hash !== "#/" && window.location.hash !== "#") {
         window.location.hash = "#/";

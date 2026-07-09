@@ -9,9 +9,10 @@ import { FavoriteCard, FavoritesHeartIcon } from "../../components/favorite/Favo
 import { FavoriteGrid, FavoriteGridSkeleton } from "../../components/favorite/FavoriteGrid.js";
 import { initLazyImages } from "../../utils/imageLoader.js";
 import { renderProductList } from "../shared/productGrid.js";
+import { isFavoritesOpen } from "../../runtime/navigation.js";
 
 function shouldRenderFavorites(options = {}) {
-  return Boolean(options.render || els.favoritesDialog?.open);
+  return Boolean(options.render || isFavoritesOpen());
 }
 
 export const FavoritesPage = {
