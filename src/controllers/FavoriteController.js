@@ -23,7 +23,9 @@ export const FavoriteController = {
       AuthController.showLoginRequired();
       return;
     }
-    els.favoritesDialog.showModal();
+    if (!els.favoritesDialog.open) {
+      els.favoritesDialog.show();
+    }
     lockBody();
     syncBottomNav();
     await FavoriteController.load({ render: true });

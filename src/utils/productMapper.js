@@ -91,7 +91,16 @@ export function normalizeCartItem(item = {}) {
 }
 
 export function normalizeFavoriteItem(item = {}) {
-  return normalizeProduct(item.product || item);
+  const source = item.product || item;
+  const normalized = normalizeProduct(source);
+  if (normalized.id === undefined || normalized.id === null) {
+    const fallbackId = source.productId ?? item.productId;
+    if (fallbackId !== undefined && fallbackId !== null) {
+      normalized.id = fallbackId;
+    }
+  }
+  normalized.favorite = true;
+  return normalized;
 }
 
 export function normalizeCategory(value) {

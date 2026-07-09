@@ -10,6 +10,10 @@ import { FavoriteGrid, FavoriteGridSkeleton } from "../../components/favorite/Fa
 import { initLazyImages } from "../../utils/imageLoader.js";
 import { renderProductList } from "../shared/productGrid.js";
 
+function shouldRenderFavorites(options = {}) {
+  return Boolean(options.render || els.favoritesDialog?.open);
+}
+
 export const FavoritesPage = {
   updateUi() {
     if (els.favoritesCount) els.favoritesCount.textContent = favoriteStore.favoritesCount;
@@ -48,6 +52,8 @@ export const FavoritesPage = {
   },
 
   render() {
+    if (!els.favoritesContent) return;
+
     FavoritesPage.updateUi();
 
     if (favoriteStore.favoritesLoading) {
@@ -97,7 +103,7 @@ export const FavoritesPage = {
 
     favoriteStore.favoritesLoading = true;
     favoriteStore.favoritesError = "";
-    if (render) FavoritesPage.render();
+    if (shouldRenderFavorites(options)) FavoritesPage.render();
 
     try {
       const result = await FavoriteService.loadFavorites();
@@ -107,11 +113,12 @@ export const FavoritesPage = {
         if (result.sessionExpired) {
           clearFavoritesState();
           onSessionExpired?.();
+          if (shouldRenderFavorites(options)) FavoritesPage.render();
           return;
         }
         favoriteStore.favoritesError = result.error;
         FavoritesPage.updateUi();
-        if (render) FavoritesPage.render();
+        if (shouldRenderFavorites(options)) FavoritesPage.render();
         return;
       }
 
@@ -122,13 +129,13 @@ export const FavoritesPage = {
       if (productStore.todayDeals.length) {
         renderProductList(els.dealsGrid, productStore.todayDeals.slice(0, 8), "Bugungi takliflar topilmadi.");
       }
-      if (render || els.favoritesDialog.open) FavoritesPage.render();
+      if (shouldRenderFavorites(options)) FavoritesPage.render();
     } catch (error) {
       console.error("[LOAD FAVORITES FAILED]", error);
       favoriteStore.favoritesLoading = false;
       favoriteStore.favoritesError = "Favorites could not be loaded.";
       FavoritesPage.updateUi();
-      if (render || els.favoritesDialog.open) FavoritesPage.render();
+      if (shouldRenderFavorites(options)) FavoritesPage.render();
     }
   },
 
