@@ -104,6 +104,13 @@ export function initPremiumUi() {
       return;
     }
 
+    if (action === "favoritesButton") {
+      void FavoriteController.open().catch((error) => {
+        console.error("[FAVORITES OPEN FAILED]", error);
+      });
+      return;
+    }
+
     document.getElementById(action)?.click();
   });
 
@@ -140,6 +147,12 @@ export function initPremiumUi() {
     }
     if (action) {
       closeMobileMenu();
+      if (action.dataset.mobileAction === "favoritesButton") {
+        void FavoriteController.open().catch((error) => {
+          console.error("[FAVORITES OPEN FAILED]", error);
+        });
+        return;
+      }
       document.getElementById(action.dataset.mobileAction)?.click();
     }
   });

@@ -23,6 +23,7 @@ export const FavoriteController = {
       AuthController.showLoginRequired();
       return;
     }
+    if (!els.favoritesDialog) return;
     if (!els.favoritesDialog.open) {
       els.favoritesDialog.show();
     }

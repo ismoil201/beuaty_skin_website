@@ -110,7 +110,7 @@ export function bindEvents() {
     if (AuthController.isLoggedIn()) ProfileController.open();
     else AuthController.openDialog("login");
   });
-  els.favoritesButton.addEventListener("click", () => FavoriteController.open());
+  els.favoritesButton?.addEventListener("click", () => FavoriteController.open());
   els.notificationsButton.addEventListener("click", () => NotificationController.open());
   els.apiButton.addEventListener("click", openApiDialog);
   els.loginTab.addEventListener("click", () => AuthController.setMode("login"));
@@ -125,10 +125,10 @@ export function bindEvents() {
   els.ordersContent.addEventListener("click", (event) => OrderController.handleClick(event));
   els.refreshOrders.addEventListener("click", () => OrderController.load());
   els.closeOrders.addEventListener("click", () => els.ordersDialog.close());
-  els.favoritesContent.addEventListener("click", handleFavoritesClick);
-  els.favoritesContent.addEventListener("keydown", handleProductCardKeydown);
-  els.refreshFavorites.addEventListener("click", () => FavoriteController.load({ render: true }));
-  els.closeFavorites.addEventListener("click", () => FavoriteController.close());
+  els.favoritesContent?.addEventListener("click", handleFavoritesClick);
+  els.favoritesContent?.addEventListener("keydown", handleProductCardKeydown);
+  els.refreshFavorites?.addEventListener("click", () => FavoriteController.load({ render: true }));
+  els.closeFavorites?.addEventListener("click", () => FavoriteController.close());
   els.notificationsContent.addEventListener("click", handleNotificationsClick);
   els.refreshNotifications.addEventListener("click", () => {
     NotificationController.load();
