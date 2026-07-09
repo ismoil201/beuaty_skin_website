@@ -64,6 +64,8 @@ export const renderCart = (...args) => CartPage.render(...args);
 export const renderCheckout = (...args) => CheckoutPage.render(...args);
 export const renderProductDetail = (...args) => ProductDetailPage.renderProductDetail(...args);
 export const renderFavorites = (...args) => FavoritesPage.render(...args);
+export const loadFavorites = (...args) => FavoriteController.load(...args);
+export const openFavorites = (...args) => FavoriteController.open(...args);
 export const renderOrders = (...args) => OrdersPage.render(...args);
 export const renderNotifications = (...args) => NotificationsPage.render(...args);
 

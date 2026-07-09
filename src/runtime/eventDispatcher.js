@@ -126,6 +126,7 @@ export function bindEvents() {
   els.refreshOrders.addEventListener("click", () => OrderController.load());
   els.closeOrders.addEventListener("click", () => els.ordersDialog.close());
   els.favoritesContent.addEventListener("click", handleFavoritesClick);
+  els.favoritesContent.addEventListener("keydown", handleProductCardKeydown);
   els.refreshFavorites.addEventListener("click", () => FavoriteController.load({ render: true }));
   els.closeFavorites.addEventListener("click", () => FavoriteController.close());
   els.notificationsContent.addEventListener("click", handleNotificationsClick);
