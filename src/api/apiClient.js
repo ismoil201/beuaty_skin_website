@@ -1,4 +1,4 @@
-import { state } from "../store/state.js";
+import { appStore } from "../stores/appStore.js";
 import { getToken } from "../utils/storage.js";
 import { getViteEnv, isDevMode } from "../config/env.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
@@ -16,7 +16,7 @@ export function configureApiClient(nextHandlers = {}) {
 /** Same URL building as old working app.js: empty baseUrl → same-origin /api (Vite proxy / Vercel rewrite). */
 export function buildApiUrl(path, query) {
   const basePath = path.startsWith("/") ? path : `/${path}`;
-  const baseUrl = state.baseUrl ? state.baseUrl.replace(/\/+$/, "") : "";
+  const baseUrl = appStore.baseUrl ? appStore.baseUrl.replace(/\/+$/, "") : "";
   const url = new URL(`${baseUrl}${basePath}`, window.location.origin);
 
   if (query) {
@@ -53,7 +53,7 @@ export async function apiFetch(path, options = {}) {
   }
 
   if (requireAuth && !token) {
-    state.lastApiError = "Please login to continue";
+    appStore.lastApiError = "Please login to continue";
     handlers.onLoginRequired();
     return null;
   }
@@ -65,7 +65,7 @@ export async function apiFetch(path, options = {}) {
       requestUrl: url,
       method: fetchOptions.method || "GET",
       query,
-      baseUrl: state.baseUrl,
+      baseUrl: appStore.baseUrl,
       host: window.location.host,
       mode: env.MODE,
       envBase: env.VITE_API_BASE_URL,
@@ -90,7 +90,7 @@ export async function apiFetch(path, options = {}) {
   }
 
   try {
-    state.lastApiError = "";
+    appStore.lastApiError = "";
     const response = await fetch(url, { ...fetchOptions, headers, signal: controller.signal });
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
@@ -105,7 +105,7 @@ export async function apiFetch(path, options = {}) {
     }
 
     if (response.status === 401) {
-      state.lastApiError = "Session expired. Please login again.";
+      appStore.lastApiError = "Session expired. Please login again.";
       if (!silentAuth) {
         handlers.onUnauthorized();
       }
@@ -114,7 +114,7 @@ export async function apiFetch(path, options = {}) {
 
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
-      state.lastApiError = message;
+      appStore.lastApiError = message;
       if (showError) handlers.showToast(message, "error");
       return null;
     }
@@ -122,11 +122,11 @@ export async function apiFetch(path, options = {}) {
     return payload;
   } catch (error) {
     if (error?.name === "AbortError") {
-      state.lastApiError = timedOut
+      appStore.lastApiError = timedOut
         ? "So‘rov vaqti tugadi. Qayta urinib ko‘ring."
         : "So‘rov bekor qilindi.";
     } else {
-      state.lastApiError = "Server bilan aloqa bo‘lmadi";
+      appStore.lastApiError = "Server bilan aloqa bo‘lmadi";
     }
     if (isDevMode()) {
       console.error("[API ERROR]", { requestUrl: url, error });

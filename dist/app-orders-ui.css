@@ -1,0 +1,590 @@
+/* App orders screen — BEAUTY SKIN KOREA */
+
+body.app-layout dialog.app-orders-dialog {
+  width: 100%;
+  max-width: min(1240px, 100vw);
+  height: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: var(--app-bg, #f5f5f5);
+}
+
+body.app-layout dialog.app-orders-dialog::backdrop {
+  background: var(--app-bg, #f5f5f5);
+}
+
+.app-orders-root {
+  height: 100%;
+}
+
+.app-orders-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--app-bg, #f5f5f5);
+}
+
+.app-orders-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--app-bg, #f5f5f5);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.app-orders-header h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.app-orders-back {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--app-surface, #fff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.app-orders-back svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-orders-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 16px 88px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-orders-card {
+  margin-bottom: 12px;
+  padding: 14px 16px 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-orders-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.app-orders-timestamp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--app-muted, #8a8a8a);
+  word-break: break-all;
+}
+
+.app-orders-status {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-orders-status--pending {
+  background: #fff4e5;
+  color: #c76a00;
+}
+
+.app-orders-status--delivered {
+  background: #e8f8ef;
+  color: #16a34a;
+}
+
+.app-orders-status--canceled {
+  background: #f3f3f3;
+  color: #8a8a8a;
+}
+
+.app-orders-status--shipped {
+  background: #eef4ff;
+  color: #2563eb;
+}
+
+.app-orders-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 12px;
+  padding-bottom: 2px;
+}
+
+.app-orders-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.app-orders-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f3f3f3;
+  flex-shrink: 0;
+}
+
+.app-orders-thumb--empty {
+  display: inline-block;
+  background: #f3f3f3;
+}
+
+.app-orders-card-title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.app-orders-card-meta {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-card-total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-card-total strong {
+  font-size: 1rem;
+  color: var(--app-text, #1a1a1a);
+}
+
+.app-orders-card-name {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.app-orders-card-phone {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  color: var(--app-text, #1a1a1a);
+}
+
+.app-orders-card-address {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-details-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #ff8c94;
+  border-radius: 12px;
+  background: #fff;
+  color: #ff6b7a;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-orders-empty,
+.app-orders-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 280px;
+  padding: 24px;
+  text-align: center;
+}
+
+.app-orders-empty strong,
+.app-orders-error strong {
+  font-size: 1rem;
+}
+
+.app-orders-empty p,
+.app-orders-error p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-skeleton {
+  height: 220px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+}
+
+/* Detail view */
+.app-orders-detail {
+  padding-bottom: 24px;
+}
+
+.app-orders-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.app-orders-detail-head h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-box {
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 14px;
+}
+
+.app-orders-detail-box strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
+.app-orders-detail-box p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.app-orders-detail-items h4,
+.app-orders-detail-timeline h4 {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 12px;
+}
+
+.app-orders-detail-item img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f3f3f3;
+}
+
+.app-orders-detail-item strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.app-orders-detail-item .hint {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-timeline-item {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.app-orders-timeline-item > span {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #ff8c94;
+}
+
+.app-orders-timeline-item strong {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.app-orders-timeline-item .hint {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-warning {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4f4;
+  color: #b42318;
+  font-size: 0.8rem;
+}
+
+/* Order detail — hero card */
+.app-orders-detail-hero {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-orders-detail-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.app-orders-detail-hero-top h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-date {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.app-orders-detail-status-pill svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-orders-stepper {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.app-orders-stepper::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #e5e5e5;
+  z-index: 0;
+}
+
+.app-orders-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.app-orders-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #b0b0b0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-orders-step-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.app-orders-step-label {
+  font-size: 0.58rem;
+  line-height: 1.2;
+  text-align: center;
+  color: #b0b0b0;
+  word-break: break-word;
+}
+
+.app-orders-step.is-active .app-orders-step-icon,
+.app-orders-step.is-done .app-orders-step-icon {
+  background: #2563eb;
+  color: #fff;
+}
+
+.app-orders-step.is-active .app-orders-step-label,
+.app-orders-step.is-done .app-orders-step-label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.app-orders-stepper.is-canceled .app-orders-step-icon {
+  background: #f3f3f3;
+  color: #c0c0c0;
+}
+
+.app-orders-detail-summary {
+  border-top: 1px solid var(--app-border, #ececec);
+  padding-top: 12px;
+}
+
+.app-orders-detail-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 0.88rem;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-summary-row strong {
+  color: var(--app-text, #1a1a1a);
+  font-size: 0.95rem;
+}
+
+.app-orders-detail-section {
+  margin-bottom: 12px;
+  padding: 16px;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #ececec);
+  border-radius: 16px;
+}
+
+.app-orders-detail-section h4 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-name {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.app-orders-detail-muted {
+  margin: 0 0 6px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--app-muted, #8a8a8a);
+}
+
+.app-orders-detail-section .app-orders-details-btn {
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.app-orders-detail-product {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 0;
+}
+
+.app-orders-detail-product + .app-orders-detail-product {
+  border-top: 1px solid var(--app-border, #ececec);
+}
+
+.app-orders-detail-product img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f3f3f3;
+}
+
+.app-orders-detail-product strong {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.app-orders-feedback-btn {
+  margin-top: 4px;
+}
+
+@media (max-width: 380px) {
+  .app-orders-step-label {
+    font-size: 0.52rem;
+  }
+
+  .app-orders-step-icon {
+    width: 28px;
+    height: 28px;
+  }
+}

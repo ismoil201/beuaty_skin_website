@@ -1,8 +1,8 @@
-export const CONFIG = {
+export const CONFIG = Object.freeze({
   productionApiBaseUrl: "https://cosmetic-server-production.up.railway.app",
   defaultPageSize: 24,
   searchDebounceMs: 300,
-  storageKeys: {
+  storageKeys: Object.freeze({
     accessToken: "zaven_token",
     legacyAccessToken: "accessToken",
     user: "zaven_user",
@@ -12,7 +12,7 @@ export const CONFIG = {
     sessionId: "zaven_session_id",
     recentProducts: "zaven_recent_products",
     language: "beauty_skin_language",
-  },
+  }),
   placeholderImage:
     "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80",
-};
+});

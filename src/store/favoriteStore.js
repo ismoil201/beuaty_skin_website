@@ -1,36 +1,37 @@
-import { state } from "./state.js";
+import { favoriteStore } from "../stores/favoriteStore.js";
+import { productStore } from "../stores/productStore.js";
 
 export function setFavoriteProducts(products) {
-  state.favoriteProducts = products.filter(
+  favoriteStore.favoriteProducts = products.filter(
     (product) => product.id !== undefined && product.id !== null
   );
-  state.favoriteIds = new Set(state.favoriteProducts.map((product) => String(product.id)));
-  state.favoritesCount = state.favoriteProducts.length;
+  favoriteStore.favoriteIds = new Set(favoriteStore.favoriteProducts.map((product) => String(product.id)));
+  favoriteStore.favoritesCount = favoriteStore.favoriteProducts.length;
   syncProductFavorites();
 }
 
 export function clearFavoritesState() {
-  state.favoriteProducts = [];
-  state.favoriteIds = new Set();
-  state.favoritesLoading = false;
-  state.favoritesError = "";
-  state.favoritesCount = 0;
+  favoriteStore.favoriteProducts = [];
+  favoriteStore.favoriteIds = new Set();
+  favoriteStore.favoritesLoading = false;
+  favoriteStore.favoritesError = "";
+  favoriteStore.favoritesCount = 0;
   syncProductFavorites();
 }
 
 export function syncProductFavorites() {
-  state.products = state.products.map((product) => ({
+  productStore.products = productStore.products.map((product) => ({
     ...product,
-    favorite: state.favoriteIds.has(String(product.id)),
+    favorite: favoriteStore.favoriteIds.has(String(product.id)),
   }));
-  state.todayDeals = state.todayDeals.map((product) => ({
+  productStore.todayDeals = productStore.todayDeals.map((product) => ({
     ...product,
-    favorite: state.favoriteIds.has(String(product.id)),
+    favorite: favoriteStore.favoriteIds.has(String(product.id)),
   }));
-  if (state.selectedDetailProduct?.id !== undefined) {
-    state.selectedDetailProduct = {
-      ...state.selectedDetailProduct,
-      favorite: state.favoriteIds.has(String(state.selectedDetailProduct.id)),
+  if (productStore.selectedDetailProduct?.id !== undefined) {
+    productStore.selectedDetailProduct = {
+      ...productStore.selectedDetailProduct,
+      favorite: favoriteStore.favoriteIds.has(String(productStore.selectedDetailProduct.id)),
     };
   }
 }

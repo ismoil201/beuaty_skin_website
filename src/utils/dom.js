@@ -109,6 +109,11 @@ export const els = {
   termsDialog: null,
   termsContent: null,
   toast: null,
+  brandViewContent: null,
+  cartExtras: null,
+  cartStickyProgress: null,
+  megaMenu: null,
+  popularSearchesChips: null,
 };
 
 const ELEMENT_IDS = {
@@ -222,6 +227,11 @@ const ELEMENT_IDS = {
   termsDialog: "termsDialog",
   termsContent: "termsContent",
   toast: "toast",
+  brandViewContent: "brandViewContent",
+  cartExtras: "cartExtras",
+  cartStickyProgress: "cartStickyProgress",
+  megaMenu: "megaMenu",
+  popularSearchesChips: "popularSearchesChips",
 };
 
 export function initElements() {

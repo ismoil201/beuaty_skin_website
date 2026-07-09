@@ -5,40 +5,42 @@ import { loadFilters, saveFilters, resetFilters, DEFAULT_FILTERS, activeFilterCo
 import { getCompareIds, MAX_COMPARE } from "../store/compareStore.js";
 import { getSavedForLater } from "../store/savedForLaterStore.js";
 import { numberOrZero } from "./productMapper.js";
+import { productStore } from "../stores/productStore.js";
+import { cartStore } from "../stores/cartStore.js";
 
 const FREE_SHIPPING_THRESHOLD = 500000;
 const STANDARD_DELIVERY_FEE = 30000;
 const ORIGINS = ["Korea", "Japan", "USA"];
 const SELLERS = ["Official Store", "Beauty Skin Korea", "Verified Seller"];
 
-export function initFilterState(state) {
-  if (!state.filters) state.filters = loadFilters();
+export function initFilterState() {
+  if (!productStore.filters) productStore.filters = loadFilters();
 }
 
-export function setSourceProducts(state, products) {
-  state.sourceProducts = products;
-  state.filterFacets = extractFacetOptions(products);
-  if (state.filters.maxPrice === DEFAULT_FILTERS.maxPrice && state.filterFacets.maxPrice) {
-    state.filters.maxPrice = Math.ceil(state.filterFacets.maxPrice / 1000) * 1000;
+export function setSourceProducts(products) {
+  productStore.sourceProducts = products;
+  productStore.filterFacets = extractFacetOptions(products);
+  if (productStore.filters.maxPrice === DEFAULT_FILTERS.maxPrice && productStore.filterFacets.maxPrice) {
+    productStore.filters.maxPrice = Math.ceil(productStore.filterFacets.maxPrice / 1000) * 1000;
   }
 }
 
-export function getFilteredProducts(state) {
-  return applyProductFilters(state.sourceProducts, state.filters);
+export function getFilteredProducts() {
+  return applyProductFilters(productStore.sourceProducts, productStore.filters);
 }
 
-export function renderFilterSidebar(state, t, categoryLabel) {
+export function renderFilterSidebar(t, categoryLabel) {
   const sidebar = document.getElementById("filterSidebar");
   const sheet = document.getElementById("filterSheetContent");
-  const html = buildFilterHtml(state, t, categoryLabel);
+  const html = buildFilterHtml(t, categoryLabel);
   if (sidebar) sidebar.innerHTML = html;
   if (sheet) sheet.innerHTML = html;
-  updateFilterBadge(state);
+  updateFilterBadge();
 }
 
-function buildFilterHtml(state, t, categoryLabel) {
-  const f = state.filters;
-  const facets = state.filterFacets;
+function buildFilterHtml(t, categoryLabel) {
+  const f = productStore.filters;
+  const facets = productStore.filterFacets;
   const brandChecks = facets.brands.map((b) => filterCheck("brand", b, f.brands.includes(b))).join("");
   const colorChecks = facets.colors.map((c) => filterCheck("color", c, f.colors.includes(c))).join("");
   const sizeChecks = facets.sizes.map((s) => filterCheck("size", s, f.sizes.includes(s))).join("");
@@ -106,11 +108,11 @@ function toggleCheck(key, label, checked) {
   `;
 }
 
-export function renderFilterChips(state, t) {
+export function renderFilterChips(t) {
   const row = document.getElementById("filterChipsRow");
   if (!row) return;
   const chips = [];
-  const f = state.filters;
+  const f = productStore.filters;
 
   f.brands.forEach((b) => chips.push(chip(b, `brand:${b}`)));
   f.colors.forEach((c) => chips.push(chip(c, `color:${c}`)));
@@ -127,23 +129,23 @@ function chip(label, key) {
   return `<span class="filter-chip-active">${escapeHtml(label)}<button type="button" data-remove-chip="${escapeHtml(key)}" aria-label="Remove">×</button></span>`;
 }
 
-export function updateFilterBadge(state) {
+export function updateFilterBadge() {
   const badge = document.getElementById("filterBadgeCount");
-  const count = activeFilterCount(state.filters);
+  const count = activeFilterCount(productStore.filters);
   if (badge) {
     badge.textContent = count;
     badge.hidden = count === 0;
   }
 }
 
-export function persistFilters(state) {
-  saveFilters(state.filters);
+export function persistFilters() {
+  saveFilters(productStore.filters);
 }
 
-export function clearAllFilters(state) {
-  const maxPrice = state.filterFacets.maxPrice || DEFAULT_FILTERS.maxPrice;
-  state.filters = { ...resetFilters(), maxPrice };
-  persistFilters(state);
+export function clearAllFilters() {
+  const maxPrice = productStore.filterFacets.maxPrice || DEFAULT_FILTERS.maxPrice;
+  productStore.filters = { ...resetFilters(), maxPrice };
+  persistFilters();
 }
 
 export function applyViewMode(gridEl, mode) {
@@ -226,11 +228,11 @@ function renderCartProductRail(title, productsHtml) {
   `;
 }
 
-export function renderCartExtras(state, t, options = {}) {
+export function renderCartExtras(t, options = {}) {
   const el = document.getElementById("cartExtras");
   if (!el) return;
 
-  const subtotal = numberOrZero(options.subtotal ?? state.cartTotal);
+  const subtotal = numberOrZero(options.subtotal ?? cartStore.cartTotal);
   const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const saved = getSavedForLater();
@@ -265,7 +267,7 @@ export function renderCartExtras(state, t, options = {}) {
       </section>
     ` : ""}
     <div class="cart-coupon app-cart-coupon">
-      <input type="text" id="cartCouponInput" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" value="${escapeHtml(state.cartCoupon || "")}" />
+      <input type="text" id="cartCouponInput" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" value="${escapeHtml(cartStore.cartCoupon || "")}" />
       <button class="secondary-button" type="button" data-apply-coupon>${escapeHtml(t("cart.applyCoupon"))}</button>
     </div>
   `;

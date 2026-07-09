@@ -6,6 +6,14 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/firebase")) return "firebase";
+          if (id.includes("node_modules/@firebase")) return "firebase";
+        },
+      },
+    },
   },
   server: {
     port: 5173,

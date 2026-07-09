@@ -5,16 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BEAUTY SKIN KOREA</title>
     <link rel="stylesheet" href="/styles.css" />
-    <script type="module" crossorigin src="/assets/index-DFhcqn7-.js"></script>
+    <link rel="stylesheet" href="/app-mobile-ui.css" />
+    <link rel="stylesheet" href="/app-cart-ui.css" />
+    <link rel="stylesheet" href="/app-profile-ui.css" />
+    <link rel="stylesheet" href="/app-checkout-ui.css" />
+    <link rel="stylesheet" href="/app-orders-ui.css" />
+    <link rel="stylesheet" href="/app-favorites-ui.css" />
+    <link rel="stylesheet" href="/app-support-ui.css" />
+    <script type="module" crossorigin src="/assets/index-BcpOEEZK.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/firebase-kble8lgk.js">
   </head>
-  <body>
+  <body class="app-layout">
     <header class="site-header">
       <div class="mini-bar">
         <span data-i18n="header.location">📍 Toshkent</span>
         <nav aria-label="Qo‘shimcha havolalar" data-i18n-aria-label="header.extraLinks">
           <button class="mini-link" type="button" data-i18n="header.pickupPoints">Punktlar</button>
           <button class="mini-link" type="button" data-i18n="header.sell">Sotuvchi bo‘lish</button>
-          <button class="mini-link" type="button" data-i18n="header.support">Savol-javob</button>
+          <button class="mini-link" id="supportButton" type="button" data-i18n="header.support">Savol-javob</button>
           <button class="mini-link" id="ordersButton" type="button" data-i18n="header.orders">Buyurtmalar</button>
           <button class="mini-link" id="apiButton" type="button">API</button>
           <label class="language-picker" aria-label="Language" data-i18n-aria-label="header.language">
@@ -25,28 +33,54 @@
               <option value="ko">🇰🇷 한국어</option>
             </select>
           </label>
+          <label class="currency-picker" aria-label="Currency" data-i18n-aria-label="header.currency">
+            <select id="currencySelect">
+              <option value="UZS">UZS</option>
+              <option value="USD">USD</option>
+              <option value="KRW">KRW</option>
+            </select>
+          </label>
         </nav>
       </div>
 
       <div class="topbar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
         <a class="brand" href="#/" aria-label="BEAUTY SKIN KOREA bosh sahifa" data-i18n-aria-label="header.homeAria">
           <span class="brand-mark">BSK</span>
           <span>BEAUTY SKIN KOREA</span>
         </a>
 
-        <button class="catalog-button" id="catalogButton" type="button" aria-label="Katalogni ochish" data-i18n-aria-label="header.openCatalog" aria-expanded="false">
+        <button class="catalog-button" id="catalogButton" type="button" aria-label="Katalogni ochish" data-i18n-aria-label="header.openCatalog" aria-expanded="false" aria-controls="megaMenu">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           <span data-i18n="header.catalog">Katalog</span>
         </button>
 
-        <form class="search" id="searchForm">
-          <input id="searchInput" type="search" placeholder="Mahsulot va kategoriyalarni qidirish" data-i18n-placeholder="header.searchPlaceholder" autocomplete="off" />
-          <button class="search-button" type="submit" aria-label="Qidirish" data-i18n-aria-label="header.search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
-          </button>
-        </form>
+        <div class="search-wrap">
+          <form class="search" id="searchForm" role="search">
+            <input id="searchInput" type="search" placeholder="Mahsulot va kategoriyalarni qidirish" data-i18n-placeholder="header.searchPlaceholder" autocomplete="off" aria-autocomplete="list" aria-controls="searchPanel" aria-expanded="false" />
+            <div class="search-actions">
+              <button class="search-voice" type="button" aria-label="Voice search" data-i18n-aria-label="search.voice">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0M12 18v3M8 21h8"/></svg>
+              </button>
+              <button class="search-image" type="button" aria-label="Image search" data-i18n-aria-label="search.image">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 8h.01M4 16l4.5-4.5a2 2 0 0 1 3 0L20 20M4 6h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/></svg>
+              </button>
+              <button class="search-button" type="submit" aria-label="Qidirish" data-i18n-aria-label="header.search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m1.3-5.2a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+              </button>
+            </div>
+          </form>
+          <div class="search-panel" id="searchPanel" role="listbox"></div>
+        </div>
 
         <nav class="actions" aria-label="Asosiy menyu" data-i18n-aria-label="header.mainMenu">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+            <span data-i18n="header.theme">Theme</span>
+          </button>
           <button class="header-action" id="loginButton" type="button" aria-label="Profil yoki kirish" data-i18n-aria-label="header.loginProfile">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
             <span data-i18n="auth.login">Kirish</span>
@@ -72,92 +106,129 @@
       <div class="category-nav" id="categoryToolbar">
         <button class="chip active" data-category="ALL" type="button">Hammasi</button>
       </div>
+
+      <div class="mega-menu" id="megaMenu" aria-hidden="true">
+        <div class="mega-menu-inner" id="megaMenuContent"></div>
+      </div>
     </header>
+
+    <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+      <div class="mobile-drawer-panel" role="dialog" aria-label="Mobile navigation">
+        <div class="drawer-head">
+          <h2 data-i18n="header.catalog">Katalog</h2>
+          <button class="icon-button" id="closeMobileMenu" type="button" aria-label="Close menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <nav id="mobileNavLinks"></nav>
+      </div>
+    </div>
 
     <main>
       <div id="homeView">
       <section class="banners" id="banners" aria-label="Bannerlar"></section>
 
-      <section class="hero marketplace-hero" id="home">
-        <div class="hero-main">
-          <div class="hero-copy">
-            <p class="eyebrow" data-i18n="hero.eyebrow">Best daily offers</p>
-            <h1 data-i18n="hero.title">Korean beauty products</h1>
-            <p data-i18n="hero.subtitle">Fast delivery to Uzbekistan, curated cosmetics, skincare, fragrance and accessories.</p>
-            <div class="hero-actions">
-              <a class="primary-button" href="#products" data-i18n="hero.viewProducts">Mahsulotlarni ko‘rish</a>
-              <a class="secondary-button" href="#todayDeals" data-i18n="home.todayDeals">Today Deals</a>
-            </div>
-          </div>
-          <div class="hero-visual" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
+      <section class="section-shell compact app-categories-block" aria-label="Tezkor kategoriyalar" id="quickCategoriesSection">
+        <div class="app-section-head">
+          <h2 data-i18n="home.categories">Bo‘limlar</h2>
         </div>
-        <div class="hero-side">
-          <article class="promo-card">
-            <strong data-i18n="hero.fastDelivery">Fast delivery</strong>
-            <span data-i18n="hero.fastDeliverySub">Across Uzbekistan</span>
-          </article>
-          <article class="promo-card accent">
-            <strong data-i18n="hero.eyebrow">Best daily offers</strong>
-            <span data-i18n="home.todayOnly">Today only</span>
-          </article>
-        </div>
-      </section>
-
-      <section class="quick-categories section-shell compact" aria-label="Tezkor kategoriyalar">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow" data-i18n="home.categories">Bo‘limlar</p>
-            <h2 data-i18n="home.quickCategories">Tezkor kategoriyalar</h2>
-          </div>
-        </div>
-        <div class="quick-grid" id="quickCategoryGrid"></div>
+        <div class="quick-grid app-category-rail" id="quickCategoryGrid"></div>
       </section>
 
       <section class="strip" id="announcements" hidden></section>
 
       <section class="home-api-sections section-shell compact" id="homeApiSections" hidden></section>
 
-      <section class="section-shell compact" id="recentlyViewedSection" hidden>
-        <div class="section-head">
-          <div>
-            <p class="eyebrow" data-i18n="home.history">History</p>
-            <h2 data-i18n="home.recentlyViewed">Recently viewed</h2>
-          </div>
+      <section class="section-shell compact app-feed-block app-feed-rail" id="personalizationSection" hidden>
+        <div class="app-section-head">
+          <h2 data-i18n="home.recommendedForYou">Siz uchun tavsiya</h2>
+          <a class="app-see-all" href="#products" data-i18n="home.seeAll">Hammasi</a>
         </div>
-        <div class="product-grid" id="recentlyViewedGrid"></div>
+        <div class="product-grid app-rail-grid" id="personalizationGrid"></div>
       </section>
 
-      <section class="section-shell compact" id="todayDeals">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow" data-i18n="home.discounts">Chegirmalar</p>
-            <h2 data-i18n="home.todayDeals">Bugungi takliflar</h2>
-          </div>
-          <div class="head-actions">
-            <span class="deal-timer" data-i18n="home.todayOnly">Today only</span>
-            <span class="mode-badge" id="dealsMode" hidden data-i18n="home.demoMode">Demo mode</span>
-          </div>
+      <section class="section-shell compact app-feed-block app-feed-rail" id="recentlyViewedSection" hidden>
+        <div class="app-section-head">
+          <h2 data-i18n="home.recentlyViewed">Recently viewed</h2>
+          <a class="app-see-all" href="#products" data-i18n="home.seeAll">Hammasi</a>
+        </div>
+        <div class="product-grid app-rail-grid" id="recentlyViewedGrid"></div>
+      </section>
+
+      <section class="section-shell compact app-feed-block app-feed-rail app-promo-block" id="todayDeals">
+        <div class="app-section-head">
+          <h2 data-i18n="home.lowPriceGuarantee">Past narx kafolati</h2>
+          <a class="app-see-all" href="#products" data-i18n="home.seeAll">Hammasi</a>
+        </div>
+        <div class="head-actions app-promo-meta">
+          <span class="deal-timer" data-i18n="home.todayOnly">Today only</span>
+          <span class="flash-countdown-wrap" aria-live="polite"></span>
+          <span class="mode-badge" id="dealsMode" hidden data-i18n="home.demoMode">Demo mode</span>
         </div>
         <div class="status" id="dealsStatus">Yuklanmoqda...</div>
-        <div class="product-grid deals-grid" id="dealsGrid"></div>
+        <div class="product-grid deals-grid app-rail-grid" id="dealsGrid"></div>
       </section>
 
-      <section class="section-shell" id="products">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow" data-i18n="header.catalog">Katalog</p>
-            <h2 id="productsTitle">Ommabop mahsulotlar</h2>
-          </div>
-          <button class="secondary-button" id="refreshHome" type="button" data-i18n="orders.refresh">Yangilash</button>
+      <section class="section-shell compact app-feed-block app-feed-rail" id="newArrivalsSection">
+        <div class="app-section-head">
+          <h2 data-i18n="home.newArrivals">Yangi mahsulotlar</h2>
+          <a class="app-see-all" href="#products" data-i18n="home.seeAll">Hammasi</a>
+        </div>
+        <div class="product-grid app-rail-grid" id="newArrivalsGrid"></div>
+      </section>
+
+      <section class="section-shell app-main-catalog" id="products">
+        <div class="app-section-head">
+          <h2 id="productsTitle" data-i18n="home.recommended">Tavsiyalar</h2>
+          <button class="app-see-all app-icon-refresh" id="refreshHome" type="button" aria-label="Refresh" data-i18n-aria-label="orders.refresh">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+          </button>
         </div>
         <span class="mode-badge" id="productsMode" hidden data-i18n="home.demoMode">Demo mode</span>
-        <div class="status" id="productStatus">Yuklanmoqda...</div>
-        <div class="product-grid" id="productGrid"></div>
-        <div class="load-row">
-          <button class="secondary-button" id="loadMore" type="button" data-i18n="home.loadMore">Yana yuklash</button>
+
+        <div class="catalog-toolbar">
+          <div class="catalog-toolbar-left">
+            <button class="mobile-filter-btn" id="mobileFilterBtn" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+              <span data-i18n="filter.title">Filters</span>
+              <span class="badge-count" id="filterBadgeCount" hidden>0</span>
+            </button>
+            <select class="sort-select" id="sortSelect" aria-label="Sort products">
+              <option value="popular" data-i18n="sort.popular">Popular</option>
+              <option value="price-asc" data-i18n="sort.priceAsc">Price: Low to High</option>
+              <option value="price-desc" data-i18n="sort.priceDesc">Price: High to Low</option>
+              <option value="rating" data-i18n="sort.rating">Top rated</option>
+              <option value="newest" data-i18n="sort.newest">Newest</option>
+              <option value="discount" data-i18n="sort.discount">Best discount</option>
+            </select>
+            <button class="mobile-filter-btn" id="mobileSortBtn" type="button" data-i18n="sort.title">Sort</button>
+          </div>
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button type="button" class="active" id="gridViewBtn" aria-label="Grid view" aria-pressed="true">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button type="button" id="listViewBtn" aria-label="List view" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+          </div>
         </div>
+
+        <div class="filter-chips-row" id="filterChipsRow" hidden></div>
+
+        <div class="catalog-layout">
+          <aside class="filter-sidebar" id="filterSidebar" aria-label="Product filters"></aside>
+          <div class="catalog-main">
+            <div class="status" id="productStatus">Yuklanmoqda...</div>
+            <div class="product-grid" id="productGrid"></div>
+            <div class="load-row">
+              <button class="secondary-button" id="loadMore" type="button" data-i18n="home.loadMore">Yana yuklash</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-shell" id="brandView" hidden>
+        <div id="brandViewContent"></div>
       </section>
 
       </div>
@@ -166,6 +237,29 @@
         <div id="productDetailPageContent"></div>
       </section>
     </main>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile quick navigation">
+      <button type="button" class="active" data-mobile-action="home" aria-label="Home">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5Z"/></svg>
+        <span>Home</span>
+      </button>
+      <button type="button" data-mobile-action="cartButton" aria-label="Cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.7 8.4a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.7L5 3H2m7 19a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/></svg>
+        <span>Cart</span>
+      </button>
+      <button type="button" data-mobile-action="favoritesButton" aria-label="Favorite">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        <span>Favorite</span>
+      </button>
+      <button type="button" data-mobile-action="loginButton" aria-label="Profile">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 1 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+
+    <section class="section-shell compact" id="popularSearchesSection" hidden aria-hidden="true">
+      <div class="search-chips" id="popularSearchesChips"></div>
+    </section>
 
     <aside class="catalog-drawer" id="catalogDrawer" aria-hidden="true">
       <div class="catalog-panel">
@@ -179,34 +273,34 @@
       </div>
     </aside>
 
-    <aside class="drawer" id="cartDrawer" aria-hidden="true">
-      <div class="drawer-panel">
-        <div class="drawer-head">
-          <div>
-            <h2 data-i18n="cart.title">Cart</h2>
-            <p class="hint" id="cartSummary">0 items</p>
-          </div>
-          <button class="icon-button" id="closeCart" type="button" aria-label="Yopish">
+    <aside class="drawer app-cart-drawer" id="cartDrawer" aria-hidden="true">
+      <div class="drawer-panel app-cart-panel">
+        <div class="app-cart-header">
+          <h2 data-i18n="cart.title">Cart</h2>
+          <button class="icon-button app-cart-close" id="closeCart" type="button" aria-label="Yopish">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
-        <div class="drawer-body" id="cartItems"></div>
-        <div class="checkout">
-          <div class="total-line"><span data-i18n="cart.subtotal">Jami</span><strong id="cartTotal">0 so‘m</strong></div>
-          <button class="primary-button full" id="checkoutButton" type="button" disabled data-i18n="cart.checkout">Checkout</button>
+        <div class="app-cart-scroll">
+          <div class="drawer-body app-cart-body" id="cartItems"></div>
+          <div id="cartExtras" class="app-cart-extras"></div>
+        </div>
+        <div class="app-cart-sticky" id="cartStickyBar">
+          <div class="app-cart-sticky-progress" id="cartStickyProgress"></div>
+          <div class="app-cart-sticky-row">
+            <div class="app-cart-sticky-total">
+              <strong id="cartTotal">0 so‘m</strong>
+              <span class="hint" id="cartSummary">0 items</span>
+            </div>
+            <button class="app-cart-checkout" id="checkoutButton" type="button" disabled data-i18n="cart.checkout">Checkout</button>
+          </div>
         </div>
       </div>
     </aside>
 
-    <aside class="drawer" id="profileDrawer" aria-hidden="true">
-      <div class="drawer-panel profile-panel">
-        <div class="drawer-head">
-          <h2 data-i18n="profile.myProfile">Profile</h2>
-          <button class="icon-button" id="closeProfile" type="button" aria-label="Profilni yopish">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="drawer-body" id="profileContent"></div>
+    <aside class="drawer app-profile-drawer" id="profileDrawer" aria-hidden="true">
+      <div class="drawer-panel app-profile-panel">
+        <div class="drawer-body app-profile-body" id="profileContent"></div>
       </div>
     </aside>
 
@@ -293,52 +387,38 @@
       </form>
     </dialog>
 
-    <dialog id="checkoutDialog" class="checkout-dialog">
-      <form class="dialog-card checkout-card" method="dialog" id="checkoutForm" novalidate>
-        <div class="dialog-head">
-          <h2 data-i18n="checkout.title">Checkout</h2>
-          <button class="icon-button" data-close-dialog type="button" aria-label="Yopish">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-        <div class="checkout-content" id="checkoutContent"></div>
+    <dialog id="checkoutDialog" class="app-checkout-dialog">
+      <form class="app-checkout-form" method="dialog" id="checkoutForm" novalidate>
+        <div id="checkoutContent" class="app-checkout-root"></div>
         <select id="receiverSelect" hidden></select>
         <select id="addressSelect" hidden></select>
-        <p class="hint" id="checkoutHint"></p>
+        <p class="hint" id="checkoutHint" hidden></p>
       </form>
     </dialog>
 
-    <dialog id="ordersDialog" class="orders-dialog">
-      <div class="orders-card">
-        <div class="dialog-head">
-          <h2 data-i18n="orders.title">My Orders</h2>
-          <div class="head-actions">
-            <button class="secondary-button" id="refreshOrders" type="button" data-i18n="orders.refresh">Refresh</button>
-            <button class="icon-button" id="closeOrders" type="button" aria-label="Orders oynasini yopish">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="orders-content" id="ordersContent"></div>
-      </div>
+    <dialog id="ordersDialog" class="app-orders-dialog">
+      <div class="app-orders-root" id="ordersContent"></div>
+      <button id="closeOrders" type="button" hidden aria-hidden="true"></button>
+      <button id="refreshOrders" type="button" hidden aria-hidden="true"></button>
     </dialog>
 
-    <dialog id="favoritesDialog" class="favorites-dialog">
-      <div class="favorites-card">
-        <div class="dialog-head">
-          <div>
-            <h2 data-i18n="favorites.title">Favorites</h2>
-            <p class="hint" id="favoritesSummary">0 products</p>
-          </div>
-          <div class="head-actions">
-            <button class="secondary-button" id="refreshFavorites" type="button" data-i18n="orders.refresh">Refresh</button>
-            <button class="icon-button" id="closeFavorites" type="button" aria-label="Favorites oynasini yopish">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="favorites-content" id="favoritesContent"></div>
-      </div>
+    <dialog id="favoritesDialog" class="app-favorites-dialog">
+      <div class="app-favorites-root" id="favoritesContent"></div>
+      <button id="closeFavorites" type="button" hidden aria-hidden="true"></button>
+      <button id="refreshFavorites" type="button" hidden aria-hidden="true"></button>
+      <span id="favoritesSummary" hidden aria-hidden="true"></span>
+    </dialog>
+
+    <dialog id="supportDialog" class="app-support-dialog">
+      <div class="app-support-root" id="supportContent"></div>
+    </dialog>
+
+    <dialog id="privacyDialog" class="app-support-dialog">
+      <div class="app-support-root" id="privacyContent"></div>
+    </dialog>
+
+    <dialog id="termsDialog" class="app-support-dialog">
+      <div class="app-support-root" id="termsContent"></div>
     </dialog>
 
     <dialog id="myReviewsDialog" class="reviews-dialog">
@@ -388,5 +468,65 @@
     </dialog>
 
     <div class="toast-host" id="toast" role="status" aria-live="polite" aria-relevant="additions"></div>
+
+    <button class="compare-fab" id="compareFab" type="button" aria-label="Compare products">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+      <span data-i18n="compare.title">Compare</span>
+      <strong id="compareFabCount">0</strong>
+    </button>
+
+    <aside class="drawer compare-drawer" id="compareDrawer" aria-hidden="true">
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <h2 data-i18n="compare.title">Compare</h2>
+          <button class="icon-button" id="closeCompare" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="drawer-body" id="compareDrawerContent"></div>
+        <button class="primary-button full" id="openComparePage" type="button" data-i18n="compare.viewAll">View comparison</button>
+      </div>
+    </aside>
+
+    <dialog id="compareDialog" class="compare-dialog">
+      <div class="dialog-card" style="max-width:960px;width:96vw">
+        <div class="dialog-head">
+          <h2 data-i18n="compare.title">Product comparison</h2>
+          <button class="icon-button" data-close-dialog type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div id="comparePageContent" style="overflow-x:auto;padding:16px"></div>
+        <button class="secondary-button" id="clearCompare" type="button" data-i18n="compare.clearAll">Clear all</button>
+      </div>
+    </dialog>
+
+    <div class="bottom-sheet" id="filterSheet" aria-hidden="true">
+      <div class="bottom-sheet-panel" role="dialog" aria-label="Filters">
+        <div class="sheet-handle"></div>
+        <div class="drawer-head">
+          <h2 data-i18n="filter.title">Filters</h2>
+          <button class="icon-button" id="closeFilterSheet" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div id="filterSheetContent"></div>
+        <button class="primary-button full" id="applyFilterSheet" type="button" data-i18n="filter.apply">Apply filters</button>
+      </div>
+    </div>
+
+    <div class="bottom-sheet" id="sortSheet" aria-hidden="true">
+      <div class="bottom-sheet-panel" role="dialog" aria-label="Sort">
+        <div class="sheet-handle"></div>
+        <h2 data-i18n="sort.title">Sort by</h2>
+        <div id="sortSheetOptions" class="filter-group-body"></div>
+      </div>
+    </div>
+
+    <div class="pdp-fullscreen" id="pdpFullscreen" aria-hidden="true">
+      <button class="pdp-fullscreen-close" id="closePdpFullscreen" type="button" aria-label="Close">×</button>
+      <img id="pdpFullscreenImg" src="" alt="" />
+    </div>
+
   </body>
 </html>

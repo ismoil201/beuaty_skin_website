@@ -11,7 +11,7 @@ export const getTodayDeals = () => apiFetch("/api/products/today-deals", { showE
 export const getProductsByIds = (ids) =>
   apiFetch("/api/products/by-ids", {
     method: "POST",
-    body: JSON.stringify({ ids }),
+    body: JSON.stringify(ids),
     showError: false,
   });
 export const getHome = (query) => apiFetch("/api/home", { query, showError: false });

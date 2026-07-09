@@ -12,10 +12,10 @@ export const CATEGORY_LABELS = {
   ACCESSORY: "Accessory",
 };
 
-export const SUPPORTED_LANGUAGES = ["uz", "en", "ru", "ko"];
+export const SUPPORTED_LANGUAGES = Object.freeze(["uz", "en", "ru", "ko"]);
 export const DEFAULT_LANGUAGE = "uz";
 
-export const QUICK_CATEGORIES = [
+export const QUICK_CATEGORIES = Object.freeze([
   { category: "SKINCARE", icon: "S" },
   { category: "MAKEUP", icon: "M" },
   { category: "COLLAGEN", icon: "C" },
@@ -24,7 +24,7 @@ export const QUICK_CATEGORIES = [
   { category: "BAG", icon: "B" },
   { category: "SHOES", icon: "S" },
   { category: "ACCESSORY", icon: "A" },
-];
+]);
 
 export const DEMO_PRODUCTS = [
   {

@@ -1,7 +1,7 @@
 import { migrateAuthStorage, migrateApiBaseUrlStorage } from "./utils/storage.js";
 import { initElements } from "./utils/dom.js";
 import { init } from "./runtime/commerce.js";
-import { state } from "./store/state.js";
+import { appStore } from "./stores/appStore.js";
 import { normalizeSavedBaseUrl } from "./config/apiBase.js";
 import { CONFIG } from "./config/config.js";
 import { isDevMode } from "./config/env.js";
@@ -9,7 +9,7 @@ import { isDevMode } from "./config/env.js";
 export function startApp() {
   migrateAuthStorage();
   migrateApiBaseUrlStorage();
-  state.baseUrl = normalizeSavedBaseUrl(localStorage.getItem(CONFIG.storageKeys.baseUrl) || "");
+  appStore.baseUrl = normalizeSavedBaseUrl(localStorage.getItem(CONFIG.storageKeys.baseUrl) || "");
   initElements();
 
   if (isDevMode()) {

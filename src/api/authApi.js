@@ -5,3 +5,6 @@ export const login = (body) =>
 
 export const register = (body) =>
   apiFetch("/api/auth/register", { method: "POST", body: JSON.stringify(body), showError: false });
+
+export const loginWithFirebase = (body) =>
+  apiFetch("/api/auth/firebase", { method: "POST", body: JSON.stringify(body), showError: false });

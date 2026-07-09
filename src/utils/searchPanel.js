@@ -1,4 +1,4 @@
-import { apiFetch } from "../api/apiClient.js";
+import { searchProducts } from "../api/productApi.js";
 import { CONFIG } from "../config/config.js";
 import { normalizeProduct } from "./productMapper.js";
 import { getPageContent } from "./productMapper.js";
@@ -53,10 +53,7 @@ function chipHtml(label, type = "query") {
 
 async function fetchInstantResults(query) {
   if (!query || query.length < 2) return [];
-  const response = await apiFetch("/api/products/search", {
-    query: { q: query, page: 0, size: 6 },
-    showError: false,
-  });
+  const response = await searchProducts(query, { page: 0, size: 6 });
   return getPageContent(response).map(normalizeProduct);
 }
 
