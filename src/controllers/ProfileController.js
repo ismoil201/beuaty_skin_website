@@ -47,7 +47,7 @@ export const ProfileController = {
       closeProfile: ProfileController.close,
       showOrders: deps.orders?.show,
       openOrderDetail: OrdersPage.openDetail,
-      clearAuth: AuthController.clearAuth,
+      clearAuth: () => AuthController.logout(),
       showToast,
       openFavorites: deps.favorites?.open,
       openMyReviews: deps.reviews?.open,

@@ -33,6 +33,11 @@ export const AuthController = {
     AuthController.updateUi();
   },
 
+  async logout({ allDevices = false } = {}) {
+    await AuthService.logoutServer({ allDevices });
+    AuthController.clearAuth();
+  },
+
   showLoginRequired() {
     AuthController.openDialog("login");
     showToast(t("auth.loginRequired"), "warning");

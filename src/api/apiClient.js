@@ -1,13 +1,26 @@
 import { appStore } from "../stores/appStore.js";
 import { getToken } from "../utils/storage.js";
+import { CONFIG } from "../config/config.js";
 import { getViteEnv, isDevMode } from "../config/env.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
+import { getXsrfToken } from "../utils/cookies.js";
 
 let handlers = {
   onUnauthorized: () => {},
   onLoginRequired: () => {},
   showToast: () => {},
 };
+
+let refreshInFlight = null;
+
+const NO_REFRESH_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/firebase",
+  "/api/auth/refresh",
+  "/api/auth/logout",
+  "/api/auth/logout-all",
+]);
 
 export function configureApiClient(nextHandlers = {}) {
   handlers = { ...handlers, ...nextHandlers };
@@ -30,14 +43,73 @@ export function buildApiUrl(path, query) {
   return url.toString();
 }
 
+function persistAccessToken(token) {
+  if (!token) return;
+  localStorage.setItem(CONFIG.storageKeys.accessToken, token);
+}
+
+/**
+ * Refresh access token using HttpOnly refresh cookie + CSRF header.
+ * @returns {Promise<string|null>} new access token or null
+ */
+export async function refreshAccessToken() {
+  if (refreshInFlight) return refreshInFlight;
+
+  refreshInFlight = (async () => {
+    const xsrf = getXsrfToken();
+    const url = buildApiUrl("/api/auth/refresh");
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          ...(xsrf ? { "X-XSRF-TOKEN": xsrf } : {}),
+        },
+      });
+      const text = await response.text();
+      const payload = text ? parseResponseBody(text) : null;
+      if (!response.ok) return null;
+      const token =
+        payload?.accessToken ||
+        payload?.token ||
+        payload?.data?.accessToken ||
+        "";
+      if (!token) return null;
+      persistAccessToken(token);
+      return token;
+    } catch {
+      return null;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
+}
+
+function shouldAttemptRefresh(path, { skipRefresh, silentAuth }) {
+  if (skipRefresh) return false;
+  if (NO_REFRESH_PATHS.has(path)) return false;
+  // Always try silent refresh on 401 when cookies may exist (including silentAuth profile checks).
+  return true;
+}
+
 export async function apiFetch(path, options = {}) {
+  return executeFetch(path, options, false);
+}
+
+async function executeFetch(path, options, isRetry) {
   const {
     query,
     showError = true,
     requireAuth = false,
     silentAuth = false,
+    skipRefresh = false,
+    csrf = false,
     timeoutMs = 0,
     signal: externalSignal,
+    credentials = "include",
     ...fetchOptions
   } = options;
   const url = buildApiUrl(path, query);
@@ -50,6 +122,11 @@ export async function apiFetch(path, options = {}) {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (csrf) {
+    const xsrf = getXsrfToken();
+    if (xsrf) headers["X-XSRF-TOKEN"] = xsrf;
   }
 
   if (requireAuth && !token) {
@@ -69,6 +146,7 @@ export async function apiFetch(path, options = {}) {
       host: window.location.host,
       mode: env.MODE,
       envBase: env.VITE_API_BASE_URL,
+      retry: isRetry,
     });
   }
 
@@ -92,7 +170,12 @@ export async function apiFetch(path, options = {}) {
   try {
     appStore.lastApiError = "";
     appStore.lastApiStatus = 0;
-    const response = await fetch(url, { ...fetchOptions, headers, signal: controller.signal });
+    const response = await fetch(url, {
+      ...fetchOptions,
+      headers,
+      credentials,
+      signal: controller.signal,
+    });
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
     appStore.lastApiStatus = response.status;
@@ -107,6 +190,13 @@ export async function apiFetch(path, options = {}) {
     }
 
     if (response.status === 401) {
+      if (!isRetry && shouldAttemptRefresh(path, { skipRefresh, silentAuth })) {
+        const nextToken = await refreshAccessToken();
+        if (nextToken) {
+          return executeFetch(path, options, true);
+        }
+      }
+
       const message = getApiErrorMessage(payload, response.status);
       appStore.lastApiError = silentAuth
         ? (typeof payload === "object" && (payload?.message || payload?.error)

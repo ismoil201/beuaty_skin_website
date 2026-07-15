@@ -22,6 +22,8 @@ export const appStore = createStore({
   ordersError: "",
   selectedOrder: null,
   selectedOrderHistory: [],
+  selectedOrderShipment: null,
+  selectedOrderPayment: null,
   orderDetailLoading: false,
   orderDetailError: "",
   orderHistoryWarning: "",

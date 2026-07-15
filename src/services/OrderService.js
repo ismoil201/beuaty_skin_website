@@ -1,6 +1,18 @@
-import { getOrders, getOrder, getOrderHistory, createOrder as createOrderApi } from "../api/orderApi.js";
+import {
+  getOrders,
+  getOrder,
+  getOrderHistory,
+  getOrderShipment,
+  createOrder as createOrderApi,
+  createOrderItemReturn,
+  getOrderReturns,
+  getOrderReturn,
+} from "../api/orderApi.js";
+import { createPayment, getPaymentByOrder } from "../api/paymentApi.js";
 import { getPageContent } from "../utils/productMapper.js";
 import { createApiFailure } from "./serviceHelpers.js";
+import { appStore } from "../stores/appStore.js";
+
 export const OrderService = {
   orderStatusModifier(status = "") {
     const key = String(status || "").toUpperCase();
@@ -58,14 +70,17 @@ export const OrderService = {
     const response = await getOrders();
     if (response === null) {
       return createApiFailure("Orders could not be loaded.");
-    }    const orders = await this.enrichOrdersList(getPageContent(response));
+    }
+    const orders = await this.enrichOrdersList(getPageContent(response));
     return { success: true, orders };
   },
 
   async loadOrderDetail(orderId) {
-    const [detail, history] = await Promise.all([
+    const [detail, history, shipment, payment] = await Promise.all([
       getOrder(orderId),
       getOrderHistory(orderId),
+      getOrderShipment(orderId),
+      getPaymentByOrder(orderId),
     ]);
 
     if (detail === null) {
@@ -79,6 +94,8 @@ export const OrderService = {
       order: detail,
       history: history === null ? [] : getPageContent(history),
       historyWarning: history === null ? "Status history could not be loaded." : "",
+      shipment: shipment && typeof shipment === "object" ? shipment : null,
+      payment: payment && typeof payment === "object" ? payment : null,
     };
   },
 
@@ -92,6 +109,48 @@ export const OrderService = {
       return createApiFailure("Order could not be created.");
     }
     return { success: true, order: response };
+  },
+
+  /**
+   * Create order then register payment (default CASH / COD).
+   */
+  async createOrderWithPayment(payload, { paymentMethod = "CASH", signal } = {}) {
+    const created = await this.createOrder(payload, { signal });
+    if (!created.success) return created;
+
+    const orderId = created.order?.id;
+    if (!orderId) return created;
+
+    const payment = await createPayment({ orderId, paymentMethod });
+    if (payment === null) {
+      return {
+        success: true,
+        order: created.order,
+        payment: null,
+        paymentWarning: appStore.lastApiError || "Payment could not be created.",
+      };
+    }
+    return { success: true, order: created.order, payment };
+  },
+
+  async requestReturn(orderItemId, { reason, description = "" } = {}) {
+    const response = await createOrderItemReturn(orderItemId, { reason, description });
+    if (response === null) {
+      return createApiFailure(appStore.lastApiError || "Return request failed.");
+    }
+    return { success: true, returnRequest: response };
+  },
+
+  async loadReturns() {
+    const response = await getOrderReturns();
+    if (response === null) return createApiFailure("Returns could not be loaded.");
+    return { success: true, returns: getPageContent(response) };
+  },
+
+  async loadReturn(id) {
+    const response = await getOrderReturn(id);
+    if (response === null) return createApiFailure("Return detail could not be loaded.");
+    return { success: true, returnRequest: response };
   },
 
   buildSuccessState() {

@@ -173,6 +173,8 @@ export const OrdersPage = {
 
     appStore.selectedOrder = result.order;
     appStore.selectedOrderHistory = result.history;
+    appStore.selectedOrderShipment = result.shipment || null;
+    appStore.selectedOrderPayment = result.payment || null;
     appStore.orderHistoryWarning = result.historyWarning;
     OrdersPage.render();
   },

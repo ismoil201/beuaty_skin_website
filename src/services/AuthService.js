@@ -1,6 +1,7 @@
 import { CONFIG } from "../config/config.js";
 import { getToken } from "../utils/storage.js";
-import { login, register, loginWithFirebase } from "../api/authApi.js";
+import { login, register, loginWithFirebase, logout, logoutAll } from "../api/authApi.js";
+import { refreshAccessToken } from "../api/apiClient.js";
 import { getMe } from "../api/userApi.js";
 import { getOrders } from "../api/orderApi.js";
 import { getPageContent } from "../utils/productMapper.js";
@@ -93,7 +94,11 @@ export const AuthService = {
 
   async validateAuthOnStartup() {
     if (!getToken()) {
-      return { authenticated: false };
+      // Cookie session may still exist — attempt refresh once.
+      const refreshed = await refreshAccessToken();
+      if (!refreshed) {
+        return { authenticated: false };
+      }
     }
 
     const profile = await getMe({ silentAuth: true });
@@ -104,11 +109,32 @@ export const AuthService = {
 
     // Only drop the session when the token is explicitly rejected.
     if (appStore.lastApiStatus === 401) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        const retryProfile = await getMe({ silentAuth: true });
+        if (retryProfile) {
+          localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(retryProfile));
+          return { authenticated: true, profile: retryProfile };
+        }
+      }
       return { authenticated: false, invalid: true };
     }
 
     // Network / transient failure: keep token and continue as logged in.
     return { authenticated: true, profile: null };
+  },
+
+  /**
+   * Server logout (CSRF + cookie) then clear local session.
+   */
+  async logoutServer({ allDevices = false } = {}) {
+    try {
+      if (allDevices) await logoutAll();
+      else await logout();
+    } catch {
+      // Local clear still proceeds.
+    }
+    return { success: true };
   },
 
   async preloadProfileData() {

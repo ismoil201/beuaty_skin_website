@@ -9,6 +9,7 @@ import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
 import { navigateToProduct } from "../runtime/navigation.js";
 import { AuthService } from "../services/AuthService.js";
+import { AnalyticsService } from "../services/AnalyticsService.js";
 
 export const CartController = {
   async load() {
@@ -65,6 +66,7 @@ export const CartController = {
     ProductDetailPage.renderAddToCartLoading(false);
 
     if (result !== null) {
+      AnalyticsService.sendAddToCart(productId);
       const card = document.querySelector(`[data-product="${productId}"] .product-image`);
       if (card) flyToCart(card.src, card.getBoundingClientRect());
       showToast(t("cart.added"), "success");

@@ -6,6 +6,7 @@ export const login = (body) =>
     body: JSON.stringify(body),
     showError: false,
     silentAuth: true,
+    skipRefresh: true,
   });
 
 export const register = (body) =>
@@ -14,6 +15,7 @@ export const register = (body) =>
     body: JSON.stringify(body),
     showError: false,
     silentAuth: true,
+    skipRefresh: true,
   });
 
 export const loginWithFirebase = (body) =>
@@ -22,4 +24,33 @@ export const loginWithFirebase = (body) =>
     body: JSON.stringify(body),
     showError: false,
     silentAuth: true,
+    skipRefresh: true,
+  });
+
+/** Cookie + CSRF refresh — also exported via apiClient.refreshAccessToken. */
+export const refreshSession = () =>
+  apiFetch("/api/auth/refresh", {
+    method: "POST",
+    showError: false,
+    silentAuth: true,
+    skipRefresh: true,
+    csrf: true,
+  });
+
+export const logout = () =>
+  apiFetch("/api/auth/logout", {
+    method: "POST",
+    showError: false,
+    silentAuth: true,
+    skipRefresh: true,
+    csrf: true,
+  });
+
+export const logoutAll = () =>
+  apiFetch("/api/auth/logout-all", {
+    method: "POST",
+    showError: false,
+    silentAuth: true,
+    skipRefresh: true,
+    csrf: true,
   });

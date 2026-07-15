@@ -1,4 +1,5 @@
 import { postImpression, postProductClick, postProductView } from "../api/eventsApi.js";
+import { BehaviorService } from "./BehaviorService.js";
 
 export const AnalyticsService = {
   isTrackableProduct(productId) {
@@ -30,10 +31,17 @@ export const AnalyticsService = {
   sendProductClick(productId) {
     if (!this.isTrackableProduct(productId)) return;
     postProductClick(productId).catch(() => {});
+    BehaviorService.track(productId, "VIEW").catch(() => {});
   },
 
   sendProductView(productId) {
     if (!this.isTrackableProduct(productId)) return;
     postProductView(productId).catch(() => {});
+    BehaviorService.track(productId, "VIEW").catch(() => {});
+  },
+
+  sendAddToCart(productId) {
+    if (!this.isTrackableProduct(productId)) return;
+    BehaviorService.track(productId, "ADD_CART").catch(() => {});
   },
 };

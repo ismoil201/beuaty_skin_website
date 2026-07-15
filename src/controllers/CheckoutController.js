@@ -132,7 +132,8 @@ export const CheckoutController = {
         cartItems: items,
       });
 
-      const result = await OrderService.createOrder(payload, {
+      const result = await OrderService.createOrderWithPayment(payload, {
+        paymentMethod: "CASH",
         signal: orderAbortController.signal,
       });
 
@@ -140,6 +141,10 @@ export const CheckoutController = {
         checkoutStore.checkoutError = result.error || t("checkout.orderFailed");
         showToast(checkoutStore.checkoutError, "error");
         return;
+      }
+
+      if (result.paymentWarning) {
+        showToast(result.paymentWarning, "warning");
       }
 
       CheckoutController.finishAndGoHome();

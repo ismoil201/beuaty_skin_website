@@ -170,6 +170,23 @@ export const HomePage = {
     els.homeApiSections.innerHTML = "";
   },
 
+  async renderPersonalizedRail() {
+    const section = document.getElementById("personalizationSection");
+    const grid = document.getElementById("personalizationGrid");
+    if (!section || !grid) return;
+
+    const forYou = await ProductService.loadHomeForYou({ limit: 12 });
+    const picks = forYou.products.length
+      ? forYou.products
+      : productStore.homeApiSections?.hits?.length
+        ? productStore.homeApiSections.hits
+        : productStore.products.slice(0, 10);
+
+    section.hidden = !picks.length;
+    if (!picks.length) return;
+    renderProductList(grid, picks.slice(0, 12), t("home.noProducts"), { screen: "home-for-you" });
+  },
+
   renderPersonalizationSections() {
     const section = document.getElementById("personalizationSection");
     const grid = document.getElementById("personalizationGrid");
@@ -323,6 +340,7 @@ export const HomePage = {
         });
       }
       await HomePage.loadRecentlyViewed();
+      await HomePage.renderPersonalizedRail();
       HomePage.renderPersonalizationSections();
       if (loadCart) await loadCart();
     } catch (error) {

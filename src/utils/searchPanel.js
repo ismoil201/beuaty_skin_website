@@ -1,7 +1,5 @@
-import { searchProducts } from "../api/productApi.js";
+import { SearchService } from "../services/SearchService.js";
 import { CONFIG } from "../config/config.js";
-import { normalizeProduct } from "./productMapper.js";
-import { getPageContent } from "./productMapper.js";
 import { escapeHtml } from "./html.js";
 import { formatPrice } from "./format.js";
 import { t } from "../i18n/index.js";
@@ -53,8 +51,15 @@ function chipHtml(label, type = "query") {
 
 async function fetchInstantResults(query) {
   if (!query || query.length < 2) return [];
-  const response = await searchProducts(query, { page: 0, size: 6 });
-  return getPageContent(response).map(normalizeProduct);
+  const result = await SearchService.searchProducts({ q: query, page: 0, size: 6 });
+  return result.products || [];
+}
+
+async function fetchSuggestBundle(query = "") {
+  return SearchService.suggest(query, {
+    limit: 8,
+    recentSearches: getHistory(),
+  });
 }
 
 function resultItemHtml(product) {
@@ -82,17 +87,38 @@ export async function renderSearchPanel(query = "") {
     panel.innerHTML = instantHtml;
     panel.classList.add("open");
 
-    const products = await fetchInstantResults(trimmed);
-    const list = panel.querySelector(".search-results-list");
-    if (list) {
-      list.innerHTML = products.length
-        ? products.map(resultItemHtml).join("")
-        : `<p class="hint" style="padding:8px">${escapeHtml(t("search.noResults"))}</p>`;
-    }
+    const [products, suggest] = await Promise.all([
+      fetchInstantResults(trimmed),
+      fetchSuggestBundle(trimmed),
+    ]);
+    const suggestChips = [...new Set([
+      ...suggest.autocomplete,
+      ...suggest.related,
+      ...suggest.trending,
+    ])].slice(0, 8);
+
+    const suggestBlock = suggestChips.length
+      ? `<div class="search-panel-section"><div class="search-panel-label">${escapeHtml(t("search.trending"))}</div><div class="search-chips">${suggestChips.map((item) => chipHtml(item, "suggest")).join("")}</div></div>`
+      : "";
+
+    panel.innerHTML = `
+      ${suggestBlock}
+      <div class="search-panel-section">
+        <div class="search-panel-label">${escapeHtml(t("search.results"))}</div>
+        <div class="search-results-list">
+          ${products.length
+            ? products.map(resultItemHtml).join("")
+            : `<p class="hint" style="padding:8px">${escapeHtml(t("search.noResults"))}</p>`}
+        </div>
+      </div>
+    `;
     return;
   }
 
   const sections = [];
+  const suggest = await fetchSuggestBundle("");
+  const trending = (suggest.trending.length ? suggest.trending : TRENDING).slice(0, 8);
+  const popular = suggest.popular.slice(0, 8);
 
   sections.push(`
     <div class="search-panel-section">
@@ -115,10 +141,19 @@ export async function renderSearchPanel(query = "") {
     `);
   }
 
+  if (popular.length) {
+    sections.push(`
+      <div class="search-panel-section">
+        <div class="search-panel-label">${escapeHtml(t("home.popular"))}</div>
+        <div class="search-chips">${popular.map((item) => chipHtml(item, "popular")).join("")}</div>
+      </div>
+    `);
+  }
+
   sections.push(`
     <div class="search-panel-section">
       <div class="search-panel-label">${escapeHtml(t("search.trending"))}</div>
-      <div class="search-chips">${TRENDING.map((item) => chipHtml(item, "trending")).join("")}</div>
+      <div class="search-chips">${trending.map((item) => chipHtml(item, "trending")).join("")}</div>
     </div>
   `);
 

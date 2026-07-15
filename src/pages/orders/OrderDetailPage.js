@@ -67,12 +67,22 @@ export const OrderDetailPage = {
     }
 
     const order = appStore.selectedOrder;
+    const shipment = appStore.selectedOrderShipment;
+    const payment = appStore.selectedOrderPayment;
     const items = Array.isArray(order.items)
       ? order.items.map((item) => normalizeOrderItem({ ...item, orderId: order.id }))
       : [];
     const lineCount = OrderService.getLineCount(order);
     const itemCount = OrderService.getItemCount(order);
     const mapUrl = getOrderMapUrl(order);
+    const tracking =
+      shipment?.trackingNumber ||
+      shipment?.trackingCode ||
+      shipment?.carrierTrackingNumber ||
+      "";
+    const carrier = shipment?.carrier || shipment?.provider || shipment?.courier || "";
+    const paymentMethod = payment?.paymentMethod || payment?.method || "";
+    const paymentStatus = payment?.status || "";
 
     return `
       <div class="app-orders-page">
@@ -107,6 +117,15 @@ export const OrderDetailPage = {
               </a>
             ` : ""}
           </section>
+
+          ${shipment || payment ? `
+            <section class="app-orders-detail-section">
+              <h4>${escapeHtml(t("orders.shipment") || "Shipment & payment")}</h4>
+              ${carrier ? `<p class="app-orders-detail-muted">${escapeHtml(carrier)}</p>` : ""}
+              ${tracking ? `<p class="app-orders-detail-muted">Tracking: ${escapeHtml(tracking)}</p>` : ""}
+              ${paymentMethod ? `<p class="app-orders-detail-muted">${escapeHtml(String(paymentMethod))}${paymentStatus ? ` · ${escapeHtml(String(paymentStatus))}` : ""}</p>` : ""}
+            </section>
+          ` : ""}
 
           <section class="app-orders-detail-section">
             <h4>${escapeHtml(t("orders.products"))}</h4>
