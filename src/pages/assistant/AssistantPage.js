@@ -29,7 +29,6 @@ function renderMessages() {
         message,
         isAuthenticated,
         favoriteIds,
-        citationsOpen: Boolean(assistantStore.citationsOpen?.[message.id]),
       })
     )
     .join("");

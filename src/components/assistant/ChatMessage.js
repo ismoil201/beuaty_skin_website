@@ -1,9 +1,6 @@
 import { escapeHtml } from "../../utils/html.js";
 import { renderSafeMarkdown } from "../../utils/assistantMarkdown.js";
 import { AssistantProductCard } from "./AssistantProductCard.js";
-import { SuggestionChips } from "./SuggestionChips.js";
-import { ActionButtons } from "./ActionButtons.js";
-import { CitationsBlock } from "./Citations.js";
 import { ChatError } from "./ChatError.js";
 import { assistantIconImg } from "./assistantIcon.js";
 import { t } from "../../i18n/index.js";
@@ -27,7 +24,6 @@ export function AssistantMessage({
   message,
   isAuthenticated = false,
   favoriteIds = new Set(),
-  citationsOpen = false,
 }) {
   const productsHtml = (message.products || [])
     .map((product) =>
@@ -49,9 +45,6 @@ export function AssistantMessage({
           <div class="assistant-md">${renderSafeMarkdown(message.content)}</div>
         </div>
         ${productsHtml ? `<div class="assistant-products">${productsHtml}</div>` : ""}
-        ${ActionButtons({ actions: message.actions || [] })}
-        ${CitationsBlock({ citations: message.citations || [], messageId: message.id, open: citationsOpen })}
-        ${SuggestionChips({ questions: message.followUpQuestions || [] })}
       </div>
     </div>
   `;
