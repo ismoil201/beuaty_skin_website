@@ -19,21 +19,7 @@
   --pr-container: 1280px;
 }
 
-[data-theme="dark"] {
-  color-scheme: dark;
-  --pr-bg: #121313;
-  --pr-surface: #191b1a;
-  --pr-surface-elevated: #202322;
-  --pr-text: #f2f0ec;
-  --pr-muted: #b2ada4;
-  --pr-border: #2d312f;
-  --pr-accent: #78c2b3;
-  --pr-accent-strong: #9dd4c9;
-  --pr-warm: #2a2520;
-  --pr-danger: #f07a7a;
-  --pr-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-  --pr-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
-}
+
 
 html,
 body {

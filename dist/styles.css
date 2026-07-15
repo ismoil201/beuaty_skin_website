@@ -1,50 +1,49 @@
 /* ===== design-system.css ===== */
 /* =====================================================================
-   BEAUTY SKIN KOREA — Premium Design System
-   Tokens, typography, components, light/dark/system themes
+   BEAUTY SKIN KOREA — Premium Design System (Light Theme Only)
+   Tokens, typography, components
    ===================================================================== */
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap");
 
 /* ------------------------------------------------------------------ */
-/* Light theme (default)                                               */
+/* Light theme tokens                                                  */
 /* ------------------------------------------------------------------ */
-:root,
-[data-theme="light"] {
+:root {
   color-scheme: light;
 
-  /* Brand */
-  --ds-primary: #1f1f1f;
-  --ds-primary-hover: #0f0f0f;
-  --ds-primary-soft: #f3f1ef;
-  --ds-primary-muted: #e7e2dd;
-  --ds-accent: #111111;
-  --ds-accent-soft: #f5f3f1;
+  /* Brand — blush rose + charcoal */
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
 
   /* Surfaces */
-  --ds-bg: #f8f7f5;
+  --ds-bg: #faf8f9;
   --ds-bg-elevated: #ffffff;
-  --ds-surface: #fffdfb;
-  --ds-surface-hover: #f2efeb;
-  --ds-surface-active: #ebe6e1;
-  --ds-overlay: rgba(15, 15, 20, 0.45);
+  --ds-surface: #ffffff;
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
 
   /* Text */
-  --ds-text: #161616;
-  --ds-text-secondary: #5f5a54;
-  --ds-text-muted: #9a938c;
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
   --ds-text-inverse: #ffffff;
 
   /* Borders */
-  --ds-border: #e7e1db;
-  --ds-border-strong: #d7cec6;
-  --ds-border-focus: var(--ds-primary);
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: var(--ds-primary-hover);
 
   /* Semantic */
-  --ds-success: #2f6f56;
-  --ds-success-soft: #ebf3ef;
-  --ds-danger: #995f5f;
-  --ds-danger-soft: #f7efef;
+  --ds-success: #0d9f6e;
+  --ds-success-soft: #eaf8f2;
+  --ds-danger: #e53e3e;
+  --ds-danger-soft: #fef2f2;
   --ds-warning: #d97706;
   --ds-warning-soft: #fffbeb;
   --ds-info: #3b82f6;
@@ -82,25 +81,25 @@
   --ds-space-16: 96px;
 
   /* Radius */
-  --ds-radius-sm: 6px;
-  --ds-radius-md: 10px;
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 12px;
   --ds-radius-lg: 16px;
-  --ds-radius-xl: 24px;
-  --ds-radius-2xl: 32px;
+  --ds-radius-xl: 22px;
+  --ds-radius-2xl: 28px;
   --ds-radius-full: 9999px;
 
   /* Shadows & elevation */
   --ds-shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
-  --ds-shadow-sm: 0 2px 12px rgba(22, 18, 12, 0.05);
-  --ds-shadow-md: 0 10px 32px rgba(22, 18, 12, 0.08);
-  --ds-shadow-lg: 0 20px 56px rgba(22, 18, 12, 0.12);
-  --ds-shadow-xl: 0 24px 64px rgba(17, 17, 24, 0.16);
-  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.25);
+  --ds-shadow-sm: 0 2px 10px rgba(17, 17, 24, 0.05);
+  --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
+  --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
 
   /* Motion */
-  --ds-duration-fast: 180ms;
-  --ds-duration-normal: 320ms;
-  --ds-duration-slow: 520ms;
+  --ds-duration-fast: 160ms;
+  --ds-duration-normal: 280ms;
+  --ds-duration-slow: 480ms;
   --ds-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ds-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ds-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
@@ -112,11 +111,11 @@
   --ds-category-nav-height: 44px;
 
   /* Glass */
-  --ds-glass-bg: rgba(255, 255, 255, 0.82);
-  --ds-glass-border: rgba(255, 255, 255, 0.6);
-  --ds-glass-blur: 20px;
+  --ds-glass-bg: rgba(255, 255, 255, 0.86);
+  --ds-glass-border: rgba(255, 255, 255, 0.7);
+  --ds-glass-blur: 18px;
 
-  /* Legacy aliases (backward compat with marketplace.css) */
+  /* Legacy aliases */
   --primary: var(--ds-primary);
   --primary-dark: var(--ds-primary-hover);
   --primary-soft: var(--ds-primary-soft);
@@ -132,51 +131,6 @@
   --shadow: var(--ds-shadow-md);
   --radius: var(--ds-radius-md);
   --container: var(--ds-container);
-}
-
-/* ------------------------------------------------------------------ */
-/* Dark theme                                                          */
-/* ------------------------------------------------------------------ */
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  --ds-primary: #e8a0b4;
-  --ds-primary-hover: #f0b8c8;
-  --ds-primary-soft: #2a1f24;
-  --ds-primary-muted: #3d2a32;
-  --ds-accent: #f0f0f5;
-  --ds-accent-soft: #1e1e28;
-
-  --ds-bg: #0f0f14;
-  --ds-bg-elevated: #16161e;
-  --ds-surface: #1a1a24;
-  --ds-surface-hover: #22222e;
-  --ds-surface-active: #2a2a38;
-  --ds-overlay: rgba(0, 0, 0, 0.65);
-
-  --ds-text: #f4f4f8;
-  --ds-text-secondary: #a0a0b4;
-  --ds-text-muted: #6e6e82;
-  --ds-text-inverse: #111118;
-
-  --ds-border: #2a2a38;
-  --ds-border-strong: #3a3a4a;
-  --ds-border-focus: var(--ds-primary);
-
-  --ds-success-soft: #0d2e24;
-  --ds-danger-soft: #2e1518;
-  --ds-warning-soft: #2e2410;
-  --ds-info-soft: #101e30;
-
-  --ds-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --ds-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --ds-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --ds-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
-  --ds-shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.55);
-  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.15);
-
-  --ds-glass-bg: rgba(22, 22, 30, 0.85);
-  --ds-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* ------------------------------------------------------------------ */
@@ -272,11 +226,6 @@ h1, h2, h3, h4, h5, h6 {
 .primary-button:hover:not(:disabled) {
   background: #2a2a3e;
   box-shadow: var(--ds-shadow-sm);
-}
-
-[data-theme="dark"] .primary-button:hover:not(:disabled) {
-  background: #e0e0ea;
-  color: var(--ds-text-inverse);
 }
 
 .primary-button:active:not(:disabled) {
@@ -476,12 +425,12 @@ select:focus {
   animation: ds-shimmer 1.4s ease-in-out infinite;
 }
 
-[data-theme="light"] .ds-skeleton::after,
-[data-theme="light"] .skeleton-card::after {
+.ds-skeleton::after,
+.skeleton-card::after {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.55) 50%,
     transparent 100%
   );
 }
@@ -5706,45 +5655,90 @@ dialog {
 
 
 /* ===== variables.css ===== */
-/* Pink theme tokens — extends design-system.css */
-:root,
-[data-theme="light"] {
+/* =====================================================================
+   BEAUTY SKIN KOREA — Unified Light Theme Tokens
+   Single production light palette. Dark theme removed.
+   ===================================================================== */
+:root {
   color-scheme: light;
+
+  /* Brand */
   --primary: #e8a0b4;
   --primary-dark: #d4889e;
   --primary-soft: #fdf2f6;
   --accent: #1a1a2e;
-  --bg: #fafafa;
+  --accent-soft: #f3f1f5;
+
+  /* Surfaces */
+  --bg: #faf8f9;
   --surface: #ffffff;
+  --surface-hover: #f7f4f6;
+
+  /* Text */
   --text: #111118;
   --muted: #5c5c6e;
-  --border: #e8e8ee;
+
+  /* Borders & feedback */
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --success: #0d9f6e;
   --warning: #d97706;
-  --shadow: 0 16px 42px rgba(17, 17, 24, 0.1);
-  --radius: 10px;
+
+  /* Elevation */
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --radius: 12px;
   --container: 1400px;
+
+  /* Design-system aliases kept in sync */
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
+  --ds-bg: #faf8f9;
+  --ds-bg-elevated: #ffffff;
+  --ds-surface: #ffffff;
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
+  --ds-text-inverse: #ffffff;
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: #d4889e;
+  --ds-success: #0d9f6e;
+  --ds-success-soft: #eaf8f2;
+  --ds-danger: #e53e3e;
+  --ds-danger-soft: #fef2f2;
+  --ds-warning: #d97706;
+  --ds-warning-soft: #fffbeb;
+  --ds-info: #3b82f6;
+  --ds-info-soft: #eff6ff;
+  --ds-shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
+  --ds-shadow-sm: 0 2px 10px rgba(17, 17, 24, 0.05);
+  --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
+  --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
+  --ds-glass-bg: rgba(255, 255, 255, 0.86);
+  --ds-glass-border: rgba(255, 255, 255, 0.7);
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 12px;
+  --ds-radius-lg: 16px;
+  --ds-radius-xl: 22px;
+  --ds-radius-full: 9999px;
 }
 
-[data-theme="dark"] {
-  --primary: #e8a0b4;
-  --primary-dark: #f0b8c8;
-  --primary-soft: #2a1f24;
-  --bg: #0f0f14;
-  --surface: #1a1a24;
-  --text: #f4f4f8;
-  --muted: #a0a0b4;
-  --border: #2a2a38;
-}
-
-/* Ensure product prices stay readable */
+/* Readable product pricing in light theme */
 .product-card .price-row span:first-child {
-  color: var(--ds-text, #111118);
+  color: var(--ds-text);
 }
 
 .product-card .badge:not(.today) {
-  background: var(--ds-danger, #e53e3e);
+  background: var(--ds-danger);
   color: #ffffff;
 }
 
@@ -6228,12 +6222,6 @@ dialog {
   font-weight: 500;
 }
 
-[data-theme="dark"] .mini-bar {
-  background: var(--ds-surface);
-  color: var(--ds-text-secondary);
-  border-bottom: 1px solid var(--ds-border);
-}
-
 .mini-bar nav {
   display: flex;
   align-items: center;
@@ -6264,11 +6252,6 @@ dialog {
   padding: 2px 8px;
   border-radius: var(--ds-radius-sm);
   cursor: pointer;
-}
-
-[data-theme="dark"] .mini-bar .language-picker select,
-[data-theme="dark"] .mini-bar .currency-picker select {
-  background: var(--ds-surface-hover);
 }
 
 .topbar {
@@ -6610,8 +6593,7 @@ dialog {
 }
 
 .header-action,
-.cart-button,
-.theme-toggle {
+.cart-button {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -6632,15 +6614,13 @@ dialog {
 }
 
 .header-action:hover,
-.cart-button:hover,
-.theme-toggle:hover {
+.cart-button:hover {
   background: var(--ds-surface-hover);
   color: var(--ds-text);
 }
 
 .header-action svg,
-.cart-button svg,
-.theme-toggle svg {
+.cart-button svg {
   width: 22px;
   height: 22px;
   stroke: currentColor;
@@ -6667,11 +6647,6 @@ dialog {
 
 .cart-button strong {
   background: var(--ds-accent);
-}
-
-[data-theme="dark"] .cart-button strong {
-  background: var(--ds-primary);
-  color: var(--ds-text-inverse);
 }
 
 /* Category nav */
@@ -6889,10 +6864,6 @@ dialog {
   background: rgba(255, 255, 255, 0.92);
   box-shadow: var(--ds-shadow-sm);
   backdrop-filter: blur(8px);
-}
-
-[data-theme="dark"] .product-card .favorite-float {
-  background: rgba(26, 26, 36, 0.9);
 }
 
 .product-card .card-badges-bottom {
@@ -8795,8 +8766,7 @@ dialog {
    Premium Korean Beauty & Fashion Editorial Language
    ===================================================================== */
 
-:root,
-[data-theme="light"] {
+:root {
   --ad-ivory: #f6f3ef;
   --ad-warm-white: #fdfbf8;
   --ad-soft-sand: #ece6df;
@@ -9139,7 +9109,6 @@ dialog,
 .icon-button svg,
 .header-action svg,
 .cart-button svg,
-.theme-toggle svg,
 .search-voice svg,
 .search-image svg,
 .search-button svg,
@@ -10353,4 +10322,431 @@ dialog,
 
 body.locked .assistant-fab:not(.is-open) {
   /* keep fab usable when other drawers closed; widget open hides via .is-open */
+}
+
+
+/* ===== light-theme-polish.css ===== */
+/* =====================================================================
+   Production Light Theme Polish
+   Consistent buttons, cards, forms, header, footer, chat, responsive
+   ===================================================================== */
+
+html {
+  color-scheme: light only;
+}
+
+body {
+  background: var(--ds-bg);
+  color: var(--ds-text);
+}
+
+/* ---- Focus accessibility ---- */
+:focus-visible {
+  outline: 2px solid var(--ds-primary-hover);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- Buttons ---- */
+.primary-button,
+.secondary-button {
+  min-height: 44px;
+  padding-inline: 18px;
+  border-radius: var(--ds-radius-md);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--ds-duration-fast) var(--ds-ease-out),
+    color var(--ds-duration-fast) var(--ds-ease-out),
+    border-color var(--ds-duration-fast) var(--ds-ease-out),
+    box-shadow var(--ds-duration-fast) var(--ds-ease-out),
+    transform var(--ds-duration-fast) var(--ds-ease-out),
+    opacity var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.primary-button {
+  background: var(--ds-accent);
+  color: var(--ds-text-inverse);
+  border: 0;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #2b2b42;
+  box-shadow: var(--ds-shadow-sm);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.primary-button.loading,
+.secondary-button.loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.primary-button.loading::after,
+.secondary-button.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: polish-spin 0.7s linear infinite;
+}
+
+.secondary-button.loading::after {
+  border-color: rgba(17, 17, 24, 0.15);
+  border-top-color: var(--ds-accent);
+}
+
+.secondary-button {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  color: var(--ds-text);
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: var(--ds-surface-hover);
+  border-color: var(--ds-border-strong);
+}
+
+.icon-button {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: var(--ds-radius-md);
+}
+
+@keyframes polish-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Product cards & grid ---- */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-surface);
+  box-shadow: none;
+  overflow: hidden;
+  transition:
+    border-color var(--ds-duration-fast) var(--ds-ease-out),
+    box-shadow var(--ds-duration-normal) var(--ds-ease-out),
+    transform var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.product-card:hover {
+  border-color: rgba(232, 160, 180, 0.55);
+  box-shadow: var(--ds-shadow-md);
+  transform: translateY(-2px);
+}
+
+.product-card .card-media,
+.product-card .product-image,
+.product-card img.product-image {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  object-fit: cover;
+  background: #f4f1f3;
+}
+
+.product-card .product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px 0;
+}
+
+.product-card .product-info h3 {
+  font-size: var(--ds-text-sm);
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-card .product-info > p {
+  font-size: var(--ds-text-xs);
+  color: var(--ds-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.product-card .card-actions {
+  margin-top: auto;
+  padding: 12px 14px 14px;
+  gap: 8px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 980px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .product-card .card-actions .primary-button {
+    font-size: 12px;
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+}
+
+/* ---- Header ---- */
+.site-header {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--ds-border);
+  box-shadow: none;
+}
+
+.site-header.is-scrolled,
+.site-header.scrolled {
+  box-shadow: var(--ds-shadow-xs);
+}
+
+.topbar {
+  gap: 12px;
+}
+
+.search input,
+.search #searchInput {
+  min-height: 44px;
+  border-radius: var(--ds-radius-full);
+  border: 1px solid var(--ds-border);
+  background: var(--ds-bg);
+  transition: border-color var(--ds-duration-fast), box-shadow var(--ds-duration-fast);
+}
+
+.search input:focus,
+.search #searchInput:focus {
+  border-color: var(--ds-primary-hover);
+  box-shadow: var(--ds-shadow-glow);
+  outline: none;
+  background: #fff;
+}
+
+.brand {
+  letter-spacing: -0.02em;
+}
+
+.header-action span,
+.cart-button span {
+  line-height: 1.1;
+}
+
+/* ---- Forms / dialogs ---- */
+dialog,
+.drawer-panel,
+.dialog-card,
+.auth-card,
+.write-review-card {
+  border-radius: var(--ds-radius-xl);
+  border-color: var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: var(--ds-text);
+}
+
+.auth-card input,
+.write-review-card input,
+.write-review-card textarea,
+.dialog-card input,
+.dialog-card textarea,
+.dialog-card select,
+label input,
+label textarea,
+label select {
+  min-height: 44px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+  padding: 10px 12px;
+  background: #fff;
+  transition: border-color var(--ds-duration-fast), box-shadow var(--ds-duration-fast);
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.auth-card input:focus,
+.write-review-card input:focus,
+.write-review-card textarea:focus,
+.dialog-card input:focus,
+.dialog-card textarea:focus,
+.dialog-card select:focus,
+label input:focus,
+label textarea:focus,
+label select:focus {
+  border-color: var(--ds-primary-hover);
+  box-shadow: var(--ds-shadow-glow);
+  outline: none;
+}
+
+.field-error,
+.form-message.error {
+  color: var(--ds-danger);
+  font-size: var(--ds-text-sm);
+}
+
+.form-message.success {
+  color: var(--ds-success);
+}
+
+/* ---- Section spacing ---- */
+.section-shell {
+  padding-block: clamp(20px, 3vw, 36px);
+}
+
+.section-head {
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.section-head h2 {
+  font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+  letter-spacing: -0.02em;
+}
+
+/* ---- Footer ---- */
+.site-footer,
+footer.site-footer,
+.marketplace-footer {
+  background: #fff;
+  border-top: 1px solid var(--ds-border);
+  color: var(--ds-text-secondary);
+  padding: clamp(32px, 5vw, 56px) 16px;
+}
+
+.site-footer a,
+.marketplace-footer a {
+  color: var(--ds-text-secondary);
+  text-decoration: none;
+  transition: color var(--ds-duration-fast);
+}
+
+.site-footer a:hover,
+.marketplace-footer a:hover {
+  color: var(--ds-accent);
+}
+
+/* ---- Drawers ---- */
+.drawer {
+  transition: opacity var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+.drawer-panel {
+  transition: transform var(--ds-duration-normal) var(--ds-ease-out);
+}
+
+/* ---- AI Assistant polish ---- */
+.assistant-fab {
+  background: linear-gradient(135deg, #e8a0b4 0%, #d4889e 60%, #1a1a2e 170%);
+  box-shadow: 0 14px 34px rgba(212, 136, 158, 0.32);
+}
+
+.assistant-bubble--user {
+  background: var(--ds-accent);
+}
+
+.assistant-bubble--assistant {
+  background: #fff;
+  border: 1px solid var(--ds-border);
+}
+
+.assistant-product-card {
+  border-radius: var(--ds-radius-lg);
+}
+
+.assistant-chip:hover {
+  background: var(--ds-primary-soft);
+}
+
+.assistant-input:focus {
+  border-color: var(--ds-primary-hover);
+  box-shadow: var(--ds-shadow-glow);
+}
+
+/* ---- Images ---- */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.product-card img,
+.assistant-product-media img,
+.banner img,
+.card-media img {
+  object-fit: cover;
+}
+
+/* ---- Overflow safety ---- */
+html,
+body {
+  overflow-x: clip;
+}
+
+.topbar,
+.category-nav,
+.product-grid,
+.assistant-shell,
+.drawer-panel {
+  max-width: 100%;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .product-card:hover {
+    transform: none;
+  }
+
+  .primary-button.loading::after,
+  .secondary-button.loading::after {
+    animation: none;
+  }
 }

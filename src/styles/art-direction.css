@@ -3,8 +3,7 @@
    Premium Korean Beauty & Fashion Editorial Language
    ===================================================================== */
 
-:root,
-[data-theme="light"] {
+:root {
   --ad-ivory: #f6f3ef;
   --ad-warm-white: #fdfbf8;
   --ad-soft-sand: #ece6df;

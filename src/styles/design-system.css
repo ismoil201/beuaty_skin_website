@@ -1,49 +1,48 @@
 /* =====================================================================
-   BEAUTY SKIN KOREA — Premium Design System
-   Tokens, typography, components, light/dark/system themes
+   BEAUTY SKIN KOREA — Premium Design System (Light Theme Only)
+   Tokens, typography, components
    ===================================================================== */
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap");
 
 /* ------------------------------------------------------------------ */
-/* Light theme (default)                                               */
+/* Light theme tokens                                                  */
 /* ------------------------------------------------------------------ */
-:root,
-[data-theme="light"] {
+:root {
   color-scheme: light;
 
-  /* Brand */
-  --ds-primary: #1f1f1f;
-  --ds-primary-hover: #0f0f0f;
-  --ds-primary-soft: #f3f1ef;
-  --ds-primary-muted: #e7e2dd;
-  --ds-accent: #111111;
-  --ds-accent-soft: #f5f3f1;
+  /* Brand — blush rose + charcoal */
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
 
   /* Surfaces */
-  --ds-bg: #f8f7f5;
+  --ds-bg: #faf8f9;
   --ds-bg-elevated: #ffffff;
-  --ds-surface: #fffdfb;
-  --ds-surface-hover: #f2efeb;
-  --ds-surface-active: #ebe6e1;
-  --ds-overlay: rgba(15, 15, 20, 0.45);
+  --ds-surface: #ffffff;
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
 
   /* Text */
-  --ds-text: #161616;
-  --ds-text-secondary: #5f5a54;
-  --ds-text-muted: #9a938c;
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
   --ds-text-inverse: #ffffff;
 
   /* Borders */
-  --ds-border: #e7e1db;
-  --ds-border-strong: #d7cec6;
-  --ds-border-focus: var(--ds-primary);
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: var(--ds-primary-hover);
 
   /* Semantic */
-  --ds-success: #2f6f56;
-  --ds-success-soft: #ebf3ef;
-  --ds-danger: #995f5f;
-  --ds-danger-soft: #f7efef;
+  --ds-success: #0d9f6e;
+  --ds-success-soft: #eaf8f2;
+  --ds-danger: #e53e3e;
+  --ds-danger-soft: #fef2f2;
   --ds-warning: #d97706;
   --ds-warning-soft: #fffbeb;
   --ds-info: #3b82f6;
@@ -81,25 +80,25 @@
   --ds-space-16: 96px;
 
   /* Radius */
-  --ds-radius-sm: 6px;
-  --ds-radius-md: 10px;
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 12px;
   --ds-radius-lg: 16px;
-  --ds-radius-xl: 24px;
-  --ds-radius-2xl: 32px;
+  --ds-radius-xl: 22px;
+  --ds-radius-2xl: 28px;
   --ds-radius-full: 9999px;
 
   /* Shadows & elevation */
   --ds-shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
-  --ds-shadow-sm: 0 2px 12px rgba(22, 18, 12, 0.05);
-  --ds-shadow-md: 0 10px 32px rgba(22, 18, 12, 0.08);
-  --ds-shadow-lg: 0 20px 56px rgba(22, 18, 12, 0.12);
-  --ds-shadow-xl: 0 24px 64px rgba(17, 17, 24, 0.16);
-  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.25);
+  --ds-shadow-sm: 0 2px 10px rgba(17, 17, 24, 0.05);
+  --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
+  --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
 
   /* Motion */
-  --ds-duration-fast: 180ms;
-  --ds-duration-normal: 320ms;
-  --ds-duration-slow: 520ms;
+  --ds-duration-fast: 160ms;
+  --ds-duration-normal: 280ms;
+  --ds-duration-slow: 480ms;
   --ds-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ds-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ds-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
@@ -111,11 +110,11 @@
   --ds-category-nav-height: 44px;
 
   /* Glass */
-  --ds-glass-bg: rgba(255, 255, 255, 0.82);
-  --ds-glass-border: rgba(255, 255, 255, 0.6);
-  --ds-glass-blur: 20px;
+  --ds-glass-bg: rgba(255, 255, 255, 0.86);
+  --ds-glass-border: rgba(255, 255, 255, 0.7);
+  --ds-glass-blur: 18px;
 
-  /* Legacy aliases (backward compat with marketplace.css) */
+  /* Legacy aliases */
   --primary: var(--ds-primary);
   --primary-dark: var(--ds-primary-hover);
   --primary-soft: var(--ds-primary-soft);
@@ -131,51 +130,6 @@
   --shadow: var(--ds-shadow-md);
   --radius: var(--ds-radius-md);
   --container: var(--ds-container);
-}
-
-/* ------------------------------------------------------------------ */
-/* Dark theme                                                          */
-/* ------------------------------------------------------------------ */
-[data-theme="dark"] {
-  color-scheme: dark;
-
-  --ds-primary: #e8a0b4;
-  --ds-primary-hover: #f0b8c8;
-  --ds-primary-soft: #2a1f24;
-  --ds-primary-muted: #3d2a32;
-  --ds-accent: #f0f0f5;
-  --ds-accent-soft: #1e1e28;
-
-  --ds-bg: #0f0f14;
-  --ds-bg-elevated: #16161e;
-  --ds-surface: #1a1a24;
-  --ds-surface-hover: #22222e;
-  --ds-surface-active: #2a2a38;
-  --ds-overlay: rgba(0, 0, 0, 0.65);
-
-  --ds-text: #f4f4f8;
-  --ds-text-secondary: #a0a0b4;
-  --ds-text-muted: #6e6e82;
-  --ds-text-inverse: #111118;
-
-  --ds-border: #2a2a38;
-  --ds-border-strong: #3a3a4a;
-  --ds-border-focus: var(--ds-primary);
-
-  --ds-success-soft: #0d2e24;
-  --ds-danger-soft: #2e1518;
-  --ds-warning-soft: #2e2410;
-  --ds-info-soft: #101e30;
-
-  --ds-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --ds-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --ds-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --ds-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
-  --ds-shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.55);
-  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.15);
-
-  --ds-glass-bg: rgba(22, 22, 30, 0.85);
-  --ds-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 /* ------------------------------------------------------------------ */
@@ -271,11 +225,6 @@ h1, h2, h3, h4, h5, h6 {
 .primary-button:hover:not(:disabled) {
   background: #2a2a3e;
   box-shadow: var(--ds-shadow-sm);
-}
-
-[data-theme="dark"] .primary-button:hover:not(:disabled) {
-  background: #e0e0ea;
-  color: var(--ds-text-inverse);
 }
 
 .primary-button:active:not(:disabled) {
@@ -475,12 +424,12 @@ select:focus {
   animation: ds-shimmer 1.4s ease-in-out infinite;
 }
 
-[data-theme="light"] .ds-skeleton::after,
-[data-theme="light"] .skeleton-card::after {
+.ds-skeleton::after,
+.skeleton-card::after {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.55) 50%,
     transparent 100%
   );
 }
