@@ -716,6 +716,16 @@ body.app-layout .mobile-bottom-nav {
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
 }
 
+/* Assistant chat must sit above the bottom nav; hide nav while open */
+body.app-layout #assistantWidget {
+  z-index: 220 !important;
+}
+
+body.app-layout:has(#assistantWidget.open) .mobile-bottom-nav,
+body.app-layout:has(.assistant-widget.open) .mobile-bottom-nav {
+  display: none !important;
+}
+
 body.app-layout .mobile-bottom-nav button {
   display: grid;
   gap: 4px;
