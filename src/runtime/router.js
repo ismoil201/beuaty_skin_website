@@ -5,7 +5,8 @@ import { productCard } from '../pages/shared/productGrid.js';
 import { initLazyImages } from '../utils/imageLoader.js';
 import { t } from '../i18n/index.js';
 import { ProductController } from '../controllers/ProductController.js';
-import { showHomeView, showProductView, showBrandView } from './navigation.js';
+import { AssistantController } from '../controllers/AssistantController.js';
+import { showHomeView, showProductView, showBrandView, showAssistantView } from './navigation.js';
 
 export async function loadBrandPage(brand) {
   productStore.selectedBrand = brand;
@@ -21,6 +22,7 @@ export async function handleRoute() {
   const hash = window.location.hash || "#/";
   const productMatch = hash.match(/^#\/product\/([^/?#]+)/);
   const brandMatch = hash.match(/^#\/brand\/([^/?#]+)/);
+  const assistantMatch = hash.match(/^#\/assistant\/?$/);
 
   if (productMatch) {
     showProductView();
@@ -33,6 +35,13 @@ export async function handleRoute() {
     showBrandView();
     await loadBrandPage(decodeURIComponent(brandMatch[1]));
     window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (assistantMatch) {
+    showAssistantView();
+    await AssistantController.init();
+    AssistantController.render();
     return;
   }
 

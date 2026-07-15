@@ -11,6 +11,7 @@ const files = [
   "art-direction.css",
   "final-qa.css",
   "homepage-luxury.css",
+  "assistant.css",
 ];
 const parts = files.map((file) => {
   const filePath = path.join(root, "src/styles", file);

@@ -10,6 +10,7 @@ export const CONFIG = Object.freeze({
     role: "role",
     baseUrl: "zaven_base_url",
     sessionId: "zaven_session_id",
+    assistantConversationId: "zaven_assistant_conversation_id",
     recentProducts: "zaven_recent_products",
     language: "beauty_skin_language",
   }),

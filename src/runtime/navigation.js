@@ -18,11 +18,23 @@ export function showBrandView() {
   appStore.currentRoute = "brand";
   els.homeView.hidden = true;
   els.productDetailPage.hidden = true;
+  if (els.assistantPage) els.assistantPage.hidden = true;
   document.getElementById("brandView")?.removeAttribute("hidden");
 }
 
 export function hideBrandView() {
   document.getElementById("brandView")?.setAttribute("hidden", "");
+}
+
+export function showAssistantView() {
+  appStore.currentRoute = "assistant";
+  els.homeView.hidden = true;
+  els.productDetailPage.hidden = true;
+  hideBrandView();
+  if (els.assistantPage) els.assistantPage.hidden = false;
+  document.title = "AI Assistant - BEAUTY SKIN KOREA";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  syncBottomNav();
 }
 
 export function isFavoritesOpen() {
@@ -49,6 +61,7 @@ export function showHomeView() {
   appStore.currentRoute = "home";
   els.homeView.hidden = false;
   els.productDetailPage.hidden = true;
+  if (els.assistantPage) els.assistantPage.hidden = true;
   hideBrandView();
   document.title = "BEAUTY SKIN KOREA";
   syncBottomNav();
@@ -58,6 +71,7 @@ export function showProductView() {
   appStore.currentRoute = "product";
   els.homeView.hidden = true;
   els.productDetailPage.hidden = false;
+  if (els.assistantPage) els.assistantPage.hidden = true;
   hideBrandView();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -133,7 +147,8 @@ export function lockBody() {
 
 export function unlockBodyIfNoOverlay() {
   const compareOpen = document.getElementById("compareDrawer")?.classList.contains("open");
-  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || els.favoritesDialog?.classList.contains("open") || compareOpen;
+  const assistantOpen = els.assistantWidget?.classList.contains("open");
+  const hasOpenDrawer = els.cartDrawer.classList.contains("open") || els.catalogDrawer.classList.contains("open") || els.profileDrawer.classList.contains("open") || els.notificationsDrawer.classList.contains("open") || els.favoritesDialog?.classList.contains("open") || compareOpen || assistantOpen;
   const hasOpenDialog = [els.detailDialog, els.authDialog, els.apiDialog, els.checkoutDialog, els.ordersDialog, els.supportDialog, els.privacyDialog, els.termsDialog, els.myReviewsDialog, els.writeReviewDialog, document.getElementById("compareDialog")].some((dialog) => dialog?.open);
   if (!hasOpenDrawer && !hasOpenDialog) {
     document.body.classList.remove("locked");

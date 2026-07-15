@@ -114,6 +114,11 @@ export const els = {
   cartStickyProgress: null,
   megaMenu: null,
   popularSearchesChips: null,
+  assistantFab: null,
+  assistantWidget: null,
+  assistantWidgetContent: null,
+  assistantPage: null,
+  assistantPageContent: null,
 };
 
 const ELEMENT_IDS = {
@@ -232,6 +237,11 @@ const ELEMENT_IDS = {
   cartStickyProgress: "cartStickyProgress",
   megaMenu: "megaMenu",
   popularSearchesChips: "popularSearchesChips",
+  assistantFab: "assistantFab",
+  assistantWidget: "assistantWidget",
+  assistantWidgetContent: "assistantWidgetContent",
+  assistantPage: "assistantPage",
+  assistantPageContent: "assistantPageContent",
 };
 
 export function initElements() {

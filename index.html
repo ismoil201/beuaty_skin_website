@@ -21,6 +21,7 @@
           <button class="mini-link" type="button" data-i18n="header.pickupPoints">Punktlar</button>
           <button class="mini-link" type="button" data-i18n="header.sell">Sotuvchi bo‘lish</button>
           <button class="mini-link" id="supportButton" type="button" data-i18n="header.support">Savol-javob</button>
+          <button class="mini-link" id="assistantMiniButton" type="button" data-i18n="assistant.fabLabel">AI Yordamchi</button>
           <button class="mini-link" id="ordersButton" type="button" data-i18n="header.orders">Buyurtmalar</button>
           <button class="mini-link" id="apiButton" type="button">API</button>
           <label class="language-picker" aria-label="Language" data-i18n-aria-label="header.language">
@@ -233,6 +234,10 @@
 
       <section class="product-detail-page section-shell" id="productDetailPage" hidden>
         <div id="productDetailPageContent"></div>
+      </section>
+
+      <section class="assistant-page section-shell" id="assistantPage" hidden>
+        <div id="assistantPageContent"></div>
       </section>
     </main>
 
@@ -468,6 +473,17 @@
     </dialog>
 
     <div class="toast-host" id="toast" role="status" aria-live="polite" aria-relevant="additions"></div>
+
+    <button class="assistant-fab" id="assistantFab" type="button" aria-label="Shopping assistant" data-i18n-aria-label="assistant.title">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 3-2 5.5-4.5 6.5V18h-5v-2.5C7 14.5 5 12 5 9a7 7 0 0 1 7-7Zm-2 18h4v2h-4v-2Z"/></svg>
+      <span data-i18n="assistant.fabLabel">AI Assistant</span>
+    </button>
+
+    <aside class="drawer assistant-widget" id="assistantWidget" aria-hidden="true">
+      <div class="drawer-panel assistant-widget-panel">
+        <div class="drawer-body assistant-widget-root" id="assistantWidgetContent"></div>
+      </div>
+    </aside>
 
     <button class="compare-fab" id="compareFab" type="button" aria-label="Compare products">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>

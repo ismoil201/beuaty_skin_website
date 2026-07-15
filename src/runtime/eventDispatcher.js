@@ -26,6 +26,7 @@ import { OrderController } from '../controllers/OrderController.js';
 import { FavoriteController } from '../controllers/FavoriteController.js';
 import { NotificationController } from '../controllers/NotificationController.js';
 import { SearchController } from '../controllers/SearchController.js';
+import { AssistantController } from '../controllers/AssistantController.js';
 import { CartPage } from '../pages/cart/CartPage.js';
 import { CheckoutPage } from '../pages/checkout/CheckoutPage.js';
 import { ProductDetailPage } from '../pages/product/ProductDetailPage.js';
@@ -149,12 +150,27 @@ export function bindEvents() {
   els.profileContent.addEventListener("submit", (event) => ProfileController.submitEdit(event));
   els.ordersButton.addEventListener("click", () => OrderController.show());
   els.supportButton?.addEventListener("click", openSupport);
+  document.getElementById("assistantMiniButton")?.addEventListener("click", () => {
+    window.location.hash = "#/assistant";
+  });
   els.supportContent?.addEventListener("click", handleSupportClick);
   els.supportDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.privacyContent?.addEventListener("click", handlePrivacyClick);
   els.privacyDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.termsContent?.addEventListener("click", handleTermsClick);
   els.termsDialog?.addEventListener("close", unlockBodyIfNoOverlay);
+  els.assistantFab?.addEventListener("click", () => AssistantController.toggleWidget());
+  els.assistantWidget?.addEventListener("click", (event) => {
+    if (event.target === els.assistantWidget) AssistantController.closeWidget();
+    else AssistantController.handleClick(event);
+  });
+  els.assistantWidgetContent?.addEventListener("submit", (event) => AssistantController.handleSubmit(event));
+  els.assistantWidgetContent?.addEventListener("keydown", (event) => AssistantController.handleKeydown(event));
+  els.assistantWidgetContent?.addEventListener("input", (event) => AssistantController.handleInput(event));
+  els.assistantPageContent?.addEventListener("click", (event) => AssistantController.handleClick(event));
+  els.assistantPageContent?.addEventListener("submit", (event) => AssistantController.handleSubmit(event));
+  els.assistantPageContent?.addEventListener("keydown", (event) => AssistantController.handleKeydown(event));
+  els.assistantPageContent?.addEventListener("input", (event) => AssistantController.handleInput(event));
   els.refreshHome.addEventListener("click", () => HomePage.load({ loadCart: () => CartController.load() }));
   els.loadMore.addEventListener("click", () => CatalogPage.loadMoreProducts());
   window.addEventListener("hashchange", handleRoute);
@@ -176,6 +192,7 @@ export function bindEvents() {
       closeCart();
       ProfileController.close();
       NotificationController.close();
+      AssistantController.closeWidget();
       if (els.ordersDialog.open) els.ordersDialog.close();
       if (els.favoritesDialog?.classList.contains("open")) FavoriteController.close();
       if (els.myReviewsDialog.open) els.myReviewsDialog.close();
@@ -897,6 +914,8 @@ export function rerenderLanguageSensitiveUi() {
   syncModeBadges();
   if (appStore.currentRoute === "product" && productStore.selectedDetailProduct) {
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+  } else if (appStore.currentRoute === "assistant" || AssistantController.isWidgetOpen()) {
+    AssistantController.render();
   } else {
     renderProductList(els.grid, productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
     renderProductList(els.dealsGrid, productStore.todayDeals.slice(0, 8), t("home.noProducts"));

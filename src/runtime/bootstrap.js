@@ -16,6 +16,7 @@ import { CheckoutController } from '../controllers/CheckoutController.js';
 import { FavoriteController } from '../controllers/FavoriteController.js';
 import { NotificationController } from '../controllers/NotificationController.js';
 import { OrderController } from '../controllers/OrderController.js';
+import { AssistantController } from '../controllers/AssistantController.js';
 import { unlockBodyIfNoOverlay } from './navigation.js';
 import { handleRoute } from './router.js';
 import { initPremiumUi } from './uiInit.js';
@@ -57,6 +58,11 @@ function wireDeps() {
     orders: { show: () => OrderController.show() },
     reviews: { open: openMyReviews, openWrite: openWriteReview },
     support: { open: openSupport, openPrivacy, openTerms },
+    assistant: {
+      open: () => AssistantController.openWidget(),
+      close: () => AssistantController.closeWidget(),
+      render: () => AssistantController.render(),
+    },
     checkout: { prepare: () => CheckoutController.prepare({ showLoginRequired: AuthController.showLoginRequired }) },
     i18n: { t, setLanguage, applyTranslations: () => applyTranslations(getTranslationContext()) },
     navigation: { unlockBodyIfNoOverlay },
@@ -92,6 +98,9 @@ export async function init() {
   AuthController.updateUi();
   AuthController.validateOnStartup().catch((error) => {
     console.error("Auth startup failed:", error);
+  });
+  AssistantController.init().catch((error) => {
+    console.error("Assistant startup failed:", error);
   });
   HomePage.load({ loadCart: () => CartController.load() })
     .then(() => handleRoute())

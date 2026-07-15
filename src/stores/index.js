@@ -5,6 +5,7 @@ import { cartStore } from "./cartStore.js";
 import { favoriteStore } from "./favoriteStore.js";
 import { notificationStore } from "./notificationStore.js";
 import { checkoutStore } from "./checkoutStore.js";
+import { assistantStore } from "./assistantStore.js";
 
 export {
   appStore,
@@ -14,4 +15,5 @@ export {
   favoriteStore,
   notificationStore,
   checkoutStore,
+  assistantStore,
 };
