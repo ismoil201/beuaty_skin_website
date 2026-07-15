@@ -1,10 +1,9 @@
 import { escapeHtml } from "../../utils/html.js";
-import { normalizeAssistantAction } from "../../utils/assistantHelpers.js";
+import { normalizeAssistantActions } from "../../utils/assistantNormalize.js";
 
 export function ActionButtons({ actions = [] }) {
-  const supported = (actions || [])
-    .map((action) => normalizeAssistantAction(action))
-    .filter(Boolean);
+  // Accept already-normalized or raw actions.
+  const supported = normalizeAssistantActions(actions);
   if (!supported.length) return "";
 
   return `
@@ -18,6 +17,8 @@ export function ActionButtons({ actions = [] }) {
           data-assistant-action="${escapeHtml(action.type)}"
           data-assistant-action-product="${escapeHtml(action.productId ?? "")}"
           data-assistant-action-variant="${escapeHtml(action.variantId ?? "")}"
+          data-assistant-action-category="${escapeHtml(action.category ?? "")}"
+          data-assistant-action-brand="${escapeHtml(action.brand ?? "")}"
         >
           ${escapeHtml(action.label)}
         </button>`

@@ -16,6 +16,8 @@ import {
 import {
   getAssistantErrorMessage,
   normalizeHistoryMessages,
+  extractAssistantProducts,
+  extractAssistantActions,
 } from "../utils/assistantHelpers.js";
 import { assistantStore } from "../stores/assistantStore.js";
 import { authStore } from "../stores/authStore.js";
@@ -110,12 +112,15 @@ export const AssistantService = {
       assistantStore.sessionId = data.session_id;
     }
 
+    const products = extractAssistantProducts(data);
+    const actions = extractAssistantActions(data);
+
     const assistantMessage = {
       id: createMessageId(),
       role: "assistant",
       content: data.assistant_message || "",
-      products: Array.isArray(data.products) ? data.products : [],
-      actions: Array.isArray(data.actions) ? data.actions : [],
+      products,
+      actions,
       followUpQuestions: Array.isArray(data.follow_up_questions) ? data.follow_up_questions : [],
       citations: Array.isArray(data.citations) ? data.citations : [],
       intent: data.intent || "",

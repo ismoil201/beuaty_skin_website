@@ -3,8 +3,13 @@ import { favoriteStore } from "../stores/favoriteStore.js";
 import { els } from "../utils/dom.js";
 import { AssistantService } from "../services/AssistantService.js";
 import { createMessageId } from "../utils/assistantIds.js";
-import { SUPPORTED_ASSISTANT_ACTIONS } from "../utils/assistantHelpers.js";
+import {
+  SUPPORTED_ASSISTANT_ACTIONS,
+  buildProductNavigationTarget,
+  assistantLog,
+} from "../utils/assistantHelpers.js";
 import { AssistantPage } from "../pages/assistant/AssistantPage.js";
+import { CatalogPage } from "../pages/catalog/CatalogPage.js";
 import { AuthController } from "./AuthController.js";
 import { CartController } from "./CartController.js";
 import { FavoriteController } from "./FavoriteController.js";
@@ -13,10 +18,22 @@ import {
   unlockBodyIfNoOverlay,
   navigateToProduct,
   openCart,
+  showHomeView,
   syncBottomNav,
 } from "../runtime/navigation.js";
 import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
+
+function safeNavigateToProduct(productId) {
+  const target = buildProductNavigationTarget(productId);
+  if (!target) {
+    assistantLog("Navigation id", "missing", { productId });
+    return false;
+  }
+  assistantLog("Navigation id", productId);
+  navigateToProduct(productId);
+  return true;
+}
 
 function scrollMessagesToBottom(root) {
   const scroller = root?.querySelector?.("[data-assistant-messages]");
@@ -182,17 +199,19 @@ export const AssistantController = {
     return this.sendMessage(question);
   },
 
-  async handleAction(type, productId, variantId) {
+  async handleAction(type, { productId, variantId, category, brand } = {}) {
     const normalized = String(type || "").toLowerCase();
-    if (normalized === SUPPORTED_ASSISTANT_ACTIONS.view_product || normalized === SUPPORTED_ASSISTANT_ACTIONS.open_product) {
-      if (productId) {
-        this.closeWidget();
-        navigateToProduct(productId);
-      }
+
+    if (
+      normalized === SUPPORTED_ASSISTANT_ACTIONS.view_product ||
+      normalized === SUPPORTED_ASSISTANT_ACTIONS.open_product
+    ) {
+      if (!safeNavigateToProduct(productId)) return;
+      this.closeWidget();
       return;
     }
     if (normalized === SUPPORTED_ASSISTANT_ACTIONS.add_to_cart) {
-      if (!productId) return;
+      if (!productId || productId === "undefined" || productId === "null") return;
       await CartController.add(productId, variantId || undefined, 1, {
         showLoginRequired: AuthController.showLoginRequired,
       });
@@ -203,7 +222,21 @@ export const AssistantController = {
       openCart();
       return;
     }
-    // TODO: Wire additional backend-documented action types here.
+    if (normalized === SUPPORTED_ASSISTANT_ACTIONS.open_category) {
+      if (!category) return;
+      this.closeWidget();
+      assistantLog("Navigation target", `#/category/${category}`);
+      CatalogPage.renderCategoryProducts(category, { showHomeView });
+      return;
+    }
+    if (normalized === SUPPORTED_ASSISTANT_ACTIONS.open_brand) {
+      if (!brand) return;
+      this.closeWidget();
+      const target = `#/brand/${encodeURIComponent(brand)}`;
+      assistantLog("Navigation target", target);
+      window.location.hash = target;
+      return;
+    }
   },
 
   async handleClick(event) {
@@ -241,11 +274,12 @@ export const AssistantController = {
 
     const actionBtn = target.closest("[data-assistant-action]");
     if (actionBtn) {
-      await this.handleAction(
-        actionBtn.dataset.assistantAction,
-        actionBtn.dataset.assistantActionProduct,
-        actionBtn.dataset.assistantActionVariant
-      );
+      await this.handleAction(actionBtn.dataset.assistantAction, {
+        productId: actionBtn.dataset.assistantActionProduct,
+        variantId: actionBtn.dataset.assistantActionVariant,
+        category: actionBtn.dataset.assistantActionCategory,
+        brand: actionBtn.dataset.assistantActionBrand,
+      });
       return;
     }
 
@@ -266,8 +300,8 @@ export const AssistantController = {
 
     const productBtn = target.closest("[data-product]");
     if (productBtn) {
+      if (!safeNavigateToProduct(productBtn.dataset.product)) return;
       this.closeWidget();
-      navigateToProduct(productBtn.dataset.product);
     }
   },
 

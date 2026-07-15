@@ -85,8 +85,10 @@ export function routeHome() {
 }
 
 export function navigateToProduct(productId) {
-  if (!productId) return;
-  const nextHash = `#/product/${encodeURIComponent(productId)}`;
+  if (productId === undefined || productId === null || productId === "") return;
+  const id = String(productId).trim();
+  if (!id || id === "undefined" || id === "null") return;
+  const nextHash = `#/product/${encodeURIComponent(id)}`;
   if (window.location.hash === nextHash) {
     handleRoute();
   } else {

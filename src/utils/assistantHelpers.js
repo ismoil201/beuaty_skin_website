@@ -1,4 +1,33 @@
 import { t } from "../i18n/index.js";
+import {
+  normalizeAssistantProduct,
+  normalizeAssistantProducts,
+  normalizeAssistantAction,
+  normalizeAssistantActions,
+  extractAssistantProducts,
+  extractAssistantActions,
+  canonicalizeAssistantActionType,
+  isSupportedAssistantAction,
+  SUPPORTED_ASSISTANT_ACTIONS,
+  buildProductNavigationTarget,
+  resolveAssistantProductId,
+  assistantLog,
+} from "./assistantNormalize.js";
+
+export {
+  normalizeAssistantProduct,
+  normalizeAssistantProducts,
+  normalizeAssistantAction,
+  normalizeAssistantActions,
+  extractAssistantProducts,
+  extractAssistantActions,
+  canonicalizeAssistantActionType,
+  isSupportedAssistantAction,
+  SUPPORTED_ASSISTANT_ACTIONS,
+  buildProductNavigationTarget,
+  resolveAssistantProductId,
+  assistantLog,
+};
 
 /**
  * Map assistant API failures to friendly, retryable messages.
@@ -19,37 +48,8 @@ export function getAssistantErrorMessage(status, errorCode) {
   return t("assistant.errorGeneric");
 }
 
-/**
- * Supported action types for CTA buttons.
- * TODO: Confirm exact action `type` strings with the Spring Boot assistant API contract.
- * Only whitelisted types are rendered — unknown types are ignored (not invented).
- */
-export const SUPPORTED_ASSISTANT_ACTIONS = Object.freeze({
-  view_product: "view_product",
-  open_product: "open_product",
-  add_to_cart: "add_to_cart",
-  open_cart: "open_cart",
-});
-
-export function isSupportedAssistantAction(type) {
-  return Object.values(SUPPORTED_ASSISTANT_ACTIONS).includes(String(type || "").toLowerCase());
-}
-
-export function normalizeAssistantAction(action = {}) {
-  const type = String(action.type || action.action_type || "").toLowerCase();
-  if (!isSupportedAssistantAction(type)) return null;
-  return {
-    type,
-    label: action.label || action.title || action.text || type,
-    productId: action.product_id ?? action.productId ?? null,
-    variantId: action.variant_id ?? action.variantId ?? null,
-    raw: action,
-  };
-}
-
 /** Normalize history payloads — shape beyond the query contract is not fully documented. */
 export function normalizeHistoryMessages(payload) {
-  // TODO: Confirm exact history response schema with backend docs.
   let list = [];
   if (Array.isArray(payload)) list = payload;
   else if (Array.isArray(payload?.messages)) list = payload.messages;
@@ -68,13 +68,17 @@ export function normalizeHistoryMessages(payload) {
         item.assistant_message ||
         item.text ||
         "";
-      if (!text && !Array.isArray(item.products)) return null;
+
+      const products = extractAssistantProducts(item);
+      const actions = extractAssistantActions(item);
+
+      if (!text && !products.length) return null;
       return {
         id: item.id || `hist-${index}-${Date.now()}`,
-        role: isUser ? "user" : isAssistant ? "assistant" : isUser ? "user" : "assistant",
+        role: isUser ? "user" : "assistant",
         content: text,
-        products: Array.isArray(item.products) ? item.products : [],
-        actions: Array.isArray(item.actions) ? item.actions : [],
+        products,
+        actions,
         followUpQuestions: Array.isArray(item.follow_up_questions)
           ? item.follow_up_questions
           : Array.isArray(item.followUpQuestions)
