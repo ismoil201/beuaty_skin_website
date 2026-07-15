@@ -477,9 +477,15 @@ img {
 }
 
 .product-card img,
-.assistant-product-media img,
 .banner img,
 .card-media img {
+  object-fit: cover;
+}
+
+.assistant-product-media img,
+.assistant-product-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
