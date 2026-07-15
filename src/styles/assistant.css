@@ -652,7 +652,7 @@
 
   .assistant-widget .drawer-panel,
   .assistant-widget-panel {
-    width: 100vw;
+    width: 100%;
   }
 
   .assistant-header {

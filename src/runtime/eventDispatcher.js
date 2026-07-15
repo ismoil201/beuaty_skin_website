@@ -153,6 +153,14 @@ export function bindEvents() {
   document.getElementById("assistantMiniButton")?.addEventListener("click", () => {
     window.location.hash = "#/assistant";
   });
+  document.getElementById("footerSupport")?.addEventListener("click", openSupport);
+  document.getElementById("footerPrivacy")?.addEventListener("click", openPrivacy);
+  document.getElementById("footerTerms")?.addEventListener("click", openTerms);
+  document.getElementById("footerAssistant")?.addEventListener("click", () => {
+    window.location.hash = "#/assistant";
+  });
+  const footerYear = document.getElementById("footerYear");
+  if (footerYear) footerYear.textContent = String(new Date().getFullYear());
   els.supportContent?.addEventListener("click", handleSupportClick);
   els.supportDialog?.addEventListener("close", unlockBodyIfNoOverlay);
   els.privacyContent?.addEventListener("click", handlePrivacyClick);

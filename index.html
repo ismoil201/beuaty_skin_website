@@ -23,7 +23,7 @@
           <button class="mini-link" id="supportButton" type="button" data-i18n="header.support">Savol-javob</button>
           <button class="mini-link" id="assistantMiniButton" type="button" data-i18n="assistant.fabLabel">AI Yordamchi</button>
           <button class="mini-link" id="ordersButton" type="button" data-i18n="header.orders">Buyurtmalar</button>
-          <button class="mini-link" id="apiButton" type="button">API</button>
+          <button class="mini-link" id="apiButton" type="button" hidden aria-hidden="true">API</button>
           <label class="language-picker" aria-label="Language" data-i18n-aria-label="header.language">
             <select id="languageSelect">
               <option value="uz">🇺🇿 Uzbek</option>
@@ -236,6 +236,22 @@
         <div id="assistantPageContent"></div>
       </section>
     </main>
+
+    <footer class="site-footer" id="siteFooter">
+      <div class="site-footer-inner">
+        <div class="site-footer-brand">
+          <strong>BEAUTY SKIN KOREA</strong>
+          <p data-i18n="footer.tagline">Korean beauty marketplace</p>
+        </div>
+        <nav class="site-footer-nav" aria-label="Footer">
+          <button type="button" class="site-footer-link" id="footerSupport" data-i18n="header.support">Support</button>
+          <button type="button" class="site-footer-link" id="footerPrivacy" data-i18n="privacy.title">Privacy</button>
+          <button type="button" class="site-footer-link" id="footerTerms" data-i18n="terms.title">Terms</button>
+          <button type="button" class="site-footer-link" id="footerAssistant" data-i18n="assistant.fabLabel">AI Assistant</button>
+        </nav>
+        <p class="site-footer-copy">© <span id="footerYear"></span> Beauty Skin Korea</p>
+      </div>
+    </footer>
 
     <nav class="mobile-bottom-nav" aria-label="Mobile quick navigation">
       <button type="button" class="active" data-mobile-action="home" aria-label="Home">

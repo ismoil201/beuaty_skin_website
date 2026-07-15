@@ -10,8 +10,6 @@ import { cartStore } from "../stores/cartStore.js";
 
 const FREE_SHIPPING_THRESHOLD = 500000;
 const STANDARD_DELIVERY_FEE = 30000;
-const ORIGINS = ["Korea", "Japan", "USA"];
-const SELLERS = ["Official Store", "Beauty Skin Korea", "Verified Seller"];
 
 export function initFilterState() {
   if (!productStore.filters) productStore.filters = loadFilters();
@@ -73,8 +71,6 @@ function buildFilterHtml(t, categoryLabel) {
     `)}
     ${filterGroup(t("filter.availability"), toggleCheck("inStock", t("filter.inStock"), f.inStock))}
     ${filterGroup(t("filter.fastDelivery"), toggleCheck("fastDelivery", t("filter.fastDelivery"), f.fastDelivery))}
-    ${filterGroup(t("filter.origin"), ORIGINS.map((o) => filterCheck("origin", o, f.origin.includes(o))).join(""))}
-    ${filterGroup(t("filter.seller"), SELLERS.map((s) => filterCheck("seller", s, f.seller.includes(s))).join(""))}
   `;
 }
 

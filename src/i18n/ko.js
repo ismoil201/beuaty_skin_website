@@ -290,6 +290,7 @@ export default {
   "status.PENDING": "대기 중",
   "api.title": "API 설정",
   "api.save": "저장",
+  "footer.tagline": "한국 뷰티 마켓플레이스",
 
   "assistant.title": "쇼핑 어시스턴트",
   "assistant.subtitle": "맞춤 제품 추천",

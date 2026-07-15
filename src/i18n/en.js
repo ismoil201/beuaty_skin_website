@@ -390,6 +390,7 @@ export default {
   "home.recommendedForYou": "Recommended for you",
   "home.continueShopping": "Continue shopping",
   "home.becauseYouViewed": "Because you viewed",
+  "footer.tagline": "Korean beauty marketplace",
 
   "assistant.title": "Shopping assistant",
   "assistant.subtitle": "Personalized product recommendations",

@@ -297,6 +297,7 @@ export default {
   "home.recentlyViewed": "Недавно просмотренные",
   "api.title": "Настройки API",
   "api.save": "Сохранить",
+  "footer.tagline": "Маркетплейс корейской красоты",
 
   "assistant.title": "Помощник по покупкам",
   "assistant.subtitle": "Персональные рекомендации товаров",

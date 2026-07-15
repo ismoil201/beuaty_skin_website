@@ -435,6 +435,7 @@ export default {
     "home.recommendedForYou": "Siz uchun tavsiya",
     "home.continueShopping": "Xaridni davom ettirish",
     "home.becauseYouViewed": "Siz ko'rganingiz uchun",
+    "footer.tagline": "Koreys go‘zallik marketpleysi",
 
     "assistant.title": "Xarid yordamchisi",
     "assistant.subtitle": "Teri turiga mos mahsulotlar tavsiya qilamiz",

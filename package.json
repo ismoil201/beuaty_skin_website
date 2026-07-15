@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run sync:css && vite",
+    "build": "npm run sync:css && vite build",
     "preview": "vite preview",
     "start": "node server.cjs",
     "sync:css": "node scripts/sync-css.cjs"

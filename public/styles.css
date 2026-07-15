@@ -564,19 +564,19 @@ dialog::backdrop {
 /* ===== marketplace.css ===== */
 :root {
   color-scheme: light;
-  --primary: #6f2cff;
-  --primary-dark: #4c16c7;
-  --accent: #ffcc00;
-  --bg: #f6f7fb;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --accent: #1a1a2e;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f1f26;
-  --muted: #737388;
-  --border: #e6e7ef;
-  --danger: #e53935;
-  --success: #0a9b68;
-  --shadow: 0 16px 44px rgba(31, 31, 38, 0.12);
-  --radius: 8px;
-  --container: 1380px;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
+  --danger: #e53e3e;
+  --success: #0d9f6e;
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --radius: 12px;
+  --container: 1400px;
 }
 
 /* ================= FINAL MARKETPLACE UI OVERRIDES ================= */
@@ -1155,19 +1155,19 @@ dialog {
   }
 }
 
-/* BEAUTY SKIN KOREA rebrand: soft pink accent system. */
+/* Soft blush wash — aligned with production light tokens */
 :root {
-  --primary: #FFC0CB;
-  --primary-dark: #f3a9b9;
-  --primary-soft: #ffe4ea;
-  --bg: #f8f8fa;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #2b2b2b;
-  --muted: #7a7a85;
-  --border: #ececf1;
-  --danger: #ef4444;
-  --warning: #ffe066;
-  --shadow: 0 16px 42px rgba(43, 43, 43, 0.1);
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
+  --danger: #e53e3e;
+  --warning: #d97706;
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
 }
 
 body {
@@ -2026,21 +2026,20 @@ dialog {
   }
 }
 
-/* ================= UZUM-LIKE MARKETPLACE POLISH ================= */
-
+/* Marketplace polish tokens — keep in sync with design-system / variables */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #4c1d95;
-  --accent: #ffe54c;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --accent: #1a1a2e;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #6f7280;
-  --border: #e5e7eb;
-  --danger: #ef4444;
-  --warning: #ffe54c;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
+  --danger: #e53e3e;
+  --warning: #d97706;
   --radius: 12px;
-  --container: 1240px;
+  --container: 1400px;
 }
 
 body {
@@ -2579,7 +2578,7 @@ dialog {
 
   .drawer-panel,
   .catalog-panel {
-    width: 100vw;
+    width: 100%;
     border-radius: 18px 18px 0 0;
   }
 }
@@ -2603,7 +2602,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 a { color: inherit; }
 
 :focus-visible {
-  outline: 3px solid rgba(111, 44, 255, 0.3);
+  outline: 3px solid rgba(212, 136, 158, 0.45);
   outline-offset: 2px;
 }
 
@@ -2949,12 +2948,12 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   align-content: end;
   padding: 20px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #fff, #f2ecff);
+  background: linear-gradient(135deg, #fff, #fdf2f6);
   border: 1px solid var(--border);
 }
 
 .promo-card.accent {
-  background: linear-gradient(135deg, #1f1f26, #6f2cff);
+  background: linear-gradient(135deg, #1a1a2e, #d4889e);
   color: white;
 }
 
@@ -3013,7 +3012,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px;
-  background: linear-gradient(135deg, #fff, #f2ecff);
+  background: linear-gradient(135deg, #fff, #fdf2f6);
   cursor: pointer;
 }
 
@@ -3509,8 +3508,8 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 }
 
 .notification-card.unread {
-  border-color: rgba(111, 44, 255, 0.28);
-  background: #fbf9ff;
+  border-color: rgba(232, 160, 180, 0.55);
+  background: #fdf7f9;
 }
 
 .notification-card.loading {
@@ -4768,28 +4767,28 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 
   dialog#detailDialog {
-    width: 100vw;
+    width: 100%;
     max-height: 96vh;
     margin: auto 0 0;
     border-radius: 18px 18px 0 0;
   }
 
   dialog#checkoutDialog {
-    width: 100vw;
+    width: 100%;
     max-height: 96vh;
     margin: auto 0 0;
     border-radius: 18px 18px 0 0;
   }
 
   dialog#ordersDialog {
-    width: 100vw;
+    width: 100%;
     max-height: 96vh;
     margin: auto 0 0;
     border-radius: 18px 18px 0 0;
   }
 
   dialog#favoritesDialog {
-    width: 100vw;
+    width: 100%;
     max-height: 96vh;
     margin: auto 0 0;
     border-radius: 18px 18px 0 0;
@@ -4797,7 +4796,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
   dialog#myReviewsDialog,
   dialog#writeReviewDialog {
-    width: 100vw;
+    width: 100%;
     max-height: 96vh;
     margin: auto 0 0;
     border-radius: 18px 18px 0 0;
@@ -5005,19 +5004,19 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 }
 
-/* Final BEAUTY SKIN KOREA theme layer. */
+/* Final token lock — same production light palette */
 :root {
-  --primary: #FFC0CB;
-  --primary-dark: #f3a9b9;
-  --primary-soft: #ffe4ea;
-  --bg: #f8f8fa;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #2b2b2b;
-  --muted: #7a7a85;
-  --border: #ececf1;
-  --danger: #ef4444;
-  --warning: #ffe066;
-  --shadow: 0 16px 42px rgba(43, 43, 43, 0.1);
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
+  --danger: #e53e3e;
+  --warning: #d97706;
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
 }
 
 body {
@@ -10293,7 +10292,7 @@ dialog,
 
   .assistant-widget .drawer-panel,
   .assistant-widget-panel {
-    width: 100vw;
+    width: 100%;
   }
 
   .assistant-header {
@@ -10654,26 +10653,98 @@ label select:focus {
 }
 
 /* ---- Footer ---- */
-.site-footer,
-footer.site-footer,
-.marketplace-footer {
+.site-footer {
   background: #fff;
   border-top: 1px solid var(--ds-border);
   color: var(--ds-text-secondary);
-  padding: clamp(32px, 5vw, 56px) 16px;
+  padding: clamp(28px, 4vw, 48px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  margin-top: clamp(24px, 4vw, 48px);
 }
 
-.site-footer a,
-.marketplace-footer a {
+.site-footer-inner {
+  max-width: var(--ds-container, 1400px);
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+.site-footer-brand strong {
+  display: block;
+  color: var(--ds-text);
+  font-size: var(--ds-text-lg);
+  letter-spacing: -0.02em;
+}
+
+.site-footer-brand p,
+.site-footer-copy {
+  margin: 6px 0 0;
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-muted);
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.site-footer-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
   color: var(--ds-text-secondary);
-  text-decoration: none;
+  font: inherit;
+  font-size: var(--ds-text-sm);
+  font-weight: 560;
+  cursor: pointer;
   transition: color var(--ds-duration-fast);
 }
 
-.site-footer a:hover,
-.marketplace-footer a:hover {
+.site-footer-link:hover {
   color: var(--ds-accent);
 }
+
+@media (max-width: 680px) {
+  .site-footer {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Hide production-only tooling chrome */
+#apiButton,
+#apiDialog,
+.mode-badge {
+  display: none !important;
+}
+
+/* Skeleton image placeholders: reserve aspect ratio to reduce CLS */
+.product-card .card-media,
+.banner-card,
+.skeleton-card .skeleton-media {
+  aspect-ratio: 1 / 1;
+  background: #f3f0f2;
+}
+
+.banner-card {
+  aspect-ratio: 16 / 7;
+}
+
+/* Stable icon sizing */
+.header-action svg,
+.cart-button svg,
+.icon-button svg,
+.mobile-bottom-nav svg,
+.assistant-fab svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.assistant-fab svg {
+  width: 22px;
+  height: 22px;
+}
+
 
 /* ---- Drawers ---- */
 .drawer {
