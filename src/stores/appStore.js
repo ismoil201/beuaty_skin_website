@@ -6,6 +6,7 @@ import { createStore } from "./createStore.js";
 export const appStore = createStore({
   baseUrl: normalizeSavedBaseUrl(localStorage.getItem(CONFIG.storageKeys.baseUrl) || ""),
   lastApiError: "",
+  lastApiStatus: 0,
   currentRoute: "home",
   sessionId: getSessionId(),
   impressionsSent: new Set(),

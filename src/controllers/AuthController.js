@@ -3,6 +3,7 @@ import { authStore, productStore, appStore } from "../stores/index.js";
 import { els } from "../utils/dom.js";
 import { AuthService } from "../services/AuthService.js";
 import { ProfileService } from "../services/ProfileService.js";
+import { getMe } from "../api/userApi.js";
 import { signInWithGoogleIdToken } from "../config/firebase.js";
 import { clearCartState } from "../store/cartStore.js";
 import { clearFavoritesState } from "../store/favoriteStore.js";
@@ -16,8 +17,8 @@ export const AuthController = {
     return AuthService.isLoggedIn();
   },
 
-  saveAuth(loginResponse) {
-    AuthService.saveAuth(loginResponse, authStore);
+  saveAuth(loginResponse, options = {}) {
+    AuthService.saveAuth(loginResponse, authStore, options);
   },
 
   clearAuth() {
@@ -44,7 +45,9 @@ export const AuthController = {
       else AuthController.updateUi();
       return;
     }
-    authStore.user = result.profile;
+    if (result.profile) {
+      authStore.user = result.profile;
+    }
     AuthController.updateUi();
     await Promise.allSettled([
       deps.favorites?.load?.(),
@@ -76,6 +79,9 @@ export const AuthController = {
     if (AuthService.isLoggedIn() && authStore.user) {
       const first = String(authStore.user.fullName || "").trim().split(/\s+/)[0] || "";
       label.textContent = first || t("profile.myProfile");
+      els.loginButton.setAttribute("aria-label", t("profile.myProfile"));
+    } else if (AuthService.isLoggedIn()) {
+      label.textContent = t("profile.myProfile");
       els.loginButton.setAttribute("aria-label", t("profile.myProfile"));
     } else {
       label.textContent = t("auth.login");
@@ -140,18 +146,14 @@ export const AuthController = {
 
   async submitLogin() {
     AuthController.clearErrors();
-    const result = AuthService.validateLoginForm(
-      els.loginEmail.value.trim(),
-      els.loginPassword.value,
-    );
+    const email = els.loginEmail.value.trim();
+    const password = els.loginPassword.value;
+    const result = AuthService.validateLoginForm(email, password);
     result.errors.forEach(({ field, messageKey }) => AuthController.setFieldError(field, t(messageKey)));
     if (!result.valid) return;
 
     AuthController.setLoading(true);
-    const loginResult = await AuthService.submitLogin({
-      email: els.loginEmail.value.trim(),
-      password: els.loginPassword.value,
-    });
+    const loginResult = await AuthService.submitLogin({ email, password });
     AuthController.setLoading(false);
 
     if (!loginResult.success) {
@@ -159,7 +161,7 @@ export const AuthController = {
       els.authMessage.className = "form-message error";
       return;
     }
-    await AuthController.finishLogin(loginResult.response);
+    await AuthController.finishLogin(loginResult.response, { email });
   },
 
   async submitRegister() {
@@ -223,15 +225,30 @@ export const AuthController = {
     await AuthController.finishLogin(result.response);
   },
 
-  async finishLogin(response) {
-    AuthController.saveAuth(response);
-    await AuthController.validateOnStartup();
+  async finishLogin(response, { email = "" } = {}) {
+    // Persist documented login contract: accessToken + role (+ expiresIn ignored locally).
+    AuthController.saveAuth(response, { email });
+    AuthController.updateUi();
     els.authDialog.close();
-    const first = String(response.fullName || "").trim().split(/\s+/)[0] || "User";
+
+    const profile = await getMe({ silentAuth: true, showError: false });
+    if (profile) {
+      authStore.user = profile;
+      localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(profile));
+      AuthController.updateUi();
+    }
+
+    const first =
+      String(authStore.user?.fullName || "").trim().split(/\s+/)[0] ||
+      String(authStore.user?.email || email || "").split("@")[0] ||
+      "User";
     showToast(`Welcome, ${first}.`);
-    await deps.cart?.load?.();
-    await deps.favorites?.load?.();
-    await deps.notifications?.loadUnreadCount?.();
+
+    await Promise.allSettled([
+      deps.cart?.load?.(),
+      deps.favorites?.load?.(),
+      deps.notifications?.loadUnreadCount?.(),
+    ]);
     AuthController.preloadProfileData();
   },
 };

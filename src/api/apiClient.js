@@ -91,9 +91,11 @@ export async function apiFetch(path, options = {}) {
 
   try {
     appStore.lastApiError = "";
+    appStore.lastApiStatus = 0;
     const response = await fetch(url, { ...fetchOptions, headers, signal: controller.signal });
     const text = await response.text();
     const payload = text ? parseResponseBody(text) : null;
+    appStore.lastApiStatus = response.status;
 
     if (isDevMode()) {
       console.info("[API RESPONSE]", {
@@ -126,6 +128,7 @@ export async function apiFetch(path, options = {}) {
 
     return payload;
   } catch (error) {
+    appStore.lastApiStatus = 0;
     if (error?.name === "AbortError") {
       appStore.lastApiError = timedOut
         ? "So‘rov vaqti tugadi. Qayta urinib ko‘ring."

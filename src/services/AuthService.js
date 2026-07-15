@@ -8,33 +8,56 @@ import { ReviewService } from "./ReviewService.js";
 import { ProfileService } from "./ProfileService.js";
 import { appStore } from "../stores/appStore.js";
 
+/**
+ * Login contract (Spring Boot):
+ * POST /api/auth/login
+ * Request:  { email, password }
+ * Response: { role, accessToken, expiresIn }
+ */
 export const AuthService = {
-  extractSession(loginResponse) {
-    const source = loginResponse?.data && typeof loginResponse.data === "object"
-      ? { ...loginResponse, ...loginResponse.data }
-      : loginResponse;
-    const token = source?.token || source?.accessToken || source?.jwt || "";
-    const user = {
-      id: source?.id ?? source?.userId ?? source?.user?.id,
-      email: source?.email || source?.user?.email,
-      fullName: source?.fullName || source?.user?.fullName || source?.name || "",
-      phone: source?.phone || source?.user?.phone || "",
-      profileImage: source?.profileImage || source?.user?.profileImage || "",
-    };
-    const role = source?.role || source?.user?.role || "";
-    return { token, user, role, source };
+  /**
+   * Read JWT from the documented login response.
+   * Primary field: accessToken. Legacy fallbacks kept for older payloads only.
+   */
+  getAccessToken(loginResponse) {
+    if (!loginResponse || typeof loginResponse !== "object") return "";
+    const nested =
+      loginResponse.data && typeof loginResponse.data === "object" ? loginResponse.data : null;
+    return (
+      loginResponse.accessToken ||
+      nested?.accessToken ||
+      loginResponse.token ||
+      nested?.token ||
+      loginResponse.jwt ||
+      nested?.jwt ||
+      ""
+    );
   },
 
-  hasAuthToken(loginResponse) {
-    return Boolean(this.extractSession(loginResponse).token);
+  extractSession(loginResponse, { email = "" } = {}) {
+    const source =
+      loginResponse?.data && typeof loginResponse.data === "object"
+        ? { ...loginResponse, ...loginResponse.data }
+        : loginResponse || {};
+    const token = this.getAccessToken(loginResponse);
+    const user = {
+      id: source.id ?? source.userId ?? source.user?.id ?? null,
+      email: source.email || source.user?.email || email || "",
+      fullName: source.fullName || source.user?.fullName || source.name || "",
+      phone: source.phone || source.user?.phone || "",
+      profileImage: source.profileImage || source.user?.profileImage || "",
+    };
+    const role = source.role || source.user?.role || "";
+    const expiresIn = source.expiresIn ?? null;
+    return { token, user, role, expiresIn, source };
   },
 
   persistSession({ token, user, role }) {
     if (token) {
       localStorage.setItem(CONFIG.storageKeys.accessToken, token);
     }
-    localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(user));
-    localStorage.setItem(CONFIG.storageKeys.role, role);
+    localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(user || {}));
+    localStorage.setItem(CONFIG.storageKeys.role, role || "");
   },
 
   clearSession() {
@@ -45,8 +68,8 @@ export const AuthService = {
     localStorage.removeItem(CONFIG.storageKeys.role);
   },
 
-  saveAuth(loginResponse, appState) {
-    const session = this.extractSession(loginResponse);
+  saveAuth(loginResponse, appState, options = {}) {
+    const session = this.extractSession(loginResponse, options);
     this.persistSession(session);
     appState.accessToken = session.token;
     appState.user = session.user;
@@ -74,17 +97,23 @@ export const AuthService = {
     }
 
     const profile = await getMe({ silentAuth: true });
-    if (!profile) {
+    if (profile) {
+      localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(profile));
+      return { authenticated: true, profile };
+    }
+
+    // Only drop the session when the token is explicitly rejected.
+    if (appStore.lastApiStatus === 401) {
       return { authenticated: false, invalid: true };
     }
 
-    localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(profile));
-    return { authenticated: true, profile };
+    // Network / transient failure: keep token and continue as logged in.
+    return { authenticated: true, profile: null };
   },
 
   async preloadProfileData() {
     const [userResponse, ordersResponse, reviewsResult] = await Promise.all([
-      getMe(),
+      getMe({ silentAuth: true }),
       getOrders(),
       ReviewService.loadMyReviews(),
     ]);
@@ -136,15 +165,29 @@ export const AuthService = {
     return { valid: errors.length === 0, errors };
   },
 
+  /**
+   * POST /api/auth/login with { email, password }.
+   * Success = HTTP 200 + accessToken present.
+   * "Email yoki parol noto'g'ri." only for HTTP 401.
+   */
   async submitLogin({ email, password }) {
     const response = await login({ email, password });
-    if (!this.hasAuthToken(response)) {
-      return {
-        success: false,
-        error: appStore.lastApiError || "Email yoki parol noto‘g‘ri.",
-      };
+    const accessToken = this.getAccessToken(response);
+
+    if (accessToken) {
+      return { success: true, response };
     }
-    return { success: true, response: this.extractSession(response).source || response };
+
+    const status = appStore.lastApiStatus;
+    if (status === 401) {
+      return { success: false, error: "Email yoki parol noto‘g‘ri.", status };
+    }
+
+    return {
+      success: false,
+      error: appStore.lastApiError || "Login muvaffaqiyatsiz. Qayta urinib ko‘ring.",
+      status,
+    };
   },
 
   async submitRegister({ fullName, email, phone, password }) {
@@ -160,13 +203,14 @@ export const AuthService = {
 
   async submitFirebaseLogin(idToken) {
     const response = await loginWithFirebase({ idToken });
-    if (!this.hasAuthToken(response)) {
+    const accessToken = this.getAccessToken(response);
+    if (!accessToken) {
       return {
         success: false,
         error: appStore.lastApiError || "Server Google hisobini qabul qilmadi.",
       };
     }
-    return { success: true, response: this.extractSession(response).source || response };
+    return { success: true, response };
   },
 
   mapFirebaseError(code) {
