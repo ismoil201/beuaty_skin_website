@@ -105,7 +105,12 @@ export async function apiFetch(path, options = {}) {
     }
 
     if (response.status === 401) {
-      appStore.lastApiError = "Session expired. Please login again.";
+      const message = getApiErrorMessage(payload, response.status);
+      appStore.lastApiError = silentAuth
+        ? (typeof payload === "object" && (payload?.message || payload?.error)
+          ? message
+          : "Email yoki parol noto‘g‘ri.")
+        : "Session expired. Please login again.";
       if (!silentAuth) {
         handlers.onUnauthorized();
       }

@@ -10,16 +10,23 @@ import { appStore } from "../stores/appStore.js";
 
 export const AuthService = {
   extractSession(loginResponse) {
-    const token = loginResponse?.token || loginResponse?.accessToken || loginResponse?.jwt || "";
+    const source = loginResponse?.data && typeof loginResponse.data === "object"
+      ? { ...loginResponse, ...loginResponse.data }
+      : loginResponse;
+    const token = source?.token || source?.accessToken || source?.jwt || "";
     const user = {
-      id: loginResponse?.id,
-      email: loginResponse?.email,
-      fullName: loginResponse?.fullName,
-      phone: loginResponse?.phone || "",
-      profileImage: loginResponse?.profileImage || "",
+      id: source?.id ?? source?.userId ?? source?.user?.id,
+      email: source?.email || source?.user?.email,
+      fullName: source?.fullName || source?.user?.fullName || source?.name || "",
+      phone: source?.phone || source?.user?.phone || "",
+      profileImage: source?.profileImage || source?.user?.profileImage || "",
     };
-    const role = loginResponse?.role || "";
-    return { token, user, role };
+    const role = source?.role || source?.user?.role || "";
+    return { token, user, role, source };
+  },
+
+  hasAuthToken(loginResponse) {
+    return Boolean(this.extractSession(loginResponse).token);
   },
 
   persistSession({ token, user, role }) {
@@ -131,10 +138,13 @@ export const AuthService = {
 
   async submitLogin({ email, password }) {
     const response = await login({ email, password });
-    if (!response?.token) {
-      return { success: false, error: appStore.lastApiError || "Email yoki parol noto‘g‘ri." };
+    if (!this.hasAuthToken(response)) {
+      return {
+        success: false,
+        error: appStore.lastApiError || "Email yoki parol noto‘g‘ri.",
+      };
     }
-    return { success: true, response };
+    return { success: true, response: this.extractSession(response).source || response };
   },
 
   async submitRegister({ fullName, email, phone, password }) {
@@ -150,13 +160,13 @@ export const AuthService = {
 
   async submitFirebaseLogin(idToken) {
     const response = await loginWithFirebase({ idToken });
-    if (!response?.token) {
+    if (!this.hasAuthToken(response)) {
       return {
         success: false,
         error: appStore.lastApiError || "Server Google hisobini qabul qilmadi.",
       };
     }
-    return { success: true, response };
+    return { success: true, response: this.extractSession(response).source || response };
   },
 
   mapFirebaseError(code) {
