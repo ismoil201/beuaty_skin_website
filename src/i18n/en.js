@@ -37,7 +37,7 @@ export default {
   "home.todayDeals": "Today deals",
   "home.discounts": "Discounts",
   "home.newArrivals": "New arrivals",
-  "home.popular": "Popular products",
+  "home.popular": "Popular",
   "home.recommended": "Recommended for you",
   "home.similar": "Similar products",
   "home.others": "Others also viewed",

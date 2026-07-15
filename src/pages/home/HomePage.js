@@ -183,8 +183,9 @@ export const HomePage = {
   },
 
   async loadCategories() {
-    const { categories, demoCategories } = await HomeService.loadCategories();
+    const { categories, categoryEntities, demoCategories } = await HomeService.loadCategories();
     productStore.categories = categories;
+    productStore.categoryEntities = categoryEntities || [];
     productStore.demoCategories = demoCategories;
     syncModeBadges();
     CatalogPage.renderCategories();
@@ -305,7 +306,7 @@ export const HomePage = {
     appStore.currentSearchQuery = "";
     appStore.currentGridScreen = "home";
     productStore.feedPage = 0;
-    els.title.textContent = t("home.recommended");
+    els.title.textContent = t("home.popular");
     els.status.textContent = t("home.loading");
     renderSkeleton(els.grid, 12);
     renderSkeleton(els.dealsGrid, 6);

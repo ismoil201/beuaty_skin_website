@@ -107,7 +107,31 @@ export function normalizeFavoriteItem(item = {}) {
 
 export function normalizeCategory(value) {
   if (typeof value === "string") return value;
-  return value?.code || value?.name || value?.title || "";
+  if (!value || typeof value !== "object") return "";
+  return value.code || value.name || value.title || value.category || "";
+}
+
+/**
+ * Rich category object for marketplace UI (image/icon when API provides them).
+ * @returns {{ code: string, name: string, imageUrl: string, icon: string }|null}
+ */
+export function normalizeCategoryEntity(value) {
+  if (typeof value === "string") {
+    const code = value.trim();
+    if (!code) return null;
+    return { code, name: code, imageUrl: "", icon: "" };
+  }
+  if (!value || typeof value !== "object") return null;
+  const code = String(value.code || value.name || value.title || value.category || "").trim();
+  if (!code) return null;
+  return {
+    code,
+    name: String(value.name || value.title || value.label || code),
+    imageUrl: String(
+      value.imageUrl || value.image_url || value.iconUrl || value.icon_url || value.image || ""
+    ),
+    icon: String(value.icon || value.emoji || ""),
+  };
 }
 
 export function normalizeOrderItem(item = {}) {

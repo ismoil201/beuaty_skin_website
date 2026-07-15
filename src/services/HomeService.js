@@ -2,7 +2,13 @@ import { CONFIG } from "../config/config.js";
 import { getHome } from "../api/productApi.js";
 import { getCategories } from "../api/categoryApi.js";
 import { getBanners, getAnnouncements } from "../api/bannerApi.js";
-import { getPageContent, normalizeProduct, normalizeCategory, numberOrZero } from "../utils/productMapper.js";
+import {
+  getPageContent,
+  normalizeProduct,
+  normalizeCategory,
+  normalizeCategoryEntity,
+  numberOrZero,
+} from "../utils/productMapper.js";
 import { ProductService } from "./ProductService.js";
 
 export const DEFAULT_CATEGORIES = ["SKINCARE", "MAKEUP", "COLLAGEN", "HAIR_CARE", "FRAGRANCE"];
@@ -40,17 +46,31 @@ export const HomeService = {
       newArrivals,
       products,
       todayDeals: discounts,
-      homeApiSections: { hits, discounts, newArrivals },
+      homeApiSections: { hits, discounts, newArrivals, popular },
     };
   },
 
   async loadCategories() {
     const response = await getCategories();
-    const categories = getPageContent(response).map(normalizeCategory).filter(Boolean);
+    const page = getPageContent(response);
+    const entities = page.map(normalizeCategoryEntity).filter(Boolean);
+    const categories = entities.length
+      ? entities.map((item) => item.code)
+      : page.map(normalizeCategory).filter(Boolean);
+
     if (categories.length) {
-      return { categories, demoCategories: false };
+      return { categories, categoryEntities: entities, demoCategories: false };
     }
-    return { categories: DEFAULT_CATEGORIES, demoCategories: false };
+    return {
+      categories: DEFAULT_CATEGORIES,
+      categoryEntities: DEFAULT_CATEGORIES.map((code) => ({
+        code,
+        name: code,
+        imageUrl: "",
+        icon: "",
+      })),
+      demoCategories: false,
+    };
   },
 
   async loadBanners() {

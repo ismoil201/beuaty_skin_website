@@ -43,7 +43,7 @@ export default {
     "home.todayDeals": "Bugungi takliflar",
     "home.discounts": "Chegirmalar",
     "home.newArrivals": "Yangi mahsulotlar",
-    "home.popular": "Ommabop mahsulotlar",
+    "home.popular": "Mashhur",
     "home.recommended": "Siz uchun tavsiyalar",
     "home.similar": "O‘xshash mahsulotlar",
     "home.others": "Boshqalar ham ko‘rgan",

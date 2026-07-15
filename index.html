@@ -6,6 +6,7 @@
     <title>BEAUTY SKIN KOREA</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/app-mobile-ui.css" />
+    <link rel="stylesheet" href="/app-uzum-home.css" />
     <link rel="stylesheet" href="/app-cart-ui.css" />
     <link rel="stylesheet" href="/app-profile-ui.css" />
     <link rel="stylesheet" href="/app-checkout-ui.css" />
@@ -124,9 +125,6 @@
       <section class="banners" id="banners" aria-label="Bannerlar"></section>
 
       <section class="section-shell compact app-categories-block" aria-label="Tezkor kategoriyalar" id="quickCategoriesSection">
-        <div class="app-section-head">
-          <h2 data-i18n="home.categories">Bo‘limlar</h2>
-        </div>
         <div class="quick-grid app-category-rail" id="quickCategoryGrid"></div>
       </section>
 
@@ -174,10 +172,12 @@
 
       <section class="section-shell app-main-catalog" id="products">
         <div class="app-section-head">
-          <h2 id="productsTitle" data-i18n="home.recommended">Tavsiyalar</h2>
-          <button class="app-see-all app-icon-refresh" id="refreshHome" type="button" aria-label="Refresh" data-i18n-aria-label="orders.refresh">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
-          </button>
+          <h2 id="productsTitle" data-i18n="home.popular">Mashhur</h2>
+          <div class="app-section-actions">
+            <button class="app-see-all app-icon-refresh" id="refreshHome" type="button" aria-label="Refresh" data-i18n-aria-label="orders.refresh">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+            </button>
+          </div>
         </div>
         <span class="mode-badge" id="productsMode" hidden data-i18n="home.demoMode">Demo mode</span>
 

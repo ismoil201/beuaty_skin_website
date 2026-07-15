@@ -4,6 +4,7 @@ export const productStore = createStore({
   products: [],
   todayDeals: [],
   categories: [],
+  categoryEntities: [],
   banners: [],
   announcements: [],
   recommendedProducts: [],

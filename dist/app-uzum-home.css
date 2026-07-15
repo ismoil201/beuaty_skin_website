@@ -1,0 +1,417 @@
+/* Uzum-inspired marketplace home (BSK brand colors) */
+
+/* Banner — full promotional plane */
+body.app-layout #banners {
+  padding: 12px var(--app-gutter) 8px !important;
+}
+
+body.app-layout .banners {
+  position: relative;
+}
+
+body.app-layout .banner-track {
+  display: flex;
+  gap: 0 !important;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 18px;
+  background: #ececef;
+}
+
+body.app-layout .banner-track::-webkit-scrollbar {
+  display: none;
+}
+
+body.app-layout .banner-card {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  aspect-ratio: 2.2 / 1 !important;
+  border-radius: 18px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  scroll-snap-align: start;
+  box-shadow: none !important;
+  background: #ececef !important;
+}
+
+body.app-layout .banner-card.has-image {
+  padding: 0 !important;
+}
+
+body.app-layout .banner-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+body.app-layout .banner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+body.app-layout .banner-dot {
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: #d0d0d6;
+  padding: 0;
+}
+
+body.app-layout .banner-dot.active {
+  width: 16px;
+  background: #111118;
+}
+
+/* Category chips — Uzum pill row */
+body.app-layout .app-categories-block {
+  padding-top: 6px !important;
+  padding-bottom: 10px !important;
+}
+
+body.app-layout .app-category-rail,
+body.app-layout #quickCategoryGrid {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-x: auto;
+  padding: 2px 0 6px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  grid-template-columns: none !important;
+}
+
+body.app-layout .app-category-rail::-webkit-scrollbar {
+  display: none;
+}
+
+body.app-layout .uzum-cat-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 220px;
+  min-height: 44px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid #ececef;
+  border-radius: 999px;
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 2px rgba(17, 17, 24, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+body.app-layout .uzum-cat-chip:hover {
+  border-color: #f0c4d2;
+  box-shadow: 0 6px 16px rgba(17, 17, 24, 0.06);
+  transform: translateY(-1px);
+}
+
+body.app-layout .uzum-cat-chip.active {
+  border-color: #111118;
+  background: #111118;
+  color: #fff;
+}
+
+body.app-layout .uzum-cat-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(145deg, #fce8ef, #f6d4e0);
+  flex: 0 0 32px;
+}
+
+body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #efe8fc, #ddd0f8); }
+body.app-layout .uzum-cat-chip:nth-child(3) .uzum-cat-icon { background: linear-gradient(145deg, #e8f3fc, #cfe6f8); }
+body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fceef0, #f7d9de); }
+body.app-layout .uzum-cat-chip:nth-child(5) .uzum-cat-icon { background: linear-gradient(145deg, #f3ece6, #e5d5c8); }
+body.app-layout .uzum-cat-chip:nth-child(n+6) .uzum-cat-icon { background: linear-gradient(145deg, #eef0f5, #dfe3ec); }
+
+body.app-layout .uzum-cat-chip.active .uzum-cat-icon {
+  background: #fff;
+}
+
+body.app-layout .uzum-cat-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+body.app-layout .uzum-cat-letter {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7a4558;
+}
+
+body.app-layout .uzum-cat-label {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* Hide legacy quick-card styles if any remain */
+body.app-layout .quick-card {
+  display: none !important;
+}
+
+/* Product cards — marketplace grid item */
+body.app-layout .app-feed-rail .product-card,
+body.app-layout .app-main-catalog .product-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+body.app-layout .app-feed-rail .card-media,
+body.app-layout .app-main-catalog .card-media {
+  position: relative;
+  border-radius: 16px !important;
+  overflow: hidden;
+  background: #fff;
+  aspect-ratio: 1 / 1.05;
+}
+
+body.app-layout .app-feed-rail .product-image,
+body.app-layout .app-main-catalog .product-image {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+  background: #f4f4f7 !important;
+}
+
+body.app-layout .app-feed-rail .badge-row,
+body.app-layout .app-main-catalog .badge-row {
+  top: 8px !important;
+  left: 8px !important;
+  bottom: auto !important;
+  right: auto !important;
+}
+
+body.app-layout .app-feed-rail .badge,
+body.app-layout .app-main-catalog .badge {
+  min-height: 22px !important;
+  padding: 3px 8px !important;
+  border-radius: 8px !important;
+  background: #111118 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+body.app-layout .app-feed-rail .badge.ds-badge--sale,
+body.app-layout .app-main-catalog .badge.ds-badge--sale {
+  background: #111118 !important;
+}
+
+body.app-layout .product-oos-badge {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(17, 17, 24, 0.72);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+body.app-layout .app-feed-rail .product-info,
+body.app-layout .app-main-catalog .product-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 8px 2px 0 !important;
+}
+
+body.app-layout .app-feed-rail .product-info h3,
+body.app-layout .app-main-catalog .product-info h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.5em !important;
+  max-height: 2.6em !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #1a1a1a !important;
+}
+
+body.app-layout .app-feed-rail .rating-line,
+body.app-layout .app-main-catalog .rating-line {
+  display: inline-flex !important;
+  order: 0;
+}
+
+body.app-layout .app-feed-rail .price-row,
+body.app-layout .app-main-catalog .price-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+  width: 100%;
+}
+
+body.app-layout .price-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+body.app-layout .price-current,
+body.app-layout .app-feed-rail .price-row span:first-child,
+body.app-layout .app-main-catalog .price-row .price-current {
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  color: #111118 !important;
+  letter-spacing: -0.02em;
+}
+
+body.app-layout .product-cart-fab {
+  flex: 0 0 36px;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: inline-grid !important;
+  place-items: center;
+  background: #111118 !important;
+  color: #fff !important;
+  border: 0 !important;
+  box-shadow: 0 4px 12px rgba(17, 17, 24, 0.18);
+}
+
+body.app-layout .product-cart-fab svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.app-layout .product-cart-fab:disabled {
+  opacity: 0.35;
+}
+
+body.app-layout .app-feed-rail .card-actions,
+body.app-layout .app-main-catalog .card-actions,
+body.app-layout .app-feed-rail .brand-name,
+body.app-layout .app-main-catalog .brand-name,
+body.app-layout .app-feed-rail .product-meta,
+body.app-layout .app-main-catalog .product-meta {
+  display: none !important;
+}
+
+/* Main Mashhur grid — denser marketplace feed */
+body.app-layout .app-main-catalog .catalog-toolbar,
+body.app-layout .app-main-catalog .filter-sidebar,
+body.app-layout .app-main-catalog .filter-chips-row {
+  display: none !important;
+}
+
+body.app-layout .app-main-catalog .catalog-layout {
+  display: block !important;
+}
+
+body.app-layout .app-main-catalog #productGrid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px 10px !important;
+}
+
+body.app-layout .app-section-head h2 {
+  font-size: 1.25rem !important;
+  font-weight: 750 !important;
+}
+
+body.app-layout .app-section-head h2::after {
+  content: " ›";
+  color: #111118;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  body.app-layout .banner-card {
+    aspect-ratio: 2.6 / 1 !important;
+  }
+
+  body.app-layout .app-main-catalog #productGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 18px 14px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  body.app-layout .banner-card {
+    aspect-ratio: 3 / 1 !important;
+    border-radius: 20px !important;
+  }
+
+  body.app-layout .app-category-rail,
+  body.app-layout #quickCategoryGrid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    gap: 10px !important;
+  }
+
+  body.app-layout .app-main-catalog .catalog-toolbar,
+  body.app-layout .app-main-catalog .filter-sidebar {
+    display: none !important;
+  }
+
+  body.app-layout .app-main-catalog .catalog-layout {
+    display: block !important;
+  }
+
+  body.app-layout .app-main-catalog #productGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 20px 16px !important;
+  }
+
+  body.app-layout .app-rail-grid,
+  body.app-layout .deals-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+  }
+
+  body.app-layout .app-feed-rail .product-card {
+    flex: unset !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  body.app-layout .app-main-catalog #productGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}

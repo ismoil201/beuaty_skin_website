@@ -34,7 +34,7 @@ export default {
   "home.todayDeals": "Предложения дня",
   "home.discounts": "Скидки",
   "home.newArrivals": "Новинки",
-  "home.popular": "Популярные товары",
+  "home.popular": "Популярное",
   "home.recommended": "Рекомендуем вам",
   "home.similar": "Похожие товары",
   "home.others": "Также смотрели",

@@ -1,4 +1,3 @@
-import { CONFIG } from "../../config/config.js";
 import { appStore, productStore } from "../../stores/index.js";
 import { els } from "../../utils/dom.js";
 import { escapeHtml } from "../../utils/html.js";
@@ -9,6 +8,7 @@ import { CatalogService } from "../../services/CatalogService.js";
 import { ProductService } from "../../services/ProductService.js";
 import { syncProductFavorites } from "../../store/favoriteStore.js";
 import { CategoryChipRow } from "../../components/product/CategoryChip.js";
+import { CategoryMarketRail } from "../../components/product/CategoryMarketChip.js";
 import { renderSkeleton, applyAndRenderGrid, syncModeBadges } from "../shared/productGrid.js";
 import { HomePage } from "../home/HomePage.js";
 
@@ -37,12 +37,33 @@ export const CatalogPage = {
   },
 
   renderQuickCategories() {
-    els.quickCategoryGrid.innerHTML = QUICK_CATEGORIES.map((item) => `
-      <button class="quick-card" data-category="${escapeHtml(item.category)}" type="button">
-        <span>${escapeHtml(item.icon)}</span>
-        ${escapeHtml(categoryLabel(item.category))}
-      </button>
-    `).join("");
+    const entities = Array.isArray(productStore.categoryEntities) ? productStore.categoryEntities : [];
+    const fromApi = entities.map((item) => ({
+      category: item.code,
+      label: item.name || categoryLabel(item.code),
+      imageUrl: item.imageUrl || "",
+      icon: item.icon || "",
+    }));
+    const fromQuick = QUICK_CATEGORIES.map((item) => ({
+      category: item.category,
+      label: categoryLabel(item.category),
+      icon: item.icon || "",
+      imageUrl: "",
+    }));
+
+    const seen = new Set();
+    const items = [];
+    for (const item of [...fromApi, ...fromQuick]) {
+      const key = String(item.category);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      items.push(item);
+    }
+
+    els.quickCategoryGrid.innerHTML = CategoryMarketRail({
+      items,
+      selectedCategory: productStore.selectedCategory,
+    });
     CatalogPage.renderMegaMenu();
     CatalogPage.renderPopularSearches();
     CatalogPage.renderMobileNav();
