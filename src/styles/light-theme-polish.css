@@ -406,16 +406,10 @@ label select:focus {
 .header-action svg,
 .cart-button svg,
 .icon-button svg,
-.mobile-bottom-nav svg,
-.assistant-fab svg {
+.mobile-bottom-nav svg {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-}
-
-.assistant-fab svg {
-  width: 22px;
-  height: 22px;
 }
 
 
@@ -430,8 +424,28 @@ label select:focus {
 
 /* ---- AI Assistant polish ---- */
 .assistant-fab {
-  background: linear-gradient(135deg, #e8a0b4 0%, #d4889e 60%, #1a1a2e 170%);
-  box-shadow: 0 14px 34px rgba(212, 136, 158, 0.32);
+  background: #fff;
+  color: var(--ds-text, #111118);
+  box-shadow: 0 14px 34px rgba(212, 136, 158, 0.28);
+}
+
+.assistant-fab-icon,
+.assistant-avatar-img,
+.assistant-header-img,
+.assistant-empty-img {
+  object-fit: cover;
+  max-width: none;
+  height: auto;
+}
+
+.assistant-fab-icon {
+  width: 44px;
+  height: 44px;
+}
+
+.assistant-avatar-img {
+  width: 36px;
+  height: 36px;
 }
 
 .assistant-bubble--user {

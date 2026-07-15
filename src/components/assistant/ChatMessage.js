@@ -5,6 +5,7 @@ import { SuggestionChips } from "./SuggestionChips.js";
 import { ActionButtons } from "./ActionButtons.js";
 import { CitationsBlock } from "./Citations.js";
 import { ChatError } from "./ChatError.js";
+import { assistantIconImg } from "./assistantIcon.js";
 import { t } from "../../i18n/index.js";
 
 export function UserMessage({ message }) {
@@ -41,7 +42,7 @@ export function AssistantMessage({
   return `
     <div class="assistant-msg assistant-msg--assistant" data-message-id="${escapeHtml(message.id)}">
       <div class="assistant-avatar" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 3-2 5.5-4.5 6.5V18h-5v-2.5C7 14.5 5 12 5 9a7 7 0 0 1 7-7Zm-2 18h4v2h-4v-2Z"/></svg>
+        ${assistantIconImg({ className: "assistant-avatar-img" })}
       </div>
       <div class="assistant-msg-body">
         <div class="assistant-bubble assistant-bubble--assistant">

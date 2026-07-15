@@ -8,6 +8,7 @@ import { ChatMessage } from "../../components/assistant/ChatMessage.js";
 import { ChatLoading } from "../../components/assistant/ChatLoading.js";
 import { ChatEmptyState, ChatError } from "../../components/assistant/ChatError.js";
 import { SuggestionChips } from "../../components/assistant/SuggestionChips.js";
+import { assistantIconImg } from "../../components/assistant/assistantIcon.js";
 
 function renderMessages() {
   const messages = assistantStore.messages || [];
@@ -109,7 +110,7 @@ function renderShell({ mode = "widget", draft = "" } = {}) {
       <header class="assistant-header">
         <div class="assistant-header-title">
           <span class="assistant-header-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 3-2 5.5-4.5 6.5V18h-5v-2.5C7 14.5 5 12 5 9a7 7 0 0 1 7-7Zm-2 18h4v2h-4v-2Z"/></svg>
+            ${assistantIconImg({ className: "assistant-header-img" })}
           </span>
           <div>
             <h2>${escapeHtml(t("assistant.title"))}</h2>
