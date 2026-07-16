@@ -348,6 +348,14 @@ label select:focus {
   letter-spacing: -0.02em;
 }
 
+.site-footer-logo {
+  display: block;
+  height: 36px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
 .site-footer-brand p,
 .site-footer-copy {
   margin: 6px 0 0;

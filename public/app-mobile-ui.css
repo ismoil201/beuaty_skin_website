@@ -42,12 +42,17 @@ body.app-layout #homeView > section {
 body.app-layout .mini-bar,
 body.app-layout .category-nav,
 body.app-layout .mobile-menu-toggle,
-body.app-layout .brand,
 body.app-layout .catalog-button,
 body.app-layout #loginButton,
 body.app-layout #favoritesButton,
 body.app-layout .cart-button {
   display: none !important;
+}
+
+body.app-layout .brand {
+  display: flex !important;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 body.app-layout .site-header {
@@ -62,7 +67,7 @@ body.app-layout .site-header {
 
 body.app-layout .topbar {
   display: grid !important;
-  grid-template-columns: 1fr auto !important;
+  grid-template-columns: auto 1fr auto !important;
   gap: 10px !important;
   align-items: center !important;
   padding: 10px 14px 12px !important;
