@@ -4,6 +4,8 @@ import { els } from '../utils/dom.js';
 import { t, applyTranslations, setLanguage, setLanguageChangeHandler } from '../i18n/index.js';
 import { showToast } from '../utils/toast.js';
 import { configureApiClient } from '../api/apiClient.js';
+import { bindProactiveRefreshLifecycle, scheduleProactiveRefresh } from '../utils/tokenRefreshScheduler.js';
+import { getToken } from '../utils/storage.js';
 import { HomeService } from '../services/HomeService.js';
 import { setDeps } from './deps.js';
 import { renderEmpty, syncModeBadges } from '../pages/shared/productGrid.js';
@@ -83,6 +85,11 @@ export async function init() {
     onLoginRequired: () => AuthController.showLoginRequired(),
     showToast: (message, type = "error") => showToast(message, type),
   });
+
+  bindProactiveRefreshLifecycle();
+  if (getToken()) {
+    scheduleProactiveRefresh();
+  }
 
   try {
     bindEvents();

@@ -1,9 +1,15 @@
 import { appStore } from "../stores/appStore.js";
+import { authStore } from "../stores/authStore.js";
 import { getToken } from "../utils/storage.js";
 import { CONFIG } from "../config/config.js";
 import { getViteEnv, isDevMode } from "../config/env.js";
 import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
 import { getXsrfToken } from "../utils/cookies.js";
+import {
+  isAuthenticationFailure,
+  isCsrfFailure,
+} from "../utils/authHttp.js";
+import { scheduleProactiveRefresh, stopProactiveRefresh } from "../utils/tokenRefreshScheduler.js";
 
 let handlers = {
   onUnauthorized: () => {},
@@ -46,6 +52,14 @@ export function buildApiUrl(path, query) {
 function persistAccessToken(token) {
   if (!token) return;
   localStorage.setItem(CONFIG.storageKeys.accessToken, token);
+  authStore.accessToken = token;
+  scheduleProactiveRefresh(token);
+}
+
+function clearPersistedAccessToken() {
+  localStorage.removeItem(CONFIG.storageKeys.accessToken);
+  authStore.accessToken = "";
+  stopProactiveRefresh();
 }
 
 /**
@@ -69,7 +83,26 @@ export async function refreshAccessToken() {
       });
       const text = await response.text();
       const payload = text ? parseResponseBody(text) : null;
-      if (!response.ok) return null;
+      appStore.lastApiStatus = response.status;
+
+      if (isDevMode()) {
+        console.info("[AUTH REFRESH]", {
+          status: response.status,
+          ok: response.ok,
+          hasCsrfHeader: Boolean(xsrf),
+          csrfFailure: isCsrfFailure(payload),
+        });
+      }
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          appStore.lastApiError = "Session expired. Please login again.";
+        } else if (response.status === 403 && isCsrfFailure(payload)) {
+          appStore.lastApiError = "Session expired. Please login again.";
+        }
+        return null;
+      }
+
       const token =
         payload?.accessToken ||
         payload?.token ||
@@ -78,7 +111,10 @@ export async function refreshAccessToken() {
       if (!token) return null;
       persistAccessToken(token);
       return token;
-    } catch {
+    } catch (error) {
+      if (isDevMode()) {
+        console.error("[AUTH REFRESH ERROR]", error);
+      }
       return null;
     } finally {
       refreshInFlight = null;
@@ -88,11 +124,40 @@ export async function refreshAccessToken() {
   return refreshInFlight;
 }
 
-function shouldAttemptRefresh(path, { skipRefresh, silentAuth }) {
+function shouldAttemptRefresh(path, { skipRefresh }) {
   if (skipRefresh) return false;
   if (NO_REFRESH_PATHS.has(path)) return false;
-  // Always try silent refresh on 401 when cookies may exist (including silentAuth profile checks).
   return true;
+}
+
+async function resolveAuthToken({ requireAuth, skipRefresh }) {
+  let token = getToken();
+  if (token || !requireAuth) {
+    return token;
+  }
+
+  if (skipRefresh) {
+    return "";
+  }
+
+  const refreshed = await refreshAccessToken();
+  return refreshed || "";
+}
+
+function handleSessionExpired({ silentAuth }) {
+  if (!silentAuth) {
+    clearPersistedAccessToken();
+    handlers.onUnauthorized();
+    return;
+  }
+  appStore.lastApiError = "Session expired. Please login again.";
+}
+
+async function attemptAuthRecovery(path, options, isRetry) {
+  if (isRetry || !shouldAttemptRefresh(path, options)) {
+    return null;
+  }
+  return refreshAccessToken();
 }
 
 export async function apiFetch(path, options = {}) {
@@ -112,13 +177,22 @@ async function executeFetch(path, options, isRetry) {
     credentials = "include",
     ...fetchOptions
   } = options;
+
+  const token = await resolveAuthToken({ requireAuth, skipRefresh });
+  const hadAuthHeader = Boolean(token);
+
+  if (requireAuth && !token) {
+    appStore.lastApiError = "Please login to continue";
+    handlers.onLoginRequired();
+    return null;
+  }
+
   const url = buildApiUrl(path, query);
   const headers = {
     Accept: "application/json",
     ...(fetchOptions.body ? { "Content-Type": "application/json" } : {}),
     ...(fetchOptions.headers || {}),
   };
-  const token = getToken();
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -127,12 +201,6 @@ async function executeFetch(path, options, isRetry) {
   if (csrf) {
     const xsrf = getXsrfToken();
     if (xsrf) headers["X-XSRF-TOKEN"] = xsrf;
-  }
-
-  if (requireAuth && !token) {
-    appStore.lastApiError = "Please login to continue";
-    handlers.onLoginRequired();
-    return null;
   }
 
   if (isDevMode()) {
@@ -147,6 +215,7 @@ async function executeFetch(path, options, isRetry) {
       mode: env.MODE,
       envBase: env.VITE_API_BASE_URL,
       retry: isRetry,
+      hasAuth: hadAuthHeader,
     });
   }
 
@@ -189,22 +258,22 @@ async function executeFetch(path, options, isRetry) {
       });
     }
 
-    if (response.status === 401) {
-      if (!isRetry && shouldAttemptRefresh(path, { skipRefresh, silentAuth })) {
-        const nextToken = await refreshAccessToken();
-        if (nextToken) {
-          return executeFetch(path, options, true);
-        }
+    const authFailure = isAuthenticationFailure(response.status, payload, { hadAuthHeader });
+
+    if (authFailure) {
+      const nextToken = await attemptAuthRecovery(path, { skipRefresh, silentAuth }, isRetry);
+      if (nextToken) {
+        return executeFetch(path, options, true);
       }
 
-      const message = getApiErrorMessage(payload, response.status);
       appStore.lastApiError = silentAuth
         ? (typeof payload === "object" && (payload?.message || payload?.error)
-          ? message
+          ? getApiErrorMessage(payload, response.status)
           : "Email yoki parol noto‘g‘ri.")
         : "Session expired. Please login again.";
+
       if (!silentAuth) {
-        handlers.onUnauthorized();
+        handleSessionExpired({ silentAuth });
       }
       return null;
     }
@@ -237,3 +306,5 @@ async function executeFetch(path, options, isRetry) {
     if (timeoutId) clearTimeout(timeoutId);
   }
 }
+
+export { clearPersistedAccessToken };

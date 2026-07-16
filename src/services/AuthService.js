@@ -2,6 +2,8 @@ import { CONFIG } from "../config/config.js";
 import { getToken } from "../utils/storage.js";
 import { login, register, loginWithFirebase, logout, logoutAll } from "../api/authApi.js";
 import { refreshAccessToken } from "../api/apiClient.js";
+import { scheduleProactiveRefresh, stopProactiveRefresh, bindProactiveRefreshLifecycle } from "../utils/tokenRefreshScheduler.js";
+import { isAuthenticationFailure } from "../utils/authHttp.js";
 import { getMe } from "../api/userApi.js";
 import { getOrders } from "../api/orderApi.js";
 import { getPageContent } from "../utils/productMapper.js";
@@ -56,6 +58,7 @@ export const AuthService = {
   persistSession({ token, user, role }) {
     if (token) {
       localStorage.setItem(CONFIG.storageKeys.accessToken, token);
+      scheduleProactiveRefresh(token);
     }
     localStorage.setItem(CONFIG.storageKeys.user, JSON.stringify(user || {}));
     localStorage.setItem(CONFIG.storageKeys.role, role || "");
@@ -67,6 +70,7 @@ export const AuthService = {
     localStorage.removeItem(CONFIG.storageKeys.user);
     localStorage.removeItem(CONFIG.storageKeys.legacyUser);
     localStorage.removeItem(CONFIG.storageKeys.role);
+    stopProactiveRefresh();
   },
 
   saveAuth(loginResponse, appState, options = {}) {
@@ -107,8 +111,8 @@ export const AuthService = {
       return { authenticated: true, profile };
     }
 
-    // Only drop the session when the token is explicitly rejected.
-    if (appStore.lastApiStatus === 401) {
+    // Reject session when token is explicitly rejected (401 or auth-related 403).
+    if (isAuthenticationFailure(appStore.lastApiStatus, null, { hadAuthHeader: true })) {
       const refreshed = await refreshAccessToken();
       if (refreshed) {
         const retryProfile = await getMe({ silentAuth: true });

@@ -8,7 +8,8 @@
     "build": "npm run sync:css && vite build",
     "preview": "vite preview",
     "start": "node server.cjs",
-    "sync:css": "node scripts/sync-css.cjs"
+    "sync:css": "node scripts/sync-css.cjs",
+    "test": "node --test tests/authHttp.test.js"
   },
   "devDependencies": {
     "vite": "^6.2.0"
