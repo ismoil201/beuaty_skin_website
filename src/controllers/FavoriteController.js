@@ -10,6 +10,8 @@ import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
 import { lockBody, unlockBodyIfNoOverlay, syncBottomNav, isFavoritesOpen } from "../runtime/navigation.js";
 import { AuthController } from "./AuthController.js";
+import { requireAuth } from "../auth/requireAuth.js";
+import { PENDING_ACTION_TYPES } from "../auth/pendingActionManager.js";
 
 export const FavoriteController = {
   findKnownProduct(productId) {
@@ -19,8 +21,7 @@ export const FavoriteController = {
   },
 
   async open() {
-    if (!AuthController.isLoggedIn()) {
-      AuthController.showLoginRequired();
+    if (!requireAuth({ type: PENDING_ACTION_TYPES.OPEN_FAVORITES })) {
       return;
     }
     if (!els.favoritesDialog) return;
@@ -56,8 +57,10 @@ export const FavoriteController = {
   },
 
   async toggle(productId) {
-    if (!AuthController.isLoggedIn()) {
-      AuthController.showLoginRequired();
+    if (!requireAuth({
+      type: PENDING_ACTION_TYPES.TOGGLE_FAVORITE,
+      productId,
+    })) {
       return;
     }
 

@@ -8,8 +8,9 @@ import { CartPage } from "../pages/cart/CartPage.js";
 import { CartController } from "./CartController.js";
 import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
-import { AuthService } from "../services/AuthService.js";
 import { closeCart, lockBody, showHomeView, unlockBodyIfNoOverlay } from "../runtime/navigation.js";
+import { requireAuth } from "../auth/requireAuth.js";
+import { PENDING_ACTION_TYPES } from "../auth/pendingActionManager.js";
 
 let orderAbortController = null;
 
@@ -23,9 +24,8 @@ export const CheckoutController = {
     orderAbortController = null;
   },
 
-  async prepare({ showLoginRequired } = {}) {
-    if (!AuthService.isLoggedIn()) {
-      showLoginRequired?.();
+  async prepare() {
+    if (!requireAuth({ type: PENDING_ACTION_TYPES.CHECKOUT })) {
       return;
     }
 

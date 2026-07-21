@@ -1,5 +1,4 @@
 import { CartController } from "../controllers/CartController.js";
-import { AuthController } from "../controllers/AuthController.js";
 import { FavoriteController } from "../controllers/FavoriteController.js";
 import { HomePage } from "../pages/home/HomePage.js";
 import { sendProductClick } from "../pages/shared/analytics.js";
@@ -7,9 +6,7 @@ import { navigateToProduct } from "./navigation.js";
 import { toggleCompareProduct } from "./compareUi.js";
 
 function addToCart(productId, variantId, quantity) {
-  return CartController.add(productId, variantId, quantity, {
-    showLoginRequired: () => AuthController.showLoginRequired(),
-  });
+  return CartController.add(productId, variantId, quantity);
 }
 
 export function handleProductCardKeydown(event) {

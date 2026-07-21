@@ -10,6 +10,8 @@ import { t } from "../i18n/index.js";
 import { navigateToProduct } from "../runtime/navigation.js";
 import { AuthService } from "../services/AuthService.js";
 import { AnalyticsService } from "../services/AnalyticsService.js";
+import { requireAuth } from "../auth/requireAuth.js";
+import { PENDING_ACTION_TYPES } from "../auth/pendingActionManager.js";
 
 export const CartController = {
   async load() {
@@ -39,9 +41,13 @@ export const CartController = {
     CartPage.render();
   },
 
-  async add(productId, variantId, quantity, { showLoginRequired } = {}) {
-    if (!AuthService.isLoggedIn()) {
-      showLoginRequired?.();
+  async add(productId, variantId, quantity) {
+    if (!requireAuth({
+      type: PENDING_ACTION_TYPES.ADD_TO_CART,
+      productId,
+      variantId,
+      quantity: Math.max(1, Number(quantity || 1)),
+    })) {
       return;
     }
 
@@ -59,10 +65,15 @@ export const CartController = {
       return;
     }
 
-    cartStore.addingProductIds.add(String(productId));
+    const productKey = String(productId);
+    if (cartStore.addingProductIds.has(productKey)) {
+      return;
+    }
+
+    cartStore.addingProductIds.add(productKey);
     ProductDetailPage.renderAddToCartLoading(true);
     const result = await CartService.addItem(selectedVariantId, safeQuantity);
-    cartStore.addingProductIds.delete(String(productId));
+    cartStore.addingProductIds.delete(productKey);
     ProductDetailPage.renderAddToCartLoading(false);
 
     if (result !== null) {
@@ -72,6 +83,54 @@ export const CartController = {
       showToast(t("cart.added"), "success");
       await CartController.load();
     }
+  },
+
+  /**
+   * Buy now: add to cart then open checkout. Auth required at purchase start.
+   */
+  async buyNow(productId, variantId, quantity) {
+    if (!requireAuth({
+      type: PENDING_ACTION_TYPES.BUY_NOW,
+      productId,
+      variantId,
+      quantity: Math.max(1, Number(quantity || 1)),
+    })) {
+      return;
+    }
+
+    const safeQuantity = Math.max(1, Number(quantity || 1));
+    const resolved = await ProductService.resolveAddToCartVariant(productId, variantId);
+
+    if (resolved.navigateToProduct) {
+      navigateToProduct(resolved.product.id);
+      return;
+    }
+
+    const selectedVariantId = resolved.variantId;
+    if (!selectedVariantId) {
+      showToast(t("product.variantUnavailable"), "warning");
+      return;
+    }
+
+    const productKey = String(productId);
+    if (cartStore.addingProductIds.has(productKey)) {
+      return;
+    }
+
+    cartStore.addingProductIds.add(productKey);
+    ProductDetailPage.renderAddToCartLoading(true);
+    const result = await CartService.addItem(selectedVariantId, safeQuantity);
+    cartStore.addingProductIds.delete(productKey);
+    ProductDetailPage.renderAddToCartLoading(false);
+
+    if (result === null) return;
+
+    AnalyticsService.sendAddToCart(productId);
+    showToast(t("cart.added"), "success");
+    await CartController.load();
+
+    const { CheckoutController } = await import("./CheckoutController.js");
+    await CheckoutController.prepare();
   },
 
   async removeItem(cartItemId) {

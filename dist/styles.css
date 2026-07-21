@@ -7155,13 +7155,20 @@ dialog {
   display: none;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ds-space-4);
+  gap: var(--ds-space-2);
   padding: var(--ds-space-3) var(--ds-space-4);
   padding-bottom: calc(var(--ds-space-3) + env(safe-area-inset-bottom, 0px));
   background: var(--ds-glass-bg);
   backdrop-filter: blur(var(--ds-glass-blur));
   border-top: 1px solid var(--ds-border);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.mobile-buy-bar .secondary-button,
+.mobile-buy-bar .primary-button {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {

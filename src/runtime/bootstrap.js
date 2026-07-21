@@ -65,7 +65,7 @@ function wireDeps() {
       close: () => AssistantController.closeWidget(),
       render: () => AssistantController.render(),
     },
-    checkout: { prepare: () => CheckoutController.prepare({ showLoginRequired: AuthController.showLoginRequired }) },
+    checkout: { prepare: () => CheckoutController.prepare() },
     i18n: { t, setLanguage, applyTranslations: () => applyTranslations(getTranslationContext()) },
     navigation: { unlockBodyIfNoOverlay },
     toast: showToast,

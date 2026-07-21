@@ -71,11 +71,11 @@ export const renderNotifications = (...args) => NotificationsPage.render(...args
 
 export const loadCart = (...args) => CartController.load(...args);
 export const addToCart = (productId, variantId, quantity) =>
-  CartController.add(productId, variantId, quantity, { showLoginRequired: AuthController.showLoginRequired });
+  CartController.add(productId, variantId, quantity);
 export const toggleFavorite = (productId) => FavoriteController.toggle(productId);
 
 export const openAuthDialog = (mode = "login") => AuthController.openDialog(mode);
-export const prepareCheckout = () => CheckoutController.prepare({ showLoginRequired: AuthController.showLoginRequired });
+export const prepareCheckout = () => CheckoutController.prepare();
 export const placeOrder = () => CheckoutController.openConfirm();
 
 export const loadProductDetailPage = (productId) => ProductController.loadDetailPage(productId);

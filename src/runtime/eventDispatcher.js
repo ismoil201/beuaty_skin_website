@@ -27,6 +27,7 @@ import { FavoriteController } from '../controllers/FavoriteController.js';
 import { NotificationController } from '../controllers/NotificationController.js';
 import { SearchController } from '../controllers/SearchController.js';
 import { AssistantController } from '../controllers/AssistantController.js';
+import { cancelPendingAuth, resetLoginModalGate } from '../auth/requireAuth.js';
 import { CartPage } from '../pages/cart/CartPage.js';
 import { CheckoutPage } from '../pages/checkout/CheckoutPage.js';
 import { ProductDetailPage } from '../pages/product/ProductDetailPage.js';
@@ -60,11 +61,11 @@ import { handleProductCardKeydown, handleProductGridClick } from './productGridH
 export { handleProductGridClick };
 
 function addToCart(productId, variantId, quantity) {
-  return CartController.add(productId, variantId, quantity, { showLoginRequired: () => AuthController.showLoginRequired() });
+  return CartController.add(productId, variantId, quantity);
 }
 
 function prepareCheckout() {
-  return CheckoutController.prepare({ showLoginRequired: () => AuthController.showLoginRequired() });
+  return CheckoutController.prepare();
 }
 
 /* ================= EVENT BINDING ================= */
@@ -208,7 +209,15 @@ export function bindEvents() {
     }
   });
   els.detailDialog.addEventListener("close", unlockBodyIfNoOverlay);
-  els.authDialog.addEventListener("close", unlockBodyIfNoOverlay);
+  els.authDialog.addEventListener("close", () => {
+    // User dismissed login without authenticating — drop queued intent.
+    if (!AuthController.isLoggedIn()) {
+      cancelPendingAuth();
+    } else {
+      resetLoginModalGate();
+    }
+    unlockBodyIfNoOverlay();
+  });
   els.apiDialog.addEventListener("close", unlockBodyIfNoOverlay);
   els.checkoutDialog.addEventListener("close", () => {
     CheckoutController.abortOrder();
@@ -276,6 +285,7 @@ function handleDetailClick(event) {
   const variant = event.target.closest("[data-variant]");
   const qty = event.target.closest("[data-qty]");
   const add = event.target.closest("[data-detail-add]");
+  const buyNow = event.target.closest("[data-detail-buy]");
   const favorite = event.target.closest("[data-detail-favorite]");
   const compare = event.target.closest("[data-compare]");
   const reviewsRetry = event.target.closest("[data-reviews-retry]");
@@ -384,6 +394,18 @@ function handleDetailClick(event) {
     const quantityInput = document.getElementById("quantityInput");
     productStore.selectedQuantity = Math.max(1, Number(quantityInput?.value || productStore.selectedQuantity));
     addToCart(productStore.selectedDetailProduct.id, productStore.selectedVariantId, productStore.selectedQuantity);
+    return true;
+  }
+
+  if (buyNow) {
+    event.stopPropagation();
+    const quantityInput = document.getElementById("quantityInput");
+    productStore.selectedQuantity = Math.max(1, Number(quantityInput?.value || productStore.selectedQuantity));
+    CartController.buyNow(
+      productStore.selectedDetailProduct.id,
+      productStore.selectedVariantId,
+      productStore.selectedQuantity,
+    );
     return true;
   }
 

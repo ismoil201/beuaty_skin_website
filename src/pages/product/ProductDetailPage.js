@@ -155,6 +155,7 @@ export const ProductDetailPage = {
           </div>
           <div class="pdp-actions">
             <button class="primary-button full" data-detail-add type="button">${escapeHtml(t("product.addToCartFull"))}</button>
+            <button class="secondary-button full" data-detail-buy type="button">${escapeHtml(t("product.buyNow"))}</button>
           </div>
           <div class="delivery-info">
             <span>${escapeHtml(t("product.secure"))}</span>
@@ -186,6 +187,7 @@ export const ProductDetailPage = {
       ${pageMode ? `
         <div class="mobile-buy-bar">
           <strong>${formatPrice(currentPrice)}</strong>
+          <button class="secondary-button" data-detail-buy type="button">${escapeHtml(t("product.buyNow"))}</button>
           <button class="primary-button" data-detail-add type="button">${escapeHtml(t("product.addToCart"))}</button>
         </div>
       ` : ""}
@@ -397,11 +399,16 @@ export const ProductDetailPage = {
   },
 
   renderAddToCartLoading() {
-    const detailButtons = document.querySelectorAll("[data-detail-add]");
-    detailButtons.forEach((detailButton) => {
-      const loading = cartStore.addingProductIds.has(String(productStore.selectedDetailProduct?.id));
+    const loading = cartStore.addingProductIds.has(String(productStore.selectedDetailProduct?.id));
+    document.querySelectorAll("[data-detail-add]").forEach((detailButton) => {
       detailButton.disabled = loading;
-      detailButton.textContent = loading ? t("product.adding") : (detailButton.closest(".mobile-buy-bar") ? t("product.addToCart") : t("product.addToCartFull"));
+      detailButton.textContent = loading
+        ? t("product.adding")
+        : (detailButton.closest(".mobile-buy-bar") ? t("product.addToCart") : t("product.addToCartFull"));
+    });
+    document.querySelectorAll("[data-detail-buy]").forEach((buyButton) => {
+      buyButton.disabled = loading;
+      buyButton.textContent = loading ? t("product.adding") : t("product.buyNow");
     });
     if (productStore.products.length) {
       renderProductList(els.grid, productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });

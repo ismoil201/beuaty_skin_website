@@ -11,6 +11,9 @@ import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
 import { lockBody } from "../runtime/navigation.js";
 import { deps } from "../runtime/deps.js";
+import { configureRequireAuth, resetLoginModalGate, cancelPendingAuth } from "../auth/requireAuth.js";
+import { executePendingAction } from "../auth/executePendingAction.js";
+import { hasPendingAction } from "../auth/pendingActionManager.js";
 
 export const AuthController = {
   isLoggedIn() {
@@ -22,6 +25,7 @@ export const AuthController = {
   },
 
   clearAuth() {
+    cancelPendingAuth();
     AuthService.clearAuthState(authStore, productStore);
     clearCartState();
     deps.cart?.render?.();
@@ -38,9 +42,19 @@ export const AuthController = {
     AuthController.clearAuth();
   },
 
-  showLoginRequired() {
+  /**
+   * Open login modal once (deduped). Used by requireAuth for protected actions.
+   */
+  showLoginRequired({ toast = true } = {}) {
+    if (els.authDialog?.open) {
+      return;
+    }
     AuthController.openDialog("login");
-    showToast(t("auth.loginRequired"), "warning");
+    if (toast && !hasPendingAction()) {
+      showToast(t("auth.loginRequired"), "warning");
+    } else if (toast && hasPendingAction()) {
+      showToast(t("auth.loginToContinue"), "warning");
+    }
   },
 
   async validateOnStartup() {
@@ -97,7 +111,9 @@ export const AuthController = {
   openDialog(mode = "login") {
     AuthController.setMode(mode);
     AuthController.clearErrors();
-    els.authDialog.showModal();
+    if (!els.authDialog.open) {
+      els.authDialog.showModal();
+    }
     lockBody();
   },
 
@@ -234,7 +250,10 @@ export const AuthController = {
     // Persist documented login contract: accessToken + role (+ expiresIn ignored locally).
     AuthController.saveAuth(response, { email });
     AuthController.updateUi();
-    els.authDialog.close();
+    resetLoginModalGate();
+    if (els.authDialog?.open) {
+      els.authDialog.close();
+    }
 
     const profile = await getMe({ silentAuth: true, showError: false });
     if (profile) {
@@ -243,17 +262,28 @@ export const AuthController = {
       AuthController.updateUi();
     }
 
+    const hadPending = hasPendingAction();
     const first =
       String(authStore.user?.fullName || "").trim().split(/\s+/)[0] ||
       String(authStore.user?.email || email || "").split("@")[0] ||
       "User";
-    showToast(`Welcome, ${first}.`);
+    if (!hadPending) {
+      showToast(`Welcome, ${first}.`);
+    }
 
     await Promise.allSettled([
       deps.cart?.load?.(),
       deps.favorites?.load?.(),
       deps.notifications?.loadUnreadCount?.(),
     ]);
+
+    // Resume the action that triggered login (add to cart, favorite, checkout, …).
+    await executePendingAction();
+
     AuthController.preloadProfileData();
   },
 };
+
+configureRequireAuth({
+  openLogin: () => AuthController.showLoginRequired({ toast: true }),
+});

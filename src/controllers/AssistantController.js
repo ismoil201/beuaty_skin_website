@@ -10,7 +10,6 @@ import {
 } from "../utils/assistantHelpers.js";
 import { AssistantPage } from "../pages/assistant/AssistantPage.js";
 import { CatalogPage } from "../pages/catalog/CatalogPage.js";
-import { AuthController } from "./AuthController.js";
 import { CartController } from "./CartController.js";
 import { FavoriteController } from "./FavoriteController.js";
 import {
@@ -212,9 +211,7 @@ export const AssistantController = {
     }
     if (normalized === SUPPORTED_ASSISTANT_ACTIONS.add_to_cart) {
       if (!productId || productId === "undefined" || productId === "null") return;
-      await CartController.add(productId, variantId || undefined, 1, {
-        showLoginRequired: AuthController.showLoginRequired,
-      });
+      await CartController.add(productId, variantId || undefined, 1);
       return;
     }
     if (normalized === SUPPORTED_ASSISTANT_ACTIONS.open_cart) {
@@ -292,9 +289,7 @@ export const AssistantController = {
 
     const addBtn = target.closest("[data-add]");
     if (addBtn) {
-      await CartController.add(addBtn.dataset.add, undefined, 1, {
-        showLoginRequired: AuthController.showLoginRequired,
-      });
+      await CartController.add(addBtn.dataset.add, undefined, 1);
       return;
     }
 

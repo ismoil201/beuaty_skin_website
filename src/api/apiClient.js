@@ -183,7 +183,10 @@ async function executeFetch(path, options, isRetry) {
 
   if (requireAuth && !token) {
     appStore.lastApiError = "Please login to continue";
-    handlers.onLoginRequired();
+    // silentAuth: browse/hydrate paths must not open the login modal.
+    if (!silentAuth) {
+      handlers.onLoginRequired();
+    }
     return null;
   }
 

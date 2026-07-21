@@ -9,11 +9,11 @@ export const getProductsByCategory = (category, query) =>
 export const searchProducts = (q, query) =>
   apiFetch("/api/products/search", { query: { q, ...query }, showError: false });
 export const getTodayDeals = () => apiFetch("/api/products/today-deals", { showError: false });
+/** Public batch hydrate — guests use this for recently viewed / recommendations. */
 export const getProductsByIds = (ids) =>
   apiFetch("/api/products/by-ids", {
     method: "POST",
     body: JSON.stringify(ids),
-    requireAuth: true,
     showError: false,
     silentAuth: true,
   });

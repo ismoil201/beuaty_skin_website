@@ -2,17 +2,11 @@ import { CONFIG } from '../config/config.js';
 import { appStore } from '../stores/index.js';
 import { els } from '../utils/dom.js';
 import { normalizeSavedBaseUrl } from '../config/apiBase.js';
-import { AuthService } from '../services/AuthService.js';
 import { showToast } from '../utils/toast.js';
 import { t } from '../i18n/index.js';
 import { CartController } from '../controllers/CartController.js';
 import { HomePage } from '../pages/home/HomePage.js';
-import { AuthController } from '../controllers/AuthController.js';
 import { handleRoute } from './router.js';
-
-function showLoginRequired() {
-  AuthController.showLoginRequired();
-}
 
 export function showBrandView() {
   appStore.currentRoute = "brand";
@@ -97,10 +91,7 @@ export function navigateToProduct(productId) {
 }
 
 export function openCart() {
-  if (!AuthService.isLoggedIn()) {
-    showLoginRequired();
-    return;
-  }
+  // Guests may open the cart (empty state). Auth is required only for add/checkout.
   els.cartDrawer.classList.add("open");
   els.cartDrawer.setAttribute("aria-hidden", "false");
   lockBody();
