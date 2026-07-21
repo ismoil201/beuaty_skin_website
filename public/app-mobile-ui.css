@@ -701,13 +701,13 @@ body.app-layout .load-row .secondary-button {
   font-weight: 600;
 }
 
-/* Bottom navigation */
+/* Bottom navigation — always above shell drawers (cart/favorites/profile = 55) */
 body.app-layout .mobile-bottom-nav {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 80;
+  z-index: 90;
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
@@ -719,6 +719,7 @@ body.app-layout .mobile-bottom-nav {
   background: var(--app-pink, #fdf2f4);
   backdrop-filter: blur(14px);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  pointer-events: auto;
 }
 
 /* Assistant chat must sit above the bottom nav; hide nav while open */

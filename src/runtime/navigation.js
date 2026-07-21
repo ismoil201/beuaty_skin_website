@@ -7,6 +7,7 @@ import { t } from '../i18n/index.js';
 import { CartController } from '../controllers/CartController.js';
 import { HomePage } from '../pages/home/HomePage.js';
 import { handleRoute } from './router.js';
+import { closeOtherShellTabs } from './shellTabs.js';
 
 export function showBrandView() {
   appStore.currentRoute = "brand";
@@ -92,6 +93,7 @@ export function navigateToProduct(productId) {
 
 export function openCart() {
   // Guests may open the cart (empty state). Auth is required only for add/checkout.
+  closeOtherShellTabs({ except: "cart" });
   els.cartDrawer.classList.add("open");
   els.cartDrawer.setAttribute("aria-hidden", "false");
   lockBody();

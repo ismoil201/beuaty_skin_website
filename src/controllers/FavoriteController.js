@@ -9,6 +9,7 @@ import { favoritePop } from "../utils/motion.js";
 import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
 import { lockBody, unlockBodyIfNoOverlay, syncBottomNav, isFavoritesOpen } from "../runtime/navigation.js";
+import { closeOtherShellTabs } from "../runtime/shellTabs.js";
 import { AuthController } from "./AuthController.js";
 import { requireAuth } from "../auth/requireAuth.js";
 import { PENDING_ACTION_TYPES } from "../auth/pendingActionManager.js";
@@ -22,6 +23,7 @@ export const FavoriteController = {
 
   async open() {
     if (!els.favoritesDialog) return;
+    closeOtherShellTabs({ except: "favorites" });
     els.favoritesDialog.classList.add("open");
     els.favoritesDialog.setAttribute("aria-hidden", "false");
     lockBody();

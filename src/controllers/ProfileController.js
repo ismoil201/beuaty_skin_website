@@ -6,6 +6,7 @@ import { ProfilePage } from "../pages/profile/ProfilePage.js";
 import { OrdersPage } from "../pages/orders/OrdersPage.js";
 import { showToast } from "../utils/toast.js";
 import { lockBody, unlockBodyIfNoOverlay, syncBottomNav } from "../runtime/navigation.js";
+import { closeOtherShellTabs } from "../runtime/shellTabs.js";
 import { AuthController } from "./AuthController.js";
 import { deps } from "../runtime/deps.js";
 import { HomeService } from "../services/HomeService.js";
@@ -14,6 +15,7 @@ export const ProfileController = {
   async open() {
     authStore.profileEditing = false;
     authStore.profileMenuOpen = false;
+    closeOtherShellTabs({ except: "profile" });
     els.profileDrawer.classList.add("open");
     els.profileDrawer.setAttribute("aria-hidden", "false");
     lockBody();

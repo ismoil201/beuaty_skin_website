@@ -23,14 +23,10 @@ import { CartService } from '../services/CartService.js';
 import {
   lockBody,
   unlockBodyIfNoOverlay,
-  showHomeView,
-  syncBottomNav,
-  closeCart,
   navigateToProduct,
 } from './navigation.js';
+import { switchMobileTab } from './bottomNav.js';
 import { CartPage } from '../pages/cart/CartPage.js';
-import { FavoriteController } from '../controllers/FavoriteController.js';
-import { ProfileController } from '../controllers/ProfileController.js';
 import { SearchController } from '../controllers/SearchController.js';
 import { handleProductGridClick } from './productGridHandlers.js';
 import {
@@ -88,32 +84,11 @@ export function initPremiumUi() {
   document.querySelector(".mobile-bottom-nav")?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-mobile-action]");
     if (!button) return;
+    event.preventDefault();
     const action = button.dataset.mobileAction;
-
-    if (action === "home") {
-      if (els.cartDrawer?.classList.contains("open")) closeCart();
-      if (els.favoritesDialog?.classList.contains("open")) FavoriteController.close();
-      if (els.profileDrawer?.classList.contains("open")) ProfileController.close();
-      if (window.location.hash && window.location.hash !== "#/" && window.location.hash !== "#") {
-        window.location.hash = "#/";
-      } else {
-        showHomeView();
-      }
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      syncBottomNav();
-      return;
-    }
-
-    if (action === "favoritesButton") {
-      void FavoriteController.open()
-        .then(() => syncBottomNav())
-        .catch((error) => {
-          console.error("[FAVORITES OPEN FAILED]", error);
-        });
-      return;
-    }
-
-    document.getElementById(action)?.click();
+    void switchMobileTab(action).catch((error) => {
+      console.error("[BOTTOM NAV FAILED]", action, error);
+    });
   });
 
   const mobileDrawer = document.getElementById("mobileDrawer");
@@ -149,13 +124,9 @@ export function initPremiumUi() {
     }
     if (action) {
       closeMobileMenu();
-      if (action.dataset.mobileAction === "favoritesButton") {
-        void FavoriteController.open().catch((error) => {
-          console.error("[FAVORITES OPEN FAILED]", error);
-        });
-        return;
-      }
-      document.getElementById(action.dataset.mobileAction)?.click();
+      void switchMobileTab(action.dataset.mobileAction).catch((error) => {
+        console.error("[BOTTOM NAV FAILED]", action.dataset.mobileAction, error);
+      });
     }
   });
 

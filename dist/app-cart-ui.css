@@ -3,6 +3,7 @@
 body.app-layout #cartDrawer {
   justify-content: center;
   background: var(--app-bg, #f8f8f8);
+  z-index: 55;
 }
 
 body.app-layout #cartDrawer.open {

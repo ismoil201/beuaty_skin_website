@@ -5,6 +5,7 @@ import { NotificationsPage } from "../pages/notifications/NotificationsPage.js";
 import { OrdersPage } from "../pages/orders/OrdersPage.js";
 import { showToast } from "../utils/toast.js";
 import { lockBody, unlockBodyIfNoOverlay } from "../runtime/navigation.js";
+import { closeOtherShellTabs } from "../runtime/shellTabs.js";
 import { AuthController } from "./AuthController.js";
 import { deps } from "../runtime/deps.js";
 
@@ -25,6 +26,7 @@ export const NotificationController = {
       AuthController.showLoginRequired();
       return;
     }
+    closeOtherShellTabs({ except: "notifications" });
     els.notificationsDrawer.classList.add("open");
     els.notificationsDrawer.setAttribute("aria-hidden", "false");
     lockBody();
