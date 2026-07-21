@@ -11,7 +11,7 @@ import { showToast } from "../utils/toast.js";
 import { t } from "../i18n/index.js";
 import { lockBody } from "../runtime/navigation.js";
 import { deps } from "../runtime/deps.js";
-import { configureRequireAuth, resetLoginModalGate, cancelPendingAuth } from "../auth/requireAuth.js";
+import { configureRequireAuth, resetLoginModalGate, cancelPendingAuth, markLoginModalOpen } from "../auth/requireAuth.js";
 import { executePendingAction } from "../auth/executePendingAction.js";
 import { hasPendingAction } from "../auth/pendingActionManager.js";
 
@@ -24,8 +24,10 @@ export const AuthController = {
     AuthService.saveAuth(loginResponse, authStore, options);
   },
 
-  clearAuth() {
-    cancelPendingAuth();
+  clearAuth({ preservePending = false } = {}) {
+    if (!preservePending) {
+      cancelPendingAuth();
+    }
     AuthService.clearAuthState(authStore, productStore);
     clearCartState();
     deps.cart?.render?.();
@@ -46,6 +48,7 @@ export const AuthController = {
    * Open login modal once (deduped). Used by requireAuth for protected actions.
    */
   showLoginRequired({ toast = true } = {}) {
+    markLoginModalOpen();
     if (els.authDialog?.open) {
       return;
     }

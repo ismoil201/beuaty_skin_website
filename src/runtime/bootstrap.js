@@ -78,9 +78,9 @@ export async function init() {
 
   configureApiClient({
     onUnauthorized: () => {
-      AuthController.clearAuth();
-      AuthController.openDialog("login");
-      showToast(t("auth.sessionExpired"));
+      // Silent cleanup only — browsing must never force the login modal.
+      // Preserve pending action so a later promptLogin can still retry.
+      AuthController.clearAuth({ preservePending: true });
     },
     onLoginRequired: () => AuthController.showLoginRequired(),
     showToast: (message, type = "error") => showToast(message, type),

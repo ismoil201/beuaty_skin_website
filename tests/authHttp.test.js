@@ -10,17 +10,31 @@ test("401 is authentication failure", () => {
   assert.equal(isAuthenticationFailure(401, {}, { hadAuthHeader: false }), true);
 });
 
-test("legacy 403 Forbidden with bearer is authentication failure", () => {
+test("legacy Spring Forbidden with bearer is authentication failure", () => {
   assert.equal(
     isAuthenticationFailure(403, { error: "Forbidden" }, { hadAuthHeader: true }),
     true,
   );
 });
 
-test("403 without bearer is not treated as authentication failure", () => {
+test("ACCESS_DENIED is not treated as authentication failure", () => {
   assert.equal(
-    isAuthenticationFailure(403, { code: "ACCESS_DENIED" }, { hadAuthHeader: false }),
+    isAuthenticationFailure(403, { code: "ACCESS_DENIED" }, { hadAuthHeader: true }),
     false,
+  );
+});
+
+test("403 without bearer is not authentication failure", () => {
+  assert.equal(
+    isAuthenticationFailure(403, { error: "Forbidden" }, { hadAuthHeader: false }),
+    false,
+  );
+});
+
+test("UNAUTHORIZED code is authentication failure", () => {
+  assert.equal(
+    isAuthenticationFailure(403, { code: "UNAUTHORIZED" }, { hadAuthHeader: false }),
+    true,
   );
 });
 

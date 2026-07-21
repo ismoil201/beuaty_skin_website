@@ -1,7 +1,12 @@
 import { apiFetch } from "./apiClient.js";
 
 export const getMe = (options = {}) =>
-  apiFetch("/api/users/me", { requireAuth: true, showError: false, ...options });
+  apiFetch("/api/users/me", {
+    requireAuth: true,
+    showError: false,
+    silentAuth: true,
+    ...options,
+  });
 
 export const updateMe = (body, options = {}) =>
   apiFetch("/api/users/me", {

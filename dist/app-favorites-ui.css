@@ -252,22 +252,27 @@ body.app-layout #favoritesContent {
 
 .app-favorites-state-icon {
   margin-bottom: 20px;
-  color: #ff3b64;
+  width: 112px;
+  height: 112px;
+  border-radius: 28px;
+  background: #0a0a0a;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  color: #ff3b64;
 }
 
 .app-favorites-state-icon svg {
-  width: 96px;
-  height: 96px;
+  width: 72px;
+  height: 72px;
   fill: currentColor;
 }
 
 .app-favorites-heart-img {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 

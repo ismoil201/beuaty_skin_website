@@ -12,7 +12,9 @@ import {
 import { scheduleProactiveRefresh, stopProactiveRefresh } from "../utils/tokenRefreshScheduler.js";
 
 let handlers = {
+  /** Silent session cleanup only — never opens login during browse. */
   onUnauthorized: () => {},
+  /** Explicit login prompt (requireAuth / intentional protected action). */
   onLoginRequired: () => {},
   showToast: () => {},
 };
@@ -144,13 +146,16 @@ async function resolveAuthToken({ requireAuth, skipRefresh }) {
   return refreshed || "";
 }
 
-function handleSessionExpired({ silentAuth }) {
-  if (!silentAuth) {
-    clearPersistedAccessToken();
-    handlers.onUnauthorized();
-    return;
+function handleSessionExpired({ silentAuth, promptLogin }) {
+  clearPersistedAccessToken();
+  handlers.onUnauthorized();
+
+  // Browse / background calls must never open the login modal.
+  if (silentAuth) return;
+
+  if (promptLogin) {
+    handlers.onLoginRequired();
   }
-  appStore.lastApiError = "Session expired. Please login again.";
 }
 
 async function attemptAuthRecovery(path, options, isRetry) {
@@ -171,6 +176,8 @@ async function executeFetch(path, options, isRetry) {
     requireAuth = false,
     silentAuth = false,
     skipRefresh = false,
+    /** When true, open login after failed refresh (user-initiated protected action). */
+    promptLogin = false,
     csrf = false,
     timeoutMs = 0,
     signal: externalSignal,
@@ -183,8 +190,8 @@ async function executeFetch(path, options, isRetry) {
 
   if (requireAuth && !token) {
     appStore.lastApiError = "Please login to continue";
-    // silentAuth: browse/hydrate paths must not open the login modal.
-    if (!silentAuth) {
+    // Never auto-prompt during silent/browse paths.
+    if (!silentAuth && promptLogin) {
       handlers.onLoginRequired();
     }
     return null;
@@ -272,12 +279,12 @@ async function executeFetch(path, options, isRetry) {
       appStore.lastApiError = silentAuth
         ? (typeof payload === "object" && (payload?.message || payload?.error)
           ? getApiErrorMessage(payload, response.status)
-          : "Email yoki parol noto‘g‘ri.")
+          : "Session expired")
         : "Session expired. Please login again.";
 
-      if (!silentAuth) {
-        handleSessionExpired({ silentAuth });
-      }
+      // Always clear stale session; only prompt login for explicit user actions.
+      const shouldPrompt = promptLogin || (!silentAuth && requireAuth);
+      handleSessionExpired({ silentAuth, promptLogin: shouldPrompt });
       return null;
     }
 

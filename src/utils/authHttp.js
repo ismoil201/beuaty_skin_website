@@ -10,8 +10,10 @@ export function isCsrfFailure(payload) {
 }
 
 /**
- * True when the response indicates missing/invalid/expired credentials
- * (not a genuine permission denial for an authenticated user).
+ * True when the response indicates missing/invalid/expired credentials.
+ *
+ * Must NOT treat every 403 as auth failure — that opened the login modal
+ * during anonymous browsing when a stale Bearer token was present.
  */
 export function isAuthenticationFailure(status, payload, { hadAuthHeader = false } = {}) {
   if (status === 401) return true;
@@ -19,15 +21,22 @@ export function isAuthenticationFailure(status, payload, { hadAuthHeader = false
 
   const code = String(payload?.code || "").toUpperCase();
   if (code === "UNAUTHORIZED") return true;
-  if (code === "ACCESS_DENIED") return hadAuthHeader;
+  // Genuine permission denial for an authenticated principal — not a login prompt.
+  if (code === "ACCESS_DENIED") return false;
 
   const message = String(payload?.message || payload?.error || "").toLowerCase();
   if (message.includes("authentication required")) return true;
   if (message.includes("session expired")) return true;
   if (message.includes("invalid token")) return true;
-  if (message.includes("forbidden") && hadAuthHeader) return true;
+  if (message.includes("jwt expired") || message.includes("token expired")) return true;
 
-  return hadAuthHeader;
+  // Legacy Spring default body for expired/invalid JWT on protected routes:
+  // { status: 403, error: "Forbidden" } — only when a Bearer token was sent.
+  if (hadAuthHeader && (message === "forbidden" || message === "access denied")) {
+    return true;
+  }
+
+  return false;
 }
 
 export function shouldLogoutAfterRefreshFailure(status, payload) {

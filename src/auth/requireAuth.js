@@ -20,6 +20,10 @@ export function resetLoginModalGate() {
   loginRequestOpen = false;
 }
 
+export function markLoginModalOpen() {
+  loginRequestOpen = true;
+}
+
 /**
  * Lazy auth gate.
  * @param {object|null} pendingAction - stored if login is required
