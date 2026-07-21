@@ -33,11 +33,6 @@ export async function executePendingAction() {
         await FavoriteController.toggle(action.productId);
         break;
       }
-      case PENDING_ACTION_TYPES.OPEN_FAVORITES: {
-        const { FavoriteController } = await import("../controllers/FavoriteController.js");
-        await FavoriteController.open();
-        break;
-      }
       case PENDING_ACTION_TYPES.CHECKOUT: {
         const { CheckoutController } = await import("../controllers/CheckoutController.js");
         await CheckoutController.prepare();

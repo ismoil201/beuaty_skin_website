@@ -1,7 +1,7 @@
 import { productStore, favoriteStore } from "../stores/index.js";
 import { els } from "../utils/dom.js";
 import { FavoriteService } from "../services/FavoriteService.js";
-import { syncProductFavorites } from "../store/favoriteStore.js";
+import { syncProductFavorites, clearFavoritesState } from "../store/favoriteStore.js";
 import { FavoritesPage } from "../pages/favorites/FavoritesPage.js";
 import { ProductDetailPage } from "../pages/product/ProductDetailPage.js";
 import { renderProductList } from "../pages/shared/productGrid.js";
@@ -21,14 +21,21 @@ export const FavoriteController = {
   },
 
   async open() {
-    if (!requireAuth({ type: PENDING_ACTION_TYPES.OPEN_FAVORITES })) {
-      return;
-    }
     if (!els.favoritesDialog) return;
     els.favoritesDialog.classList.add("open");
     els.favoritesDialog.setAttribute("aria-hidden", "false");
     lockBody();
     syncBottomNav();
+
+    // Guests see empty state immediately — login only when liking a product.
+    if (!AuthController.isLoggedIn()) {
+      clearFavoritesState();
+      favoriteStore.favoritesLoading = false;
+      favoriteStore.favoritesError = "";
+      FavoritesPage.render();
+      return;
+    }
+
     favoriteStore.favoritesLoading = true;
     favoriteStore.favoritesError = "";
     FavoritesPage.render();

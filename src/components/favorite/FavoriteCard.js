@@ -44,8 +44,13 @@ export function FavoriteCard({ product, categoryLabel = "", favoritesTitle = "Fa
 
 export function FavoritesHeartIcon() {
   return `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 21s-8.5-5.2-11-9.6C-.4 8 1 3.5 5.2 3.5c2.4 0 4 1.3 4.8 2.6.8-1.3 2.4-2.6 4.8-2.6C19 3.5 20.4 8 18 11.4 15.5 15.8 12 21 12 21Z"/>
-    </svg>
+    <img
+      class="app-favorites-heart-img"
+      src="/images/favorites-heart.png"
+      alt=""
+      width="96"
+      height="96"
+      decoding="async"
+    />
   `;
 }

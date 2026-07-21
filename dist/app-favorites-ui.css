@@ -253,12 +253,22 @@ body.app-layout #favoritesContent {
 .app-favorites-state-icon {
   margin-bottom: 20px;
   color: #ff3b64;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-favorites-state-icon svg {
   width: 96px;
   height: 96px;
   fill: currentColor;
+}
+
+.app-favorites-heart-img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  display: block;
 }
 
 .app-favorites-state h3 {
