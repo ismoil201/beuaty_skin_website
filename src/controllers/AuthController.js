@@ -283,6 +283,12 @@ export const AuthController = {
     // Resume the action that triggered login (add to cart, favorite, checkout, …).
     await executePendingAction();
 
+    // Guest profile → authenticated profile (if drawer still open).
+    if (els.profileDrawer?.classList.contains("open")) {
+      const { ProfileController } = await import("./ProfileController.js");
+      await ProfileController.loadSnapshot();
+    }
+
     AuthController.preloadProfileData();
   },
 };

@@ -110,8 +110,7 @@ export function bindEvents() {
   els.cartButton.addEventListener("click", openCart);
   els.closeCart.addEventListener("click", closeCart);
   els.loginButton.addEventListener("click", () => {
-    if (AuthController.isLoggedIn()) ProfileController.open();
-    else AuthController.openDialog("login");
+    ProfileController.open();
   });
   els.favoritesButton?.addEventListener("click", () => FavoriteController.open());
   els.notificationsButton.addEventListener("click", () => NotificationController.open());

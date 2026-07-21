@@ -38,6 +38,43 @@ export async function executePendingAction() {
         await CheckoutController.prepare();
         break;
       }
+      case PENDING_ACTION_TYPES.OPEN_PROFILE: {
+        const { ProfileController } = await import("../controllers/ProfileController.js");
+        await ProfileController.open();
+        break;
+      }
+      case PENDING_ACTION_TYPES.PROFILE_ORDERS: {
+        const { ProfileController } = await import("../controllers/ProfileController.js");
+        const { OrderController } = await import("../controllers/OrderController.js");
+        await ProfileController.open();
+        ProfileController.close();
+        await OrderController.show();
+        break;
+      }
+      case PENDING_ACTION_TYPES.PROFILE_NOTIFICATIONS: {
+        const { ProfileController } = await import("../controllers/ProfileController.js");
+        const { NotificationController } = await import("../controllers/NotificationController.js");
+        await ProfileController.open();
+        ProfileController.close();
+        await NotificationController.open();
+        break;
+      }
+      case PENDING_ACTION_TYPES.PROFILE_REVIEWS: {
+        const { ProfileController } = await import("../controllers/ProfileController.js");
+        await ProfileController.open();
+        ProfileController.close();
+        const { deps } = await import("../runtime/deps.js");
+        await deps.reviews?.open?.();
+        break;
+      }
+      case PENDING_ACTION_TYPES.PROFILE_PROMOTIONS: {
+        const { ProfileController } = await import("../controllers/ProfileController.js");
+        await ProfileController.open();
+        const { showToast } = await import("../utils/toast.js");
+        const { t } = await import("../i18n/index.js");
+        showToast(t("profile.comingSoon"), "info");
+        break;
+      }
       default:
         break;
     }

@@ -1,5 +1,5 @@
 import { CONFIG } from "../config/config.js";
-import { appStore, authStore } from "../stores/index.js";
+import { appStore, authStore, productStore } from "../stores/index.js";
 import { els } from "../utils/dom.js";
 import { ProfileService } from "../services/ProfileService.js";
 import { ProfilePage } from "../pages/profile/ProfilePage.js";
@@ -8,19 +8,31 @@ import { showToast } from "../utils/toast.js";
 import { lockBody, unlockBodyIfNoOverlay, syncBottomNav } from "../runtime/navigation.js";
 import { AuthController } from "./AuthController.js";
 import { deps } from "../runtime/deps.js";
+import { HomeService } from "../services/HomeService.js";
 
 export const ProfileController = {
   async open() {
-    if (!AuthController.isLoggedIn()) {
-      AuthController.showLoginRequired();
-      return;
-    }
     authStore.profileEditing = false;
     authStore.profileMenuOpen = false;
     els.profileDrawer.classList.add("open");
     els.profileDrawer.setAttribute("aria-hidden", "false");
     lockBody();
     syncBottomNav();
+
+    // Guests see the marketing profile shell — login only on protected actions.
+    if (!AuthController.isLoggedIn()) {
+      authStore.profileLoading = false;
+      // Local recently-viewed is public.
+      if (!productStore.recentlyViewed?.length) {
+        const ids = HomeService.getRecentProductIds?.() || [];
+        if (ids.length) {
+          productStore.recentlyViewed = await HomeService.loadRecentlyViewed();
+        }
+      }
+      ProfilePage.render();
+      return;
+    }
+
     ProfilePage.render();
     await ProfileController.loadSnapshot();
   },
@@ -44,6 +56,9 @@ export const ProfileController = {
 
   async handleAction(event) {
     return ProfilePage.handleAction(event, {
+      isLoggedIn: AuthController.isLoggedIn,
+      openLogin: () => AuthController.openDialog("login"),
+      openRegister: () => AuthController.openDialog("register"),
       closeProfile: ProfileController.close,
       showOrders: deps.orders?.show,
       openOrderDetail: OrdersPage.openDetail,
