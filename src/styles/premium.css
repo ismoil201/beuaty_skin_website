@@ -1,10 +1,10 @@
 /* =====================================================================
-   BEAUTY SKIN KOREA — Premium UI Layer
+   BEAUTY SKIN KOREA ??Premium UI Layer
    Header, search, product cards, cart, checkout polish
    ===================================================================== */
 
 /* ------------------------------------------------------------------ */
-/* Header — glass, sticky, hide on scroll down                        */
+/* Header ??glass, sticky, hide on scroll down                        */
 /* ------------------------------------------------------------------ */
 .site-header {
   position: sticky;
@@ -32,7 +32,7 @@
   min-height: var(--ds-mini-bar-height);
   padding: 0 max(var(--ds-space-4), calc((100vw - var(--ds-container)) / 2));
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   font-size: 13px;
   font-weight: 500;
 }
@@ -55,7 +55,7 @@
 }
 
 .mini-link:hover {
-  color: #1f2026;
+  color: #111118;
 }
 
 .mini-bar .language-picker select,
@@ -243,14 +243,14 @@
   border-left: 1px solid #e8eaef;
   border-radius: 0;
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   cursor: pointer;
   transition: background var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 
 .search-button:hover {
   background: #e8eaef;
-  color: #1f2026;
+  color: #111118;
   transform: none;
 }
 
@@ -440,7 +440,7 @@
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
   color: var(--ds-text);
 }
 
@@ -471,7 +471,7 @@
 }
 
 .cart-button strong {
-  background: #7000ff;
+  background: #e8a0b4;
 }
 
 /* Category nav */
@@ -841,7 +841,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Banners — premium hero                                              */
+/* Banners ??premium hero                                              */
 /* ------------------------------------------------------------------ */
 .banners {
   max-width: var(--ds-container);
@@ -882,7 +882,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Product detail — luxury layout                                      */
+/* Product detail ??luxury layout                                      */
 /* ------------------------------------------------------------------ */
 .detail-layout {
   display: grid;

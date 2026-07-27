@@ -1,14 +1,14 @@
-/* Mobile app UI — BEAUTY SKIN KOREA */
+/* Mobile app UI ??BEAUTY SKIN KOREA */
 :root {
-  --app-bg: #f4f5f7;
+  --app-bg: #faf8f9;
   --app-surface: #ffffff;
-  --app-text: #1f2026;
+  --app-text: #111118;
   --app-muted: #8b8e99;
-  --app-border: #e0e2e8;
-  --app-pink: #f0e5ff;
-  --app-pink-strong: #e0d0ff;
-  --app-accent: #7000ff;
-  --app-accent-soft: #f5f0ff;
+  --app-border: #ebe6ea;
+  --app-pink: #fdf2f6;
+  --app-pink-strong: #f3d5df;
+  --app-accent: #e8a0b4;
+  --app-accent-soft: #fce8ef;
   --app-sale: #ff3b5c;
   --app-radius: 16px;
   --app-radius-sm: 12px;
@@ -38,7 +38,7 @@ body.app-layout #homeView > section {
   box-sizing: border-box;
 }
 
-/* Header — app style */
+/* Header ??app style */
 body.app-layout .mini-bar,
 body.app-layout .category-nav,
 body.app-layout .mobile-menu-toggle,
@@ -701,7 +701,7 @@ body.app-layout .load-row .secondary-button {
   font-weight: 600;
 }
 
-/* Bottom navigation — always above shell drawers (cart/favorites/profile = 55) */
+/* Bottom navigation ??always above shell drawers (cart/favorites/profile = 55) */
 body.app-layout .mobile-bottom-nav {
   position: fixed;
   left: 0;
@@ -828,7 +828,7 @@ body.app-layout {
     padding-inline: max(var(--app-gutter), calc((100vw - var(--app-shell)) / 2));
     box-sizing: border-box;
     background: #f2f4f7 !important;
-    color: #5f6270 !important;
+    color: #5c5c6e !important;
   }
 
   body.app-layout .mini-bar-left,
@@ -844,8 +844,8 @@ body.app-layout {
   }
 
   body.app-layout .catalog-button {
-    background: #f0e5ff !important;
-    color: #7000ff !important;
+    background: #fdf2f6 !important;
+    color: #e8a0b4 !important;
     border-radius: 12px !important;
     min-height: 44px !important;
   }
@@ -879,7 +879,7 @@ body.app-layout {
     border-radius: 0 !important;
     border-left: 1px solid #e8eaef !important;
     background: #f2f4f7 !important;
-    color: #5f6270 !important;
+    color: #5c5c6e !important;
   }
 
   body.app-layout .search::before {

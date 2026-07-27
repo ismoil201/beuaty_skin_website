@@ -1,58 +1,57 @@
 /* =====================================================================
    BEAUTY SKIN KOREA — Unified Light Theme Tokens
-   Uzum Market–inspired purple marketplace palette
+   Soft pink marketplace palette (Uzum layout + brand pink)
    ===================================================================== */
 :root {
   color-scheme: light;
 
   /* Brand */
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --accent: #7000ff;
-  --accent-soft: #f5f0ff;
-  --accent-yellow: #ffcc00;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --accent: #1a1a2e;
+  --accent-soft: #f3f1f5;
 
   /* Surfaces */
-  --bg: #f4f5f7;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --surface-hover: #f7f7f9;
+  --surface-hover: #f7f4f6;
 
   /* Text */
-  --text: #1f2026;
-  --muted: #5f6270;
+  --text: #111118;
+  --muted: #5c5c6e;
 
   /* Borders & feedback */
-  --border: #e0e2e8;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --success: #0d9f6e;
   --warning: #d97706;
 
   /* Elevation */
-  --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
   --radius: 12px;
   --container: 1400px;
 
   /* Design-system aliases kept in sync */
-  --ds-primary: #7000ff;
-  --ds-primary-hover: #5a00cc;
-  --ds-primary-soft: #f0e5ff;
-  --ds-primary-muted: #e0d0ff;
-  --ds-accent: #7000ff;
-  --ds-accent-soft: #f5f0ff;
-  --ds-bg: #f4f5f7;
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
+  --ds-bg: #faf8f9;
   --ds-bg-elevated: #ffffff;
   --ds-surface: #ffffff;
-  --ds-surface-hover: #f7f7f9;
-  --ds-surface-active: #efeff3;
-  --ds-overlay: rgba(31, 32, 38, 0.42);
-  --ds-text: #1f2026;
-  --ds-text-secondary: #5f6270;
-  --ds-text-muted: #8b8e99;
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
   --ds-text-inverse: #ffffff;
-  --ds-border: #e0e2e8;
-  --ds-border-strong: #c9ccd4;
-  --ds-border-focus: #7000ff;
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: #d4889e;
   --ds-success: #0d9f6e;
   --ds-success-soft: #eaf8f2;
   --ds-danger: #e53e3e;
@@ -61,12 +60,12 @@
   --ds-warning-soft: #fffbeb;
   --ds-info: #3b82f6;
   --ds-info-soft: #eff6ff;
-  --ds-shadow-xs: 0 1px 2px rgba(31, 32, 38, 0.04);
-  --ds-shadow-sm: 0 2px 10px rgba(31, 32, 38, 0.05);
-  --ds-shadow-md: 0 12px 36px rgba(31, 32, 38, 0.08);
-  --ds-shadow-lg: 0 20px 52px rgba(31, 32, 38, 0.1);
-  --ds-shadow-xl: 0 28px 64px rgba(31, 32, 38, 0.12);
-  --ds-shadow-glow: 0 0 0 3px rgba(112, 0, 255, 0.22);
+  --ds-shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
+  --ds-shadow-sm: 0 2px 10px rgba(17, 17, 24, 0.05);
+  --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
+  --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
   --ds-glass-bg: rgba(255, 255, 255, 0.92);
   --ds-glass-border: rgba(255, 255, 255, 0.7);
   --ds-radius-sm: 8px;

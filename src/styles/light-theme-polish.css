@@ -124,7 +124,7 @@ select:focus:not(:focus-visible) {
 }
 
 .product-card:hover {
-  border-color: rgba(112, 0, 255, 0.35);
+  border-color: rgba(232, 160, 180, 0.55);
   box-shadow: var(--ds-shadow-md);
   transform: translateY(-2px);
 }

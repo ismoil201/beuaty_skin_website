@@ -12,33 +12,32 @@
 :root {
   color-scheme: light;
 
-  /* Brand — Uzum Market purple */
-  --ds-primary: #7000ff;
-  --ds-primary-hover: #5a00cc;
-  --ds-primary-soft: #f0e5ff;
-  --ds-primary-muted: #e0d0ff;
-  --ds-accent: #7000ff;
-  --ds-accent-soft: #f5f0ff;
-  --ds-accent-yellow: #ffcc00;
+  /* Brand — soft pink + charcoal */
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
 
   /* Surfaces */
-  --ds-bg: #f4f5f7;
+  --ds-bg: #faf8f9;
   --ds-bg-elevated: #ffffff;
   --ds-surface: #ffffff;
-  --ds-surface-hover: #f7f7f9;
-  --ds-surface-active: #efeff3;
-  --ds-overlay: rgba(31, 32, 38, 0.42);
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
 
   /* Text */
-  --ds-text: #1f2026;
-  --ds-text-secondary: #5f6270;
-  --ds-text-muted: #8b8e99;
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
   --ds-text-inverse: #ffffff;
 
   /* Borders */
-  --ds-border: #e0e2e8;
-  --ds-border-strong: #c9ccd4;
-  --ds-border-focus: var(--ds-primary);
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: var(--ds-primary-hover);
 
   /* Semantic */
   --ds-success: #0d9f6e;
@@ -95,7 +94,7 @@
   --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
   --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
   --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
-  --ds-shadow-glow: 0 0 0 3px rgba(112, 0, 255, 0.22);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
 
   /* Motion */
   --ds-duration-fast: 160ms;
@@ -565,14 +564,14 @@ dialog::backdrop {
 /* ===== marketplace.css ===== */
 :root {
   color-scheme: light;
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
   --accent: #ffcc00;
-  --bg: #f4f5f7;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --success: #0d9f6e;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -594,8 +593,8 @@ dialog::backdrop {
   max-width: none;
   min-height: 30px;
   padding: 0 max(16px, calc((100vw - var(--container)) / 2));
-  background: #f4f5f7;
-  color: #5f6270;
+  background: #faf8f9;
+  color: #5c5c6e;
   font-size: 12px;
 }
 
@@ -624,7 +623,7 @@ dialog::backdrop {
   min-height: 40px;
   border: 0;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 800;
@@ -658,7 +657,7 @@ dialog::backdrop {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .category-nav {
@@ -1156,16 +1155,16 @@ dialog {
   }
 }
 
-/* Uzum purple tokens — aligned with production light tokens */
+/* Uzum purple tokens ??aligned with production light tokens */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -1173,7 +1172,7 @@ dialog {
 
 body {
   background:
-    linear-gradient(180deg, rgba(240, 229, 255, 0.45), rgba(244, 245, 247, 0) 280px),
+    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }
@@ -2027,16 +2026,16 @@ dialog {
   }
 }
 
-/* Marketplace polish tokens — keep in sync with design-system / variables */
+/* Marketplace polish tokens ??keep in sync with design-system / variables */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --accent: #7000ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --accent: #e8a0b4;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --radius: 12px;
@@ -2056,7 +2055,7 @@ body {
 .mini-bar {
   min-height: 30px;
   padding: 0 24px;
-  background: #f4f5f7;
+  background: #faf8f9;
   font-size: 12px;
 }
 
@@ -2087,7 +2086,7 @@ body {
 .catalog-button {
   min-height: 40px;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 750;
@@ -2124,7 +2123,7 @@ body {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .header-action strong,
@@ -2322,7 +2321,7 @@ body {
 }
 
 .section-head h2::after {
-  content: " ›";
+  content: " ??;
   color: var(--muted);
   font-weight: 800;
 }
@@ -2709,7 +2708,7 @@ main > section {
 
 .catalog-button {
   border-color: transparent;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 800;
 }
@@ -2760,7 +2759,7 @@ main > section {
 .header-action:hover,
 .catalog-button:hover,
 .chip:hover {
-  background: #f4efff;
+  background: #fdf2f6;
 }
 
 .cart-button {
@@ -3129,7 +3128,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .status {
@@ -3409,7 +3408,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .catalog-item:hover,
 .catalog-item.active {
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
 }
 
@@ -3524,7 +3523,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 900;
 }
@@ -3692,7 +3691,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .selectable-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .checkout-empty,
@@ -4049,7 +4048,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .order-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .order-card h3 {
@@ -4141,7 +4140,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   margin-top: 4px;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 0 0 4px #f0e9ff;
+  box-shadow: 0 0 0 4px #fdf2f6;
 }
 
 .orders-empty {
@@ -4356,7 +4355,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary);
   display: grid;
   place-items: center;
@@ -4514,7 +4513,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
 .variant-option.active {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 850;
 }
@@ -5005,16 +5004,16 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 }
 
-/* Final token lock — Uzum Market purple palette */
+/* Final token lock ??Uzum Market purple palette */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -5022,7 +5021,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
 body {
   background:
-    linear-gradient(180deg, rgba(240, 229, 255, 0.4), rgba(244, 245, 247, 0) 280px),
+    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }
@@ -5657,59 +5656,58 @@ dialog {
 /* ===== variables.css ===== */
 /* =====================================================================
    BEAUTY SKIN KOREA — Unified Light Theme Tokens
-   Uzum Market–inspired purple marketplace palette
+   Soft pink marketplace palette (Uzum layout + brand pink)
    ===================================================================== */
 :root {
   color-scheme: light;
 
   /* Brand */
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --accent: #7000ff;
-  --accent-soft: #f5f0ff;
-  --accent-yellow: #ffcc00;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --accent: #1a1a2e;
+  --accent-soft: #f3f1f5;
 
   /* Surfaces */
-  --bg: #f4f5f7;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --surface-hover: #f7f7f9;
+  --surface-hover: #f7f4f6;
 
   /* Text */
-  --text: #1f2026;
-  --muted: #5f6270;
+  --text: #111118;
+  --muted: #5c5c6e;
 
   /* Borders & feedback */
-  --border: #e0e2e8;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --success: #0d9f6e;
   --warning: #d97706;
 
   /* Elevation */
-  --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
+  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
   --radius: 12px;
   --container: 1400px;
 
   /* Design-system aliases kept in sync */
-  --ds-primary: #7000ff;
-  --ds-primary-hover: #5a00cc;
-  --ds-primary-soft: #f0e5ff;
-  --ds-primary-muted: #e0d0ff;
-  --ds-accent: #7000ff;
-  --ds-accent-soft: #f5f0ff;
-  --ds-bg: #f4f5f7;
+  --ds-primary: #e8a0b4;
+  --ds-primary-hover: #d4889e;
+  --ds-primary-soft: #fdf2f6;
+  --ds-primary-muted: #f3d5df;
+  --ds-accent: #1a1a2e;
+  --ds-accent-soft: #f3f1f5;
+  --ds-bg: #faf8f9;
   --ds-bg-elevated: #ffffff;
   --ds-surface: #ffffff;
-  --ds-surface-hover: #f7f7f9;
-  --ds-surface-active: #efeff3;
-  --ds-overlay: rgba(31, 32, 38, 0.42);
-  --ds-text: #1f2026;
-  --ds-text-secondary: #5f6270;
-  --ds-text-muted: #8b8e99;
+  --ds-surface-hover: #f7f4f6;
+  --ds-surface-active: #f0ecef;
+  --ds-overlay: rgba(17, 17, 24, 0.42);
+  --ds-text: #111118;
+  --ds-text-secondary: #5c5c6e;
+  --ds-text-muted: #8a8796;
   --ds-text-inverse: #ffffff;
-  --ds-border: #e0e2e8;
-  --ds-border-strong: #c9ccd4;
-  --ds-border-focus: #7000ff;
+  --ds-border: #ebe6ea;
+  --ds-border-strong: #d9d2d7;
+  --ds-border-focus: #d4889e;
   --ds-success: #0d9f6e;
   --ds-success-soft: #eaf8f2;
   --ds-danger: #e53e3e;
@@ -5718,12 +5716,12 @@ dialog {
   --ds-warning-soft: #fffbeb;
   --ds-info: #3b82f6;
   --ds-info-soft: #eff6ff;
-  --ds-shadow-xs: 0 1px 2px rgba(31, 32, 38, 0.04);
-  --ds-shadow-sm: 0 2px 10px rgba(31, 32, 38, 0.05);
-  --ds-shadow-md: 0 12px 36px rgba(31, 32, 38, 0.08);
-  --ds-shadow-lg: 0 20px 52px rgba(31, 32, 38, 0.1);
-  --ds-shadow-xl: 0 28px 64px rgba(31, 32, 38, 0.12);
-  --ds-shadow-glow: 0 0 0 3px rgba(112, 0, 255, 0.22);
+  --ds-shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
+  --ds-shadow-sm: 0 2px 10px rgba(17, 17, 24, 0.05);
+  --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
+  --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
+  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
   --ds-glass-bg: rgba(255, 255, 255, 0.92);
   --ds-glass-border: rgba(255, 255, 255, 0.7);
   --ds-radius-sm: 8px;
@@ -6185,12 +6183,12 @@ dialog {
 
 /* ===== premium.css ===== */
 /* =====================================================================
-   BEAUTY SKIN KOREA — Premium UI Layer
+   BEAUTY SKIN KOREA ??Premium UI Layer
    Header, search, product cards, cart, checkout polish
    ===================================================================== */
 
 /* ------------------------------------------------------------------ */
-/* Header — glass, sticky, hide on scroll down                        */
+/* Header ??glass, sticky, hide on scroll down                        */
 /* ------------------------------------------------------------------ */
 .site-header {
   position: sticky;
@@ -6218,7 +6216,7 @@ dialog {
   min-height: var(--ds-mini-bar-height);
   padding: 0 max(var(--ds-space-4), calc((100vw - var(--ds-container)) / 2));
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   font-size: 13px;
   font-weight: 500;
 }
@@ -6241,7 +6239,7 @@ dialog {
 }
 
 .mini-link:hover {
-  color: #1f2026;
+  color: #111118;
 }
 
 .mini-bar .language-picker select,
@@ -6429,14 +6427,14 @@ dialog {
   border-left: 1px solid #e8eaef;
   border-radius: 0;
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   cursor: pointer;
   transition: background var(--ds-duration-fast), color var(--ds-duration-fast);
 }
 
 .search-button:hover {
   background: #e8eaef;
-  color: #1f2026;
+  color: #111118;
   transform: none;
 }
 
@@ -6626,7 +6624,7 @@ dialog {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
   color: var(--ds-text);
 }
 
@@ -6657,7 +6655,7 @@ dialog {
 }
 
 .cart-button strong {
-  background: #7000ff;
+  background: #e8a0b4;
 }
 
 /* Category nav */
@@ -7027,7 +7025,7 @@ dialog {
 }
 
 /* ------------------------------------------------------------------ */
-/* Banners — premium hero                                              */
+/* Banners ??premium hero                                              */
 /* ------------------------------------------------------------------ */
 .banners {
   max-width: var(--ds-container);
@@ -7068,7 +7066,7 @@ dialog {
 }
 
 /* ------------------------------------------------------------------ */
-/* Product detail — luxury layout                                      */
+/* Product detail ??luxury layout                                      */
 /* ------------------------------------------------------------------ */
 .detail-layout {
   display: grid;
@@ -10648,7 +10646,7 @@ select:focus:not(:focus-visible) {
 }
 
 .product-card:hover {
-  border-color: rgba(112, 0, 255, 0.35);
+  border-color: rgba(232, 160, 180, 0.55);
   box-shadow: var(--ds-shadow-md);
   transform: translateY(-2px);
 }
@@ -11050,7 +11048,7 @@ body {
 
 /* ===== header.css ===== */
 /* =====================================================================
-   Header — Uzum Market layout (official uzum.uz look)
+   Header ??Uzum Market layout (official uzum.uz look)
    Loaded last so these rules win over older theme layers.
    ===================================================================== */
 
@@ -11082,7 +11080,7 @@ body {
   margin: 0;
   padding: 0 max(16px, calc((100vw - var(--ds-container, 1400px)) / 2));
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.2;
@@ -11110,7 +11108,7 @@ body {
   gap: 6px;
   border: 0;
   background: transparent;
-  color: #1f2026;
+  color: #111118;
   font: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -11129,8 +11127,8 @@ body {
 
 .location-picker .location-pin {
   stroke: none;
-  fill: #7000ff;
-  color: #7000ff;
+  fill: #e8a0b4;
+  color: #e8a0b4;
 }
 
 .location-picker .location-chevron {
@@ -11142,7 +11140,7 @@ body {
 .mini-link {
   border: 0;
   background: transparent;
-  color: #5f6270;
+  color: #5c5c6e;
   font: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -11154,17 +11152,17 @@ body {
 }
 
 .mini-link:hover {
-  color: #1f2026;
+  color: #111118;
   opacity: 1;
 }
 
 .mini-link--accent {
-  color: #7000ff;
+  color: #e8a0b4;
   font-weight: 600;
 }
 
 .mini-link--accent:hover {
-  color: #5a00cc;
+  color: #d4889e;
 }
 
 .mini-divider {
@@ -11185,7 +11183,7 @@ body {
 .mini-bar .currency-picker select {
   border: 0;
   background: transparent;
-  color: #5f6270;
+  color: #5c5c6e;
   font-size: 13px;
   font-weight: 500;
   padding: 2px 4px;
@@ -11195,7 +11193,7 @@ body {
 
 .mini-bar .language-picker select:hover,
 .mini-bar .currency-picker select:hover {
-  color: #1f2026;
+  color: #111118;
 }
 
 /* ---- Main header row ---- */
@@ -11216,7 +11214,7 @@ body {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #7000ff;
+  color: #e8a0b4;
   flex-shrink: 0;
 }
 
@@ -11240,8 +11238,8 @@ body {
   padding: 0 16px;
   border: 0;
   border-radius: 12px;
-  background: #f0e5ff;
-  color: #7000ff;
+  background: #fdf2f6;
+  color: #e8a0b4;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
@@ -11250,8 +11248,8 @@ body {
 
 .catalog-button:hover,
 .catalog-button[aria-expanded="true"] {
-  background: #e4d4ff;
-  color: #5a00cc;
+  background: #f3d5df;
+  color: #d4889e;
 }
 
 .catalog-button svg {
@@ -11281,8 +11279,8 @@ body {
 }
 
 .search:focus-within {
-  border-color: #7000ff;
-  box-shadow: 0 0 0 3px rgba(112, 0, 255, 0.12);
+  border-color: #e8a0b4;
+  box-shadow: 0 0 0 3px rgba(232, 160, 180, 0.22);
   background: #fff;
 }
 
@@ -11297,7 +11295,7 @@ body {
   background: transparent !important;
   padding: 0 16px;
   font-size: 15px;
-  color: #1f2026;
+  color: #111118;
   outline: none;
   box-shadow: none !important;
 }
@@ -11338,7 +11336,7 @@ body {
 .search-voice:hover,
 .search-image:hover {
   background: #f7f7f9;
-  color: #1f2026;
+  color: #111118;
 }
 
 .search-button {
@@ -11352,7 +11350,7 @@ body {
   border-left: 1px solid #e8eaef;
   border-radius: 0;
   background: #f2f4f7;
-  color: #5f6270;
+  color: #5c5c6e;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
   transform: none;
@@ -11360,7 +11358,7 @@ body {
 
 .search-button:hover {
   background: #e8eaef;
-  color: #1f2026;
+  color: #111118;
   transform: none;
 }
 
@@ -11394,7 +11392,7 @@ body {
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #1f2026;
+  color: #111118;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -11403,8 +11401,8 @@ body {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
-  color: #1f2026;
+  background: #fdf2f6;
+  color: #111118;
 }
 
 .header-action svg,
@@ -11426,7 +11424,7 @@ body {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #7000ff;
+  background: #e8a0b4;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -11451,18 +11449,18 @@ body {
 }
 
 .chip.active {
-  color: #7000ff;
+  color: #e8a0b4;
 }
 
 /* Primary CTAs use Uzum purple */
 .primary-button {
-  background: #7000ff;
+  background: #e8a0b4;
   color: #fff;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #5a00cc;
-  box-shadow: 0 2px 10px rgba(112, 0, 255, 0.25);
+  background: #d4889e;
+  box-shadow: 0 2px 10px rgba(232, 160, 180, 0.28);
 }
 
 @media (max-width: 1023px) {

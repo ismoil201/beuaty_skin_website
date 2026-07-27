@@ -1,13 +1,13 @@
 :root {
   color-scheme: light;
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
   --accent: #ffcc00;
-  --bg: #f4f5f7;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --success: #0d9f6e;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -29,8 +29,8 @@
   max-width: none;
   min-height: 30px;
   padding: 0 max(16px, calc((100vw - var(--container)) / 2));
-  background: #f4f5f7;
-  color: #5f6270;
+  background: #faf8f9;
+  color: #5c5c6e;
   font-size: 12px;
 }
 
@@ -59,7 +59,7 @@
   min-height: 40px;
   border: 0;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 800;
@@ -93,7 +93,7 @@
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .category-nav {
@@ -591,16 +591,16 @@ dialog {
   }
 }
 
-/* Uzum purple tokens — aligned with production light tokens */
+/* Uzum purple tokens ??aligned with production light tokens */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -608,7 +608,7 @@ dialog {
 
 body {
   background:
-    linear-gradient(180deg, rgba(240, 229, 255, 0.45), rgba(244, 245, 247, 0) 280px),
+    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }
@@ -1462,16 +1462,16 @@ dialog {
   }
 }
 
-/* Marketplace polish tokens — keep in sync with design-system / variables */
+/* Marketplace polish tokens ??keep in sync with design-system / variables */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --accent: #7000ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --accent: #e8a0b4;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --radius: 12px;
@@ -1491,7 +1491,7 @@ body {
 .mini-bar {
   min-height: 30px;
   padding: 0 24px;
-  background: #f4f5f7;
+  background: #faf8f9;
   font-size: 12px;
 }
 
@@ -1522,7 +1522,7 @@ body {
 .catalog-button {
   min-height: 40px;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 750;
@@ -1559,7 +1559,7 @@ body {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .header-action strong,
@@ -1757,7 +1757,7 @@ body {
 }
 
 .section-head h2::after {
-  content: " ›";
+  content: " ??;
   color: var(--muted);
   font-weight: 800;
 }
@@ -2144,7 +2144,7 @@ main > section {
 
 .catalog-button {
   border-color: transparent;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 800;
 }
@@ -2195,7 +2195,7 @@ main > section {
 .header-action:hover,
 .catalog-button:hover,
 .chip:hover {
-  background: #f4efff;
+  background: #fdf2f6;
 }
 
 .cart-button {
@@ -2564,7 +2564,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .status {
@@ -2844,7 +2844,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .catalog-item:hover,
 .catalog-item.active {
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
 }
 
@@ -2959,7 +2959,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 900;
 }
@@ -3127,7 +3127,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .selectable-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .checkout-empty,
@@ -3484,7 +3484,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .order-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .order-card h3 {
@@ -3576,7 +3576,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   margin-top: 4px;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 0 0 4px #f0e9ff;
+  box-shadow: 0 0 0 4px #fdf2f6;
 }
 
 .orders-empty {
@@ -3791,7 +3791,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary);
   display: grid;
   place-items: center;
@@ -3949,7 +3949,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
 .variant-option.active {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 850;
 }
@@ -4440,16 +4440,16 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 }
 
-/* Final token lock — Uzum Market purple palette */
+/* Final token lock ??Uzum Market purple palette */
 :root {
-  --primary: #7000ff;
-  --primary-dark: #5a00cc;
-  --primary-soft: #f0e5ff;
-  --bg: #f4f5f7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
+  --primary-soft: #fdf2f6;
+  --bg: #faf8f9;
   --surface: #ffffff;
-  --text: #1f2026;
-  --muted: #5f6270;
-  --border: #e0e2e8;
+  --text: #111118;
+  --muted: #5c5c6e;
+  --border: #ebe6ea;
   --danger: #e53e3e;
   --warning: #d97706;
   --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
@@ -4457,7 +4457,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
 body {
   background:
-    linear-gradient(180deg, rgba(240, 229, 255, 0.4), rgba(244, 245, 247, 0) 280px),
+    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }
