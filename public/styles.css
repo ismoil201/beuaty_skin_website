@@ -10927,54 +10927,39 @@ label select:focus {
 .site-footer-stores {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
-.store-badge {
+.store-icon-link,
+.social-icon-link {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-width: 148px;
-  min-height: 44px;
-  padding: 8px 14px;
-  border: 1px solid #d8d8de;
-  border-radius: 10px;
-  background: #111118;
-  color: #fff;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: transparent;
   text-decoration: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
-.store-badge:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+.store-icon-link img,
+.social-icon-link img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
-.store-badge svg {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
+.store-icon-link:hover,
+.social-icon-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(17, 17, 24, 0.12);
 }
 
-.store-badge span {
-  display: grid;
-  line-height: 1.1;
-}
-
-.store-badge small {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  opacity: 0.85;
-  text-transform: uppercase;
-}
-
-.store-badge strong {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.store-badge--disabled {
+.store-icon-link--disabled {
   opacity: 0.55;
   pointer-events: none;
   cursor: not-allowed;
@@ -10983,36 +10968,7 @@ label select:focus {
 .site-footer-social {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-}
-
-.social-btn {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: #fff;
-  text-decoration: none;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.social-btn:hover {
-  transform: translateY(-2px);
-  opacity: 0.92;
-}
-
-.social-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.social-btn--instagram {
-  background: linear-gradient(135deg, #f58529, #dd2a7b 45%, #8134af);
-}
-
-.social-btn--telegram {
-  background: #2aabee;
+  gap: 12px;
 }
 
 .site-footer-bottom {
