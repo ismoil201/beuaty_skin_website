@@ -728,7 +728,7 @@ main {
   border: 0;
   border-radius: 16px;
   padding: 24px 30px;
-  background: linear-gradient(135deg, #f2e8ff, #fff 55%, #ffe54c);
+  background: linear-gradient(135deg, #fce8ef, #fff 55%, #ffe54c);
   box-shadow: 0 8px 26px rgba(31, 32, 38, 0.08);
 }
 
@@ -826,7 +826,7 @@ main {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #f1e7ff;
+  background: #fce8ef;
   color: var(--primary);
   font-size: 14px;
 }
@@ -1155,7 +1155,7 @@ dialog {
   }
 }
 
-/* Uzum purple tokens ??aligned with production light tokens */
+/* brand pink tokens ??aligned with production light tokens */
 :root {
   --primary: #e8a0b4;
   --primary-dark: #d4889e;
@@ -2192,7 +2192,7 @@ body {
   border: 0;
   border-radius: 16px;
   padding: 24px 30px;
-  background: linear-gradient(135deg, #f2e8ff, #fff 55%, #ffe54c);
+  background: linear-gradient(135deg, #fce8ef, #fff 55%, #ffe54c);
   box-shadow: 0 8px 26px rgba(31, 32, 38, 0.08);
 }
 
@@ -2299,7 +2299,7 @@ body {
 .quick-card span {
   width: 32px;
   height: 32px;
-  background: #f4f0ff;
+  background: #fdf2f6;
   color: var(--primary);
 }
 
@@ -2840,7 +2840,7 @@ main > section {
   border-radius: 18px;
   background:
     radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.75), transparent 34%),
-    linear-gradient(135deg, #7d3cff, #b66cff 58%, #ffd861);
+    linear-gradient(135deg, #e8a0b4, #f3a9b9 58%, #ffd861);
   color: white;
   overflow: hidden;
 }
@@ -3455,7 +3455,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   width: 34px;
   height: 32px;
   border: 0;
-  background: #f7f4ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 900;
 }
@@ -4210,7 +4210,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   min-height: 42px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #f7f4ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 850;
 }
@@ -5004,7 +5004,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 }
 
-/* Final token lock ??Uzum Market purple palette */
+/* Final token lock ??brand pink palette */
 :root {
   --primary: #e8a0b4;
   --primary-dark: #d4889e;
@@ -10847,69 +10847,219 @@ label select:focus {
   letter-spacing: -0.02em;
 }
 
-/* ---- Footer ---- */
+/* ---- Footer (Uzum-style columns, pink brand accent) ---- */
 .site-footer {
   background: #fff;
   border-top: 1px solid var(--ds-border);
   color: var(--ds-text-secondary);
-  padding: clamp(28px, 4vw, 48px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  padding: clamp(36px, 5vw, 56px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
   margin-top: clamp(24px, 4vw, 48px);
 }
 
 .site-footer-inner {
   max-width: var(--ds-container, 1400px);
   margin: 0 auto;
-  display: grid;
-  gap: 18px;
-}
-
-.site-footer-brand strong {
-  display: block;
-  color: var(--ds-text);
-  font-size: var(--ds-text-lg);
-  letter-spacing: -0.02em;
-}
-
-.site-footer-logo {
-  display: block;
-  height: 36px;
-  width: auto;
-  max-width: 200px;
-  object-fit: contain;
-}
-
-.site-footer-brand p,
-.site-footer-copy {
-  margin: 6px 0 0;
-  font-size: var(--ds-text-sm);
-  color: var(--ds-text-muted);
-}
-
-.site-footer-nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 32px;
+}
+
+.site-footer-heading {
+  margin: 0 0 14px;
+  color: var(--ds-text);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.site-footer-heading--social {
+  margin-top: 22px;
+}
+
+.site-footer-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
 }
 
 .site-footer-link {
   border: 0;
   background: transparent;
   padding: 0;
-  color: var(--ds-text-secondary);
+  color: #7a7a85;
   font: inherit;
-  font-size: var(--ds-text-sm);
-  font-weight: 560;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   transition: color var(--ds-duration-fast);
 }
 
 .site-footer-link:hover {
-  color: var(--ds-accent);
+  color: var(--ds-primary-hover, #d4889e);
+}
+
+.site-footer-brand-accent {
+  color: var(--ds-primary, #e8a0b4);
+  font-weight: 700;
+}
+
+.site-footer-address {
+  display: block;
+  color: #7a7a85;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.site-footer-address strong {
+  color: var(--ds-text);
+  font-weight: 650;
+}
+
+.site-footer-stores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 148px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #d8d8de;
+  border-radius: 10px;
+  background: #111118;
+  color: #fff;
+  text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.store-badge:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.store-badge svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.store-badge span {
+  display: grid;
+  line-height: 1.1;
+}
+
+.store-badge small {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.store-badge strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.store-badge--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.site-footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.social-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.social-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.social-btn--instagram {
+  background: linear-gradient(135deg, #f58529, #dd2a7b 45%, #8134af);
+}
+
+.social-btn--telegram {
+  background: #2aabee;
+}
+
+.site-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid #ececef;
+}
+
+.site-footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.site-footer-copy {
+  margin: 0;
+  font-size: 13px;
+  color: #8a8796;
+  text-align: right;
+}
+
+@media (max-width: 980px) {
+  .site-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
   .site-footer {
     padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .site-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .site-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-footer-copy {
+    text-align: left;
   }
 }
 
@@ -11148,6 +11298,7 @@ body {
   opacity: 1;
   padding: 0;
   white-space: nowrap;
+  text-decoration: none;
   transition: color 0.15s ease;
 }
 
@@ -11452,7 +11603,7 @@ body {
   color: #e8a0b4;
 }
 
-/* Primary CTAs use Uzum purple */
+/* Primary CTAs use brand pink */
 .primary-button {
   background: #e8a0b4;
   color: #fff;

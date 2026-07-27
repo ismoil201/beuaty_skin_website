@@ -145,7 +145,7 @@ body.app-layout .uzum-cat-icon {
   flex: 0 0 32px;
 }
 
-body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #efe8fc, #ddd0f8); }
+body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #fce8ef, #f3d5df); }
 body.app-layout .uzum-cat-chip:nth-child(3) .uzum-cat-icon { background: linear-gradient(145deg, #e8f3fc, #cfe6f8); }
 body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fff4d6, #ffe54c); }
 body.app-layout .uzum-cat-chip:nth-child(5) .uzum-cat-icon { background: linear-gradient(145deg, #f3ece6, #e5d5c8); }

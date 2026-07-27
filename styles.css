@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
-  --primary: #6f2cff;
-  --primary-dark: #4c16c7;
+  --primary: #e8a0b4;
+  --primary-dark: #d4889e;
   --accent: #ffcc00;
   --bg: #f6f7fb;
   --surface: #ffffff;
@@ -59,7 +59,7 @@
   min-height: 40px;
   border: 0;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 800;
@@ -93,7 +93,7 @@
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .category-nav {
@@ -164,7 +164,7 @@ main {
   border: 0;
   border-radius: 16px;
   padding: 24px 30px;
-  background: linear-gradient(135deg, #f2e8ff, #fff 55%, #ffe54c);
+  background: linear-gradient(135deg, #fce8ef, #fff 55%, #ffe54c);
   box-shadow: 0 8px 26px rgba(31, 32, 38, 0.08);
 }
 
@@ -262,7 +262,7 @@ main {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #f1e7ff;
+  background: #fce8ef;
   color: var(--primary);
   font-size: 14px;
 }
@@ -1492,7 +1492,7 @@ dialog {
 /* ================= UZUM-LIKE MARKETPLACE POLISH ================= */
 
 :root {
-  --primary: #7000ff;
+  --primary: #e8a0b4;
   --primary-dark: #4c1d95;
   --accent: #ffe54c;
   --bg: #f4f5f7;
@@ -1550,7 +1550,7 @@ body {
 .catalog-button {
   min-height: 40px;
   border-radius: 10px;
-  background: #f0e5ff;
+  background: #fdf2f6;
   color: var(--primary);
   font-size: 14px;
   font-weight: 750;
@@ -1587,7 +1587,7 @@ body {
 
 .header-action:hover,
 .cart-button:hover {
-  background: #f5f2ff;
+  background: #fdf2f6;
 }
 
 .header-action strong,
@@ -1656,7 +1656,7 @@ body {
   border: 0;
   border-radius: 16px;
   padding: 24px 30px;
-  background: linear-gradient(135deg, #f2e8ff, #fff 55%, #ffe54c);
+  background: linear-gradient(135deg, #fce8ef, #fff 55%, #ffe54c);
   box-shadow: 0 8px 26px rgba(31, 32, 38, 0.08);
 }
 
@@ -1763,7 +1763,7 @@ body {
 .quick-card span {
   width: 32px;
   height: 32px;
-  background: #f4f0ff;
+  background: #fdf2f6;
   color: var(--primary);
 }
 
@@ -1785,7 +1785,7 @@ body {
 }
 
 .section-head h2::after {
-  content: " ›";
+  content: " ??;
   color: var(--muted);
   font-weight: 800;
 }
@@ -2075,7 +2075,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 a { color: inherit; }
 
 :focus-visible {
-  outline: 3px solid rgba(111, 44, 255, 0.3);
+  outline: 3px solid rgba(232, 160, 180, 0.3);
   outline-offset: 2px;
 }
 
@@ -2181,7 +2181,7 @@ main > section {
 
 .catalog-button {
   border-color: transparent;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 800;
 }
@@ -2232,7 +2232,7 @@ main > section {
 .header-action:hover,
 .catalog-button:hover,
 .chip:hover {
-  background: #f4efff;
+  background: #fdf2f6;
 }
 
 .cart-button {
@@ -2313,7 +2313,7 @@ main > section {
   border-radius: 18px;
   background:
     radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.75), transparent 34%),
-    linear-gradient(135deg, #7d3cff, #b66cff 58%, #ffd861);
+    linear-gradient(135deg, #e8a0b4, #f3a9b9 58%, #ffd861);
   color: white;
   overflow: hidden;
 }
@@ -2426,7 +2426,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 }
 
 .promo-card.accent {
-  background: linear-gradient(135deg, #1f1f26, #6f2cff);
+  background: linear-gradient(135deg, #1f1f26, #e8a0b4);
   color: white;
 }
 
@@ -2601,7 +2601,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .status {
@@ -2881,7 +2881,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .catalog-item:hover,
 .catalog-item.active {
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
 }
 
@@ -2928,7 +2928,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   width: 34px;
   height: 32px;
   border: 0;
-  background: #f7f4ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 900;
 }
@@ -2981,7 +2981,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 }
 
 .notification-card.unread {
-  border-color: rgba(111, 44, 255, 0.28);
+  border-color: rgba(232, 160, 180, 0.28);
   background: #fbf9ff;
 }
 
@@ -2996,7 +2996,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 900;
 }
@@ -3164,7 +3164,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .selectable-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .checkout-empty,
@@ -3521,7 +3521,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
 
 .order-card.selected {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
 }
 
 .order-card h3 {
@@ -3613,7 +3613,7 @@ h2 { font-size: clamp(22px, 2.2vw, 30px); }
   margin-top: 4px;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 0 0 4px #f0e9ff;
+  box-shadow: 0 0 0 4px #fdf2f6;
 }
 
 .orders-empty {
@@ -3683,7 +3683,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   min-height: 42px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #f7f4ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 850;
 }
@@ -3755,7 +3755,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary);
   display: grid;
   place-items: center;
@@ -3913,7 +3913,7 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
 
 .variant-option.active {
   border-color: var(--primary);
-  background: #f0e9ff;
+  background: #fdf2f6;
   color: var(--primary-dark);
   font-weight: 850;
 }

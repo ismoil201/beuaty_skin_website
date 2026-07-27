@@ -99,6 +99,7 @@
   opacity: 1;
   padding: 0;
   white-space: nowrap;
+  text-decoration: none;
   transition: color 0.15s ease;
 }
 
@@ -403,7 +404,7 @@
   color: #e8a0b4;
 }
 
-/* Primary CTAs use Uzum purple */
+/* Primary CTAs use brand pink */
 .primary-button {
   background: #e8a0b4;
   color: #fff;

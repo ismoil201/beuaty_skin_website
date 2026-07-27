@@ -28,7 +28,7 @@
           <button class="mini-link" type="button" data-i18n="header.pickupPoints">Punktlar</button>
         </div>
         <nav class="mini-bar-right" aria-label="Qo‘shimcha havolalar" data-i18n-aria-label="header.extraLinks">
-          <button class="mini-link mini-link--accent" type="button" data-i18n="header.sell">Sotuvchi bo‘lish</button>
+          <a class="mini-link mini-link--accent" href="https://seller-panel-web-523a.vercel.app/" target="_blank" rel="noopener noreferrer" data-i18n="header.sell">Sotuvchi bo‘lish</a>
           <button class="mini-link mini-link--accent" type="button" data-i18n="header.openPickup">Punkt ochish</button>
           <span class="mini-divider" aria-hidden="true"></span>
           <button class="mini-link" id="supportButton" type="button" data-i18n="header.support">Savol-javob</button>
@@ -249,17 +249,98 @@
 
     <footer class="site-footer" id="siteFooter">
       <div class="site-footer-inner">
-        <div class="site-footer-brand">
-          <img class="site-footer-logo" src="/images/beauty-logo.png" alt="BEAUTY SKIN KOREA" width="180" height="40" decoding="async" />
-          <p data-i18n="footer.tagline">Korean beauty marketplace</p>
+        <div class="site-footer-grid">
+          <div class="site-footer-col">
+            <h3 class="site-footer-heading" data-i18n="footer.about">Biz haqimizda</h3>
+            <ul class="site-footer-list">
+              <li><button type="button" class="site-footer-link" data-i18n="header.pickupPoints">Punktlar</button></li>
+              <li><button type="button" class="site-footer-link" data-i18n="footer.vacancies">Vakansiyalar</button></li>
+              <li>
+                <span class="site-footer-address">
+                  <span data-i18n="footer.addressLabel">Do‘kon manzili</span>:
+                  <strong>Qoratosh 5 B</strong>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="site-footer-col">
+            <h3 class="site-footer-heading" data-i18n="footer.forUsers">Foydalanuvchilarga</h3>
+            <ul class="site-footer-list">
+              <li><button type="button" class="site-footer-link" id="footerSupport" data-i18n="footer.contactUs">Biz bilan bog‘lanish</button></li>
+              <li><button type="button" class="site-footer-link" id="footerFaq" data-i18n="header.support">Savol-javob</button></li>
+              <li><button type="button" class="site-footer-link" id="footerAssistant" data-i18n="assistant.fabLabel">AI Yordamchi</button></li>
+            </ul>
+          </div>
+
+          <div class="site-footer-col">
+            <h3 class="site-footer-heading" data-i18n="footer.forSellers">Tadbirkorlar uchun</h3>
+            <ul class="site-footer-list">
+              <li>
+                <a class="site-footer-link" href="https://seller-panel-web-523a.vercel.app/" target="_blank" rel="noopener noreferrer">
+                  <span data-i18n="footer.sellOn">Soting</span>
+                  <span class="site-footer-brand-accent"> Beauty Skin Korea</span>
+                </a>
+              </li>
+              <li>
+                <a class="site-footer-link" href="https://seller-panel-web-523a.vercel.app/" target="_blank" rel="noopener noreferrer" data-i18n="footer.sellerLogin">Sotuvchi kirishi</a>
+              </li>
+              <li><button type="button" class="site-footer-link" data-i18n="header.openPickup">Punkt ochish</button></li>
+            </ul>
+          </div>
+
+          <div class="site-footer-col site-footer-col--apps">
+            <h3 class="site-footer-heading" data-i18n="footer.downloadApp">Ilovani yuklab olish</h3>
+            <div class="site-footer-stores">
+              <a
+                class="store-badge store-badge--disabled"
+                href="#"
+                aria-disabled="true"
+                tabindex="-1"
+                title="App Store — tez orada"
+                data-i18n-title="footer.appStoreSoon"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.1 2.2c.1 1.1-.3 2.2-1 3-.8.9-2 1.5-3.1 1.4-.2-1.1.4-2.2 1-3 .8-.9 2.1-1.5 3.1-1.4ZM19.5 17.3c-.6 1.3-.9 1.9-1.7 3-.9 1.3-2.2 2.9-3.8 2.9-1.4 0-1.8-.9-3.4-.9s-2.1.9-3.4.9c-1.6 0-2.8-1.4-3.7-2.7C1.7 17.8.6 13.5 2.6 10.6c1-1.5 2.7-2.4 4.4-2.4 1.4 0 2.6.9 3.4.9s2.2-1.1 3.9-.9c.7 0 2.5.3 3.7 1.9-3.2 1.8-2.7 6.3.5 7.2Z"/></svg>
+                <span>
+                  <small>Download on the</small>
+                  <strong>App Store</strong>
+                </span>
+              </a>
+              <a
+                class="store-badge"
+                href="https://play.google.com/store/apps/details?id=dev.ismoil.zaven&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Google Play"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M3.6 2.2 13.2 12 3.6 21.8A2 2 0 0 1 3 20.2V3.8a2 2 0 0 1 .6-1.6Z"/><path fill="#FBBC04" d="m13.2 12 2.7-2.7 4.4 2.5a1.8 1.8 0 0 1 0 3.1l-4.4 2.5L13.2 12Z"/><path fill="#4285F4" d="M13.2 12 3.6 2.2l9.1 5.2L15.9 9.3 13.2 12Z"/><path fill="#34A853" d="M13.2 12 15.9 14.7l-3.2 1.9-9.1 5.2L13.2 12Z"/></svg>
+                <span>
+                  <small>GET IT ON</small>
+                  <strong>Google Play</strong>
+                </span>
+              </a>
+            </div>
+
+            <h3 class="site-footer-heading site-footer-heading--social" data-i18n="footer.social">Beauty Skin Korea ijtimoiy tarmoqlarda</h3>
+            <div class="site-footer-social">
+              <a class="social-btn social-btn--instagram" href="https://www.instagram.com/beauty.skin.korea/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2Zm0 7.8A3 3 0 1 1 15 12a3 3 0 0 1-3 3Zm5.1-8.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1Z"/></svg>
+              </a>
+              <a class="social-btn social-btn--telegram" href="https://t.me/Beautyskinkoreaa" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.8 4.3 2.9 11.6c-1.3.5-1.3 1.2-.2 1.5l4.8 1.5 1.8 5.6c.2.6.4.8 1 .8.6 0 .9-.3 1.2-.6l2.8-2.7 5.8 4.3c1.1.6 1.8.3 2.1-1l3.7-17.4c.3-1.4-.5-2-1.7-1.5Z"/></svg>
+              </a>
+            </div>
+          </div>
         </div>
-        <nav class="site-footer-nav" aria-label="Footer">
-          <button type="button" class="site-footer-link" id="footerSupport" data-i18n="header.support">Support</button>
-          <button type="button" class="site-footer-link" id="footerPrivacy" data-i18n="privacy.title">Privacy</button>
-          <button type="button" class="site-footer-link" id="footerTerms" data-i18n="terms.title">Terms</button>
-          <button type="button" class="site-footer-link" id="footerAssistant" data-i18n="assistant.fabLabel">AI Assistant</button>
-        </nav>
-        <p class="site-footer-copy">© <span id="footerYear"></span> Beauty Skin Korea</p>
+
+        <div class="site-footer-bottom">
+          <nav class="site-footer-legal" aria-label="Legal">
+            <button type="button" class="site-footer-link" id="footerPrivacy" data-i18n="privacy.title">Maxfiylik</button>
+            <button type="button" class="site-footer-link" id="footerTerms" data-i18n="terms.title">Foydalanish shartlari</button>
+            <button type="button" class="site-footer-link" id="footerDataPolicy" data-i18n="footer.dataPolicy">Shaxsiy ma’lumotlar</button>
+          </nav>
+          <p class="site-footer-copy">© <span id="footerYear"></span> Beauty Skin Korea. <span data-i18n="footer.rights">Barcha huquqlar himoyalangan.</span></p>
+        </div>
       </div>
     </footer>
 

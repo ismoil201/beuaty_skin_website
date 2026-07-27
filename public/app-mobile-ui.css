@@ -285,7 +285,7 @@ body.app-layout .quick-card span {
 }
 
 body.app-layout .quick-card:nth-child(1) span { background: linear-gradient(145deg, #fce8ef, #f6d4e0) !important; color: #9b4d67 !important; }
-body.app-layout .quick-card:nth-child(2) span { background: linear-gradient(145deg, #efe8fc, #ddd0f8) !important; color: #6b4f9b !important; }
+body.app-layout .quick-card:nth-child(2) span { background: linear-gradient(145deg, #fce8ef, #f3d5df) !important; color: #b76b84 !important; }
 body.app-layout .quick-card:nth-child(3) span { background: linear-gradient(145deg, #e8f3fc, #cfe6f8) !important; color: #3f6f9b !important; }
 body.app-layout .quick-card:nth-child(4) span { background: linear-gradient(145deg, #fceef0, #f7d9de) !important; color: #a14d5d !important; }
 body.app-layout .quick-card:nth-child(5) span { background: linear-gradient(145deg, #f3ece6, #e5d5c8) !important; color: #7a5f4d !important; }

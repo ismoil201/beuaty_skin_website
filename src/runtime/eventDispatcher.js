@@ -154,8 +154,10 @@ export function bindEvents() {
     window.location.hash = "#/assistant";
   });
   document.getElementById("footerSupport")?.addEventListener("click", openSupport);
+  document.getElementById("footerFaq")?.addEventListener("click", openSupport);
   document.getElementById("footerPrivacy")?.addEventListener("click", openPrivacy);
   document.getElementById("footerTerms")?.addEventListener("click", openTerms);
+  document.getElementById("footerDataPolicy")?.addEventListener("click", openPrivacy);
   document.getElementById("footerAssistant")?.addEventListener("click", () => {
     window.location.hash = "#/assistant";
   });
