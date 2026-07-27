@@ -11,32 +11,33 @@
 :root {
   color-scheme: light;
 
-  /* Brand — blush rose + charcoal */
-  --ds-primary: #e8a0b4;
-  --ds-primary-hover: #d4889e;
-  --ds-primary-soft: #fdf2f6;
-  --ds-primary-muted: #f3d5df;
-  --ds-accent: #1a1a2e;
-  --ds-accent-soft: #f3f1f5;
+  /* Brand — Uzum Market purple */
+  --ds-primary: #7000ff;
+  --ds-primary-hover: #5a00cc;
+  --ds-primary-soft: #f0e5ff;
+  --ds-primary-muted: #e0d0ff;
+  --ds-accent: #7000ff;
+  --ds-accent-soft: #f5f0ff;
+  --ds-accent-yellow: #ffcc00;
 
   /* Surfaces */
-  --ds-bg: #faf8f9;
+  --ds-bg: #f4f5f7;
   --ds-bg-elevated: #ffffff;
   --ds-surface: #ffffff;
-  --ds-surface-hover: #f7f4f6;
-  --ds-surface-active: #f0ecef;
-  --ds-overlay: rgba(17, 17, 24, 0.42);
+  --ds-surface-hover: #f7f7f9;
+  --ds-surface-active: #efeff3;
+  --ds-overlay: rgba(31, 32, 38, 0.42);
 
   /* Text */
-  --ds-text: #111118;
-  --ds-text-secondary: #5c5c6e;
-  --ds-text-muted: #8a8796;
+  --ds-text: #1f2026;
+  --ds-text-secondary: #5f6270;
+  --ds-text-muted: #8b8e99;
   --ds-text-inverse: #ffffff;
 
   /* Borders */
-  --ds-border: #ebe6ea;
-  --ds-border-strong: #d9d2d7;
-  --ds-border-focus: var(--ds-primary-hover);
+  --ds-border: #e0e2e8;
+  --ds-border-strong: #c9ccd4;
+  --ds-border-focus: var(--ds-primary);
 
   /* Semantic */
   --ds-success: #0d9f6e;
@@ -93,7 +94,7 @@
   --ds-shadow-md: 0 12px 36px rgba(17, 17, 24, 0.08);
   --ds-shadow-lg: 0 20px 52px rgba(17, 17, 24, 0.1);
   --ds-shadow-xl: 0 28px 64px rgba(17, 17, 24, 0.12);
-  --ds-shadow-glow: 0 0 0 3px rgba(232, 160, 180, 0.28);
+  --ds-shadow-glow: 0 0 0 3px rgba(112, 0, 255, 0.22);
 
   /* Motion */
   --ds-duration-fast: 160ms;
@@ -218,12 +219,12 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 44px;
   padding: 0 var(--ds-space-5);
   border: 0;
-  background: var(--ds-accent);
+  background: var(--ds-primary);
   color: var(--ds-text-inverse);
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #2a2a3e;
+  background: var(--ds-primary-hover);
   box-shadow: var(--ds-shadow-sm);
 }
 

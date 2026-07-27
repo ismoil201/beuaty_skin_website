@@ -2,11 +2,12 @@ import en from './en.js';
 export default {
   ...en,
 
-  "header.location": "📍 Ташкент",
+  "header.location": "Ташкент",
   "header.pickupPoints": "Пункты выдачи",
   "header.sell": "Стать продавцом",
-  "header.support": "Поддержка",
-  "header.orders": "Заказы",
+  "header.openPickup": "Открыть пункт выдачи",
+  "header.support": "Вопрос-ответ",
+  "header.orders": "Мои заказы",
   "header.language": "Язык",
   "header.catalog": "Каталог",
   "header.searchPlaceholder": "Искать товары и категории",

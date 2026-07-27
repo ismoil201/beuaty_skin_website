@@ -1,9 +1,10 @@
 export default {
 
-    "header.location": "📍 Toshkent",
+    "header.location": "Toshkent",
     "header.extraLinks": "Qo‘shimcha havolalar",
     "header.pickupPoints": "Punktlar",
     "header.sell": "Sotuvchi bo‘lish",
+    "header.openPickup": "Punkt ochish",
     "header.support": "Savol-javob",
     "header.orders": "Buyurtmalar",
     "header.language": "Til",

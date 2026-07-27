@@ -1,16 +1,16 @@
 :root {
   color-scheme: light;
-  --primary: #e8a0b4;
-  --primary-dark: #d4889e;
-  --accent: #1a1a2e;
-  --bg: #faf8f9;
+  --primary: #7000ff;
+  --primary-dark: #5a00cc;
+  --accent: #ffcc00;
+  --bg: #f4f5f7;
   --surface: #ffffff;
-  --text: #111118;
-  --muted: #5c5c6e;
-  --border: #ebe6ea;
+  --text: #1f2026;
+  --muted: #5f6270;
+  --border: #e0e2e8;
   --danger: #e53e3e;
   --success: #0d9f6e;
-  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
   --radius: 12px;
   --container: 1400px;
 }
@@ -591,24 +591,24 @@ dialog {
   }
 }
 
-/* Soft blush wash — aligned with production light tokens */
+/* Uzum purple tokens — aligned with production light tokens */
 :root {
-  --primary: #e8a0b4;
-  --primary-dark: #d4889e;
-  --primary-soft: #fdf2f6;
-  --bg: #faf8f9;
+  --primary: #7000ff;
+  --primary-dark: #5a00cc;
+  --primary-soft: #f0e5ff;
+  --bg: #f4f5f7;
   --surface: #ffffff;
-  --text: #111118;
-  --muted: #5c5c6e;
-  --border: #ebe6ea;
+  --text: #1f2026;
+  --muted: #5f6270;
+  --border: #e0e2e8;
   --danger: #e53e3e;
   --warning: #d97706;
-  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
 }
 
 body {
   background:
-    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(248, 248, 250, 0) 280px),
+    linear-gradient(180deg, rgba(240, 229, 255, 0.45), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }
@@ -1464,14 +1464,14 @@ dialog {
 
 /* Marketplace polish tokens — keep in sync with design-system / variables */
 :root {
-  --primary: #e8a0b4;
-  --primary-dark: #d4889e;
-  --accent: #1a1a2e;
-  --bg: #faf8f9;
+  --primary: #7000ff;
+  --primary-dark: #5a00cc;
+  --accent: #7000ff;
+  --bg: #f4f5f7;
   --surface: #ffffff;
-  --text: #111118;
-  --muted: #5c5c6e;
-  --border: #ebe6ea;
+  --text: #1f2026;
+  --muted: #5f6270;
+  --border: #e0e2e8;
   --danger: #e53e3e;
   --warning: #d97706;
   --radius: 12px;
@@ -4440,24 +4440,24 @@ dialog::backdrop { background: rgba(31, 31, 38, 0.48); }
   }
 }
 
-/* Final token lock — same production light palette */
+/* Final token lock — Uzum Market purple palette */
 :root {
-  --primary: #e8a0b4;
-  --primary-dark: #d4889e;
-  --primary-soft: #fdf2f6;
-  --bg: #faf8f9;
+  --primary: #7000ff;
+  --primary-dark: #5a00cc;
+  --primary-soft: #f0e5ff;
+  --bg: #f4f5f7;
   --surface: #ffffff;
-  --text: #111118;
-  --muted: #5c5c6e;
-  --border: #ebe6ea;
+  --text: #1f2026;
+  --muted: #5f6270;
+  --border: #e0e2e8;
   --danger: #e53e3e;
   --warning: #d97706;
-  --shadow: 0 12px 36px rgba(17, 17, 24, 0.08);
+  --shadow: 0 12px 36px rgba(31, 32, 38, 0.08);
 }
 
 body {
   background:
-    linear-gradient(180deg, rgba(255, 228, 234, 0.58), rgba(248, 248, 250, 0) 280px),
+    linear-gradient(180deg, rgba(240, 229, 255, 0.4), rgba(244, 245, 247, 0) 280px),
     var(--bg);
   color: var(--text);
 }

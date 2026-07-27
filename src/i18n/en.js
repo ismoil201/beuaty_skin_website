@@ -2,11 +2,12 @@ import uz from './uz.js';
 export default {
   ...uz,
 
-  "header.location": "📍 Tashkent",
+  "header.location": "Tashkent",
   "header.pickupPoints": "Pickup points",
-  "header.sell": "Sell on Beauty Skin Korea",
-  "header.support": "Support",
-  "header.orders": "Orders",
+  "header.sell": "Become a seller",
+  "header.openPickup": "Open a pickup point",
+  "header.support": "FAQ",
+  "header.orders": "My orders",
   "header.language": "Language",
   "header.catalog": "Catalog",
   "header.searchPlaceholder": "Search products and categories",

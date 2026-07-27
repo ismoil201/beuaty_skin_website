@@ -2,11 +2,12 @@ import en from './en.js';
 export default {
   ...en,
 
-  "header.location": "📍 타슈켄트",
+  "header.location": "타슈켄트",
   "header.pickupPoints": "픽업 지점",
   "header.sell": "판매자 되기",
-  "header.support": "고객 지원",
-  "header.orders": "주문",
+  "header.openPickup": "픽업 지점 열기",
+  "header.support": "FAQ",
+  "header.orders": "내 주문",
   "header.language": "언어",
   "header.catalog": "카탈로그",
   "header.searchPlaceholder": "상품 및 카테고리 검색",

@@ -44,13 +44,13 @@ select:focus:not(:focus-visible) {
 }
 
 .primary-button {
-  background: var(--ds-accent);
+  background: var(--ds-primary);
   color: var(--ds-text-inverse);
   border: 0;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #2b2b42;
+  background: var(--ds-primary-hover);
   box-shadow: var(--ds-shadow-sm);
 }
 
@@ -124,7 +124,7 @@ select:focus:not(:focus-visible) {
 }
 
 .product-card:hover {
-  border-color: rgba(232, 160, 180, 0.55);
+  border-color: rgba(112, 0, 255, 0.35);
   box-shadow: var(--ds-shadow-md);
   transform: translateY(-2px);
 }
@@ -220,19 +220,19 @@ select:focus:not(:focus-visible) {
 
 .search input,
 .search #searchInput {
-  min-height: 44px;
-  border-radius: var(--ds-radius-full);
-  border: 1px solid var(--ds-border);
-  background: var(--ds-bg);
-  transition: border-color var(--ds-duration-fast), box-shadow var(--ds-duration-fast);
+  min-height: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  transition: none;
 }
 
 .search input:focus,
 .search #searchInput:focus {
-  border-color: var(--ds-primary-hover);
-  box-shadow: var(--ds-shadow-glow);
+  border-color: transparent;
+  box-shadow: none;
   outline: none;
-  background: #fff;
+  background: transparent;
 }
 
 .brand {

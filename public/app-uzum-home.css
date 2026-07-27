@@ -123,14 +123,14 @@ body.app-layout .uzum-cat-chip {
 }
 
 body.app-layout .uzum-cat-chip:hover {
-  border-color: #f0c4d2;
-  box-shadow: 0 6px 16px rgba(17, 17, 24, 0.06);
+  border-color: #d4c2ff;
+  box-shadow: 0 6px 16px rgba(31, 32, 38, 0.06);
   transform: translateY(-1px);
 }
 
 body.app-layout .uzum-cat-chip.active {
-  border-color: #111118;
-  background: #111118;
+  border-color: #7000ff;
+  background: #7000ff;
   color: #fff;
 }
 
@@ -141,13 +141,13 @@ body.app-layout .uzum-cat-icon {
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(145deg, #fce8ef, #f6d4e0);
+  background: linear-gradient(145deg, #f0e5ff, #e0d0ff);
   flex: 0 0 32px;
 }
 
 body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #efe8fc, #ddd0f8); }
 body.app-layout .uzum-cat-chip:nth-child(3) .uzum-cat-icon { background: linear-gradient(145deg, #e8f3fc, #cfe6f8); }
-body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fceef0, #f7d9de); }
+body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fff4d6, #ffe54c); }
 body.app-layout .uzum-cat-chip:nth-child(5) .uzum-cat-icon { background: linear-gradient(145deg, #f3ece6, #e5d5c8); }
 body.app-layout .uzum-cat-chip:nth-child(n+6) .uzum-cat-icon { background: linear-gradient(145deg, #eef0f5, #dfe3ec); }
 
@@ -164,7 +164,7 @@ body.app-layout .uzum-cat-icon img {
 body.app-layout .uzum-cat-letter {
   font-size: 13px;
   font-weight: 700;
-  color: #7a4558;
+  color: #7000ff;
 }
 
 body.app-layout .uzum-cat-label {

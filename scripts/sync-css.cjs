@@ -13,6 +13,7 @@ const files = [
   "homepage-luxury.css",
   "assistant.css",
   "light-theme-polish.css",
+  "header.css",
 ];
 const parts = files.map((file) => {
   const filePath = path.join(root, "src/styles", file);
