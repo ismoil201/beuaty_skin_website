@@ -3,7 +3,7 @@
    Soft pink marketplace palette (Uzum layout + brand pink)
    ===================================================================== */
 :root {
-  color-scheme: light;
+  color-scheme: light only;
 
   /* Brand */
   --primary: #e8a0b4;

@@ -9,7 +9,7 @@
 /* Light theme tokens                                                  */
 /* ------------------------------------------------------------------ */
 :root {
-  color-scheme: light;
+  color-scheme: light only;
 
   /* Brand — soft pink + charcoal */
   --ds-primary: #e8a0b4;

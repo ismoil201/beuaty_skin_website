@@ -263,7 +263,6 @@ export default {
   "api.title": "API settings",
   "api.save": "Save",
   "header.currency": "Currency",
-  "header.theme": "Theme",
   "product.quickView": "Quick view",
   "product.compare": "Compare",
   "product.compareSoon": "Compare coming soon",

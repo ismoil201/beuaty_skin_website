@@ -9,7 +9,6 @@ export default {
     "header.orders": "Buyurtmalar",
     "header.language": "Til",
     "header.currency": "Valyuta",
-    "header.theme": "Mavzu",
     "header.homeAria": "BEAUTY SKIN KOREA bosh sahifa",
     "header.openCatalog": "Katalogni ochish",
     "header.catalog": "Katalog",

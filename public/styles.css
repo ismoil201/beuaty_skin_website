@@ -10,7 +10,7 @@
 /* Light theme tokens                                                  */
 /* ------------------------------------------------------------------ */
 :root {
-  color-scheme: light;
+  color-scheme: light only;
 
   /* Brand — soft pink + charcoal */
   --ds-primary: #e8a0b4;
@@ -563,7 +563,7 @@ dialog::backdrop {
 
 /* ===== marketplace.css ===== */
 :root {
-  color-scheme: light;
+  color-scheme: light only;
   --primary: #e8a0b4;
   --primary-dark: #d4889e;
   --accent: #ffcc00;
@@ -5659,7 +5659,7 @@ dialog {
    Soft pink marketplace palette (Uzum layout + brand pink)
    ===================================================================== */
 :root {
-  color-scheme: light;
+  color-scheme: light only;
 
   /* Brand */
   --primary: #e8a0b4;
@@ -10523,15 +10523,36 @@ body.locked .assistant-fab:not(.is-open) {
 /* =====================================================================
    Production Light Theme Polish
    Consistent buttons, cards, forms, header, footer, chat, responsive
+   Night / dark theme fully disabled
    ===================================================================== */
 
 html {
   color-scheme: light only;
 }
 
-body {
+html.dark,
+html[data-theme="dark"],
+html.theme-dark,
+body.dark,
+body.theme-dark,
+body.night {
+  color-scheme: light only !important;
+}
+
+body,
+body.light-theme,
+body.app-layout {
   background: var(--ds-bg);
   color: var(--ds-text);
+  color-scheme: light only;
+}
+
+/* Force native form controls to stay light */
+input,
+textarea,
+select,
+button {
+  color-scheme: light;
 }
 
 /* ---- Focus accessibility ---- */
@@ -10928,39 +10949,39 @@ label select:focus {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 28px;
 }
 
-.store-icon-link,
-.social-icon-link {
+.store-text-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: transparent;
+  gap: 8px;
+  color: #1f2026;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
   text-decoration: none;
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 
-.store-icon-link img,
-.social-icon-link img {
+.store-text-link:hover {
+  color: var(--ds-primary-hover, #d4889e);
+}
+
+.store-text-link__icon {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
-.store-icon-link:hover,
-.social-icon-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(17, 17, 24, 0.12);
+.store-text-link__icon--apple {
+  color: #1f2026;
 }
 
-.store-icon-link--disabled {
-  opacity: 0.55;
+.store-text-link--disabled {
+  opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed;
 }
@@ -10969,6 +10990,31 @@ label select:focus {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.social-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: transparent;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.social-icon-link img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.social-icon-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(17, 17, 24, 0.12);
 }
 
 .site-footer-bottom {
