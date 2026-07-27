@@ -16,11 +16,10 @@ export function initFilterState() {
 }
 
 export function setSourceProducts(products) {
-  productStore.sourceProducts = products;
-  productStore.filterFacets = extractFacetOptions(products);
-  if (productStore.filters.maxPrice === DEFAULT_FILTERS.maxPrice && productStore.filterFacets.maxPrice) {
-    productStore.filters.maxPrice = Math.ceil(productStore.filterFacets.maxPrice / 1000) * 1000;
-  }
+  productStore.sourceProducts = Array.isArray(products) ? products : [];
+  productStore.filterFacets = extractFacetOptions(productStore.sourceProducts);
+  // Never auto-shrink maxPrice to the current facet max — that leftover bound
+  // was hiding later search API hits in the main grid (dropdown stayed fine).
 }
 
 export function getFilteredProducts() {
@@ -116,6 +115,9 @@ export function renderFilterChips(t) {
   if (f.onSale) chips.push(chip(t("filter.onSaleOnly"), "onSale"));
   if (f.inStock) chips.push(chip(t("filter.inStock"), "inStock"));
   if (f.minRating) chips.push(chip(`${f.minRating}★+`, "rating"));
+  if (f.minPrice > DEFAULT_FILTERS.minPrice || f.maxPrice < DEFAULT_FILTERS.maxPrice) {
+    chips.push(chip(`${formatPrice(f.minPrice)} – ${formatPrice(f.maxPrice)}`, "price"));
+  }
 
   row.hidden = !chips.length;
   row.innerHTML = chips.join("");
@@ -139,8 +141,7 @@ export function persistFilters() {
 }
 
 export function clearAllFilters() {
-  const maxPrice = productStore.filterFacets.maxPrice || DEFAULT_FILTERS.maxPrice;
-  productStore.filters = { ...resetFilters(), maxPrice };
+  productStore.filters = { ...resetFilters() };
   persistFilters();
 }
 

@@ -11,13 +11,13 @@ import { t } from "../i18n/index.js";
 export const SearchController = {
   handleInput(event) {
     clearTimeout(appStore.searchTimer);
+    const query = event.target.value;
     appStore.searchTimer = setTimeout(() => {
-      const query = event.target.value;
       SearchController.search(query).catch(() => {
-        renderEmpty(els.grid, "Qidiruv vaqtida xatolik yuz berdi.");
-        els.status.textContent = "";
+        renderEmpty(els.grid, t("search.error"));
+        if (els.status) els.status.textContent = "";
       });
-      if (query.trim().length >= 2) saveSearchHistory(query);
+      if (String(query || "").trim().length >= 2) saveSearchHistory(query);
     }, CONFIG.searchDebounceMs);
   },
 
@@ -30,8 +30,8 @@ export const SearchController = {
     if (!button) return;
     closeCatalog();
     CatalogPage.renderCategoryProducts(button.dataset.category, { showHomeView }).catch(() => {
-      renderEmpty(els.grid, "Kategoriya mahsulotlari yuklanmadi.");
-      els.status.textContent = "";
+      renderEmpty(els.grid, t("home.noProducts"));
+      if (els.status) els.status.textContent = "";
     });
     window.setTimeout(() => {
       document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });

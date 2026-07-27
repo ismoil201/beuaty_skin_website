@@ -17,6 +17,7 @@ import {
   renderFlashCountdown,
 } from '../utils/phase2Ui.js';
 import { getCompareIds } from '../store/compareStore.js';
+import { DEFAULT_FILTERS } from '../store/filterStore.js';
 import { removeSavedForLater } from '../store/savedForLaterStore.js';
 import { applyAndRenderGrid, renderEmpty } from '../pages/shared/productGrid.js';
 import { CartService } from '../services/CartService.js';
@@ -283,6 +284,10 @@ export function removeFilterChip(key) {
   if (key === "onSale") f.onSale = false;
   else if (key === "inStock") f.inStock = false;
   else if (key === "rating") f.minRating = 0;
+  else if (key === "price") {
+    f.minPrice = DEFAULT_FILTERS.minPrice;
+    f.maxPrice = DEFAULT_FILTERS.maxPrice;
+  }
   else if (key.startsWith("brand:")) f.brands = f.brands.filter((b) => b !== key.slice(6));
   else if (key.startsWith("color:")) f.colors = f.colors.filter((c) => c !== key.slice(6));
   else if (key.startsWith("size:")) f.sizes = f.sizes.filter((s) => s !== key.slice(5));
