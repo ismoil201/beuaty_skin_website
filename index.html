@@ -240,6 +240,53 @@
 
       </div>
 
+      <section class="search-results-page" id="searchResultsPage" hidden>
+        <div class="search-results-shell">
+          <nav class="search-breadcrumb" aria-label="Breadcrumb">
+            <a href="#/" data-i18n="search.breadcrumbHome">Bosh sahifa</a>
+            <span aria-hidden="true">›</span>
+            <span data-i18n="search.breadcrumbSearch">Qidiruv</span>
+            <span aria-hidden="true">›</span>
+            <span id="searchBreadcrumbQuery"></span>
+          </nav>
+
+          <div class="search-results-heading">
+            <h1 id="searchResultsTitle"></h1>
+            <p class="search-results-count" id="searchResultsCount"></p>
+          </div>
+
+          <div class="search-quick-chips" id="searchQuickChips" hidden></div>
+
+          <div class="search-results-toolbar">
+            <button class="mobile-filter-btn" id="searchMobileFilterBtn" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+              <span data-i18n="filter.title">Filters</span>
+              <span class="badge-count" id="searchFilterBadgeCount" hidden>0</span>
+            </button>
+            <label class="search-sort-label">
+              <span data-i18n="sort.showFirst">Avval ko‘rsatish:</span>
+              <select class="sort-select" id="searchSortSelect" aria-label="Sort products">
+                <option value="popular" data-i18n="sort.popular">Popular</option>
+                <option value="price-asc" data-i18n="sort.priceAsc">Price: Low to High</option>
+                <option value="price-desc" data-i18n="sort.priceDesc">Price: High to Low</option>
+                <option value="rating" data-i18n="sort.rating">Top rated</option>
+                <option value="newest" data-i18n="sort.newest">Newest</option>
+                <option value="discount" data-i18n="sort.discount">Best discount</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="search-results-layout">
+            <aside class="search-filter-sidebar" id="searchFilterSidebar" aria-label="Product filters"></aside>
+            <div class="search-results-main">
+              <div class="filter-chips-row" id="searchFilterChipsRow" hidden></div>
+              <div class="status" id="searchProductStatus"></div>
+              <div class="product-grid search-product-grid" id="searchProductGrid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="product-detail-page section-shell" id="productDetailPage" hidden>
         <div id="productDetailPageContent"></div>
       </section>

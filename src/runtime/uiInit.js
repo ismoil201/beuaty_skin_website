@@ -19,7 +19,7 @@ import {
 import { getCompareIds } from '../store/compareStore.js';
 import { DEFAULT_FILTERS } from '../store/filterStore.js';
 import { removeSavedForLater } from '../store/savedForLaterStore.js';
-import { applyAndRenderGrid, renderEmpty } from '../pages/shared/productGrid.js';
+import { applyAndRenderGrid, applyAndRenderSearchGrid, renderEmpty } from '../pages/shared/productGrid.js';
 import { CartService } from '../services/CartService.js';
 import {
   lockBody,
@@ -29,7 +29,7 @@ import {
 import { switchMobileTab } from './bottomNav.js';
 import { CartPage } from '../pages/cart/CartPage.js';
 import { SearchController } from '../controllers/SearchController.js';
-import { handleProductGridClick } from './productGridHandlers.js';
+import { handleProductGridClick, handleProductCardKeydown } from './productGridHandlers.js';
 import {
   syncCompareUi,
   openCompareDrawer,
@@ -40,6 +40,15 @@ import {
 } from './compareUi.js';
 
 let flashCountdownIntervalId = null;
+
+function rerenderActiveProductGrid() {
+  const products = productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products;
+  if (appStore.currentRoute === "search" || appStore.currentGridScreen === "search") {
+    applyAndRenderSearchGrid(products, t("home.noProducts"));
+    return;
+  }
+  applyAndRenderGrid(products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+}
 
 export function initPremiumUi() {
   initTheme();
@@ -159,7 +168,13 @@ export function initPhase2Ui() {
   document.getElementById("sortSelect")?.addEventListener("change", (e) => {
     productStore.filters.sort = e.target.value;
     persistFilters();
-    applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+    rerenderActiveProductGrid();
+  });
+
+  document.getElementById("searchSortSelect")?.addEventListener("change", (e) => {
+    productStore.filters.sort = e.target.value;
+    persistFilters();
+    rerenderActiveProductGrid();
   });
 
   document.getElementById("gridViewBtn")?.addEventListener("click", () => {
@@ -175,9 +190,11 @@ export function initPhase2Ui() {
   });
 
   bindFilterEvents(document.getElementById("filterSidebar"));
+  bindFilterEvents(document.getElementById("searchFilterSidebar"));
   bindFilterEvents(document.getElementById("filterSheetContent"));
 
   document.getElementById("mobileFilterBtn")?.addEventListener("click", () => openBottomSheet("filterSheet"));
+  document.getElementById("searchMobileFilterBtn")?.addEventListener("click", () => openBottomSheet("filterSheet"));
   document.getElementById("mobileSortBtn")?.addEventListener("click", () => {
     const sheet = document.getElementById("sortSheetOptions");
     const labels = { popular: t("sort.popular"), "price-asc": t("sort.priceAsc"), "price-desc": t("sort.priceDesc"), rating: t("sort.rating"), newest: t("sort.newest"), discount: t("sort.discount") };
@@ -192,7 +209,7 @@ export function initPhase2Ui() {
   document.getElementById("closeFilterSheet")?.addEventListener("click", () => closeBottomSheet("filterSheet"));
   document.getElementById("applyFilterSheet")?.addEventListener("click", () => {
     closeBottomSheet("filterSheet");
-    applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+    rerenderActiveProductGrid();
   });
 
   document.getElementById("sortSheetOptions")?.addEventListener("click", (e) => {
@@ -200,10 +217,12 @@ export function initPhase2Ui() {
     if (!opt) return;
     productStore.filters.sort = opt.dataset.sortOption;
     const sortSelect = document.getElementById("sortSelect");
+    const searchSort = document.getElementById("searchSortSelect");
     if (sortSelect) sortSelect.value = productStore.filters.sort;
+    if (searchSort) searchSort.value = productStore.filters.sort;
     persistFilters();
     closeBottomSheet("sortSheet");
-    applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+    rerenderActiveProductGrid();
   });
 
   document.getElementById("filterChipsRow")?.addEventListener("click", (e) => {
@@ -211,6 +230,23 @@ export function initPhase2Ui() {
     if (!chip) return;
     removeFilterChip(chip.dataset.removeChip);
   });
+
+  document.getElementById("searchFilterChipsRow")?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-remove-chip]");
+    if (!chip) return;
+    removeFilterChip(chip.dataset.removeChip);
+  });
+
+  document.getElementById("searchQuickChips")?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-search-chip]");
+    if (!chip) return;
+    SearchController.search(chip.dataset.searchChip);
+  });
+
+  document.getElementById("searchProductGrid")?.addEventListener("click", (event) => {
+    if (!handleProductGridClick(event)) return;
+  });
+  document.getElementById("searchProductGrid")?.addEventListener("keydown", handleProductCardKeydown);
 
   document.getElementById("compareFab")?.addEventListener("click", openCompareDrawer);
   document.getElementById("closeCompare")?.addEventListener("click", closeCompareDrawer);
@@ -234,7 +270,7 @@ export function bindFilterEvents(container) {
       clearAllFilters();
       renderFilterSidebar(t, categoryLabel);
       renderFilterChips(t);
-      applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+      rerenderActiveProductGrid();
       return;
     }
     const toggle = e.target.closest(".filter-group-toggle");
@@ -271,11 +307,21 @@ export function bindFilterEvents(container) {
     if (e.target.matches("[data-filter-price]")) {
       f.maxPrice = Number(e.target.value);
     }
+    if (e.target.matches("[data-filter-min-price]")) {
+      f.minPrice = Math.max(0, Number(e.target.value) || 0);
+    }
+    if (e.target.matches("[data-filter-max-price]")) {
+      f.maxPrice = Math.max(0, Number(e.target.value) || DEFAULT_FILTERS.maxPrice);
+    }
     persistFilters();
     renderFilterChips(t);
     if (container.id !== "filterSheetContent") {
-      applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+      rerenderActiveProductGrid();
     }
+  });
+  container.addEventListener("input", (e) => {
+    if (!e.target.matches("[data-filter-min-price], [data-filter-max-price]")) return;
+    // Debounce typing in price fields via change for apply; live-update labels only.
   });
 }
 
@@ -294,7 +340,7 @@ export function removeFilterChip(key) {
   persistFilters();
   renderFilterSidebar(t, categoryLabel);
   renderFilterChips(t);
-  applyAndRenderGrid(productStore.sourceProducts.length ? productStore.sourceProducts : productStore.products, t("home.noProducts"), { screen: appStore.currentGridScreen });
+  rerenderActiveProductGrid();
 }
 
 export function openBottomSheet(id) {

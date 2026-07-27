@@ -27,36 +27,49 @@ export function getFilteredProducts() {
 }
 
 export function renderFilterSidebar(t, categoryLabel) {
-  const sidebar = document.getElementById("filterSidebar");
-  const sheet = document.getElementById("filterSheetContent");
   const html = buildFilterHtml(t, categoryLabel);
+  const sidebar = document.getElementById("filterSidebar");
+  const searchSidebar = document.getElementById("searchFilterSidebar");
+  const sheet = document.getElementById("filterSheetContent");
   if (sidebar) sidebar.innerHTML = html;
+  if (searchSidebar) searchSidebar.innerHTML = html;
   if (sheet) sheet.innerHTML = html;
   updateFilterBadge();
 }
 
 function buildFilterHtml(t, categoryLabel) {
   const f = productStore.filters;
-  const facets = productStore.filterFacets;
+  const facets = productStore.filterFacets || { brands: [], colors: [], sizes: [], maxPrice: DEFAULT_FILTERS.maxPrice };
   const brandChecks = facets.brands.map((b) => filterCheck("brand", b, f.brands.includes(b))).join("");
   const colorChecks = facets.colors.map((c) => filterCheck("color", c, f.colors.includes(c))).join("");
   const sizeChecks = facets.sizes.map((s) => filterCheck("size", s, f.sizes.includes(s))).join("");
+  const maxBound = Math.max(Number(facets.maxPrice) || DEFAULT_FILTERS.maxPrice, Number(f.maxPrice) || 0, 100000);
 
   return `
     <div class="filter-sidebar-header">
       <h3>${escapeHtml(t("filter.title"))}</h3>
       <button class="ghost-button" type="button" data-clear-filters>${escapeHtml(t("filter.clearAll"))}</button>
     </div>
-    ${filterGroup(t("filter.brand"), brandChecks || `<p class="hint">${escapeHtml(t("filter.noOptions"))}</p>`)}
     ${filterGroup(t("filter.price"), `
+      <div class="price-inputs">
+        <label>
+          <span>${escapeHtml(t("filter.priceFrom"))}</span>
+          <input type="number" inputmode="numeric" data-filter-min-price min="0" step="1000" value="${Number(f.minPrice) || 0}" />
+        </label>
+        <label>
+          <span>${escapeHtml(t("filter.priceTo"))}</span>
+          <input type="number" inputmode="numeric" data-filter-max-price min="0" step="1000" value="${Number(f.maxPrice) || maxBound}" />
+        </label>
+      </div>
       <div class="price-range">
-        <input type="range" data-filter-price min="0" max="${facets.maxPrice || 5000000}" step="10000" value="${f.maxPrice}" />
+        <input type="range" data-filter-price min="0" max="${maxBound}" step="10000" value="${Math.min(Number(f.maxPrice) || maxBound, maxBound)}" />
         <div class="price-range-labels">
           <span>${formatPrice(f.minPrice)}</span>
           <span>${formatPrice(f.maxPrice)}</span>
         </div>
       </div>
     `)}
+    ${filterGroup(t("filter.brand"), brandChecks || `<p class="hint">${escapeHtml(t("filter.noOptions"))}</p>`)}
     ${filterGroup(t("filter.discount"), toggleCheck("onSale", t("filter.onSaleOnly"), f.onSale))}
     ${filterGroup(t("filter.color"), colorChecks || `<p class="hint">—</p>`)}
     ${filterGroup(t("filter.size"), sizeChecks || `<p class="hint">—</p>`)}
@@ -104,8 +117,11 @@ function toggleCheck(key, label, checked) {
 }
 
 export function renderFilterChips(t) {
-  const row = document.getElementById("filterChipsRow");
-  if (!row) return;
+  const rows = [
+    document.getElementById("filterChipsRow"),
+    document.getElementById("searchFilterChipsRow"),
+  ].filter(Boolean);
+  if (!rows.length) return;
   const chips = [];
   const f = productStore.filters;
 
@@ -119,8 +135,11 @@ export function renderFilterChips(t) {
     chips.push(chip(`${formatPrice(f.minPrice)} – ${formatPrice(f.maxPrice)}`, "price"));
   }
 
-  row.hidden = !chips.length;
-  row.innerHTML = chips.join("");
+  const html = chips.join("");
+  rows.forEach((row) => {
+    row.hidden = !chips.length;
+    row.innerHTML = html;
+  });
 }
 
 function chip(label, key) {
@@ -128,12 +147,13 @@ function chip(label, key) {
 }
 
 export function updateFilterBadge() {
-  const badge = document.getElementById("filterBadgeCount");
   const count = activeFilterCount(productStore.filters);
-  if (badge) {
+  ["filterBadgeCount", "searchFilterBadgeCount"].forEach((id) => {
+    const badge = document.getElementById(id);
+    if (!badge) return;
     badge.textContent = count;
     badge.hidden = count === 0;
-  }
+  });
 }
 
 export function persistFilters() {

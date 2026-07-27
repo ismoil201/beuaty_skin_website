@@ -72,7 +72,7 @@ function prepareCheckout() {
 
 export function bindEvents() {
   els.languageSelect?.addEventListener("change", (event) => setLanguage(event.target.value));
-  els.searchForm.addEventListener("submit", (event) => event.preventDefault());
+  els.searchForm.addEventListener("submit", (event) => SearchController.submitFromForm(event));
   els.searchInput.addEventListener("input", (event) => SearchController.handleInput(event));
   els.categoryToolbar.addEventListener("click", (event) => SearchController.handleCategoryClick(event));
   els.quickCategoryGrid.addEventListener("click", (event) => SearchController.handleCategoryClick(event));

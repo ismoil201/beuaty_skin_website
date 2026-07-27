@@ -10,19 +10,28 @@ import { t } from "../i18n/index.js";
 
 export const SearchController = {
   handleInput(event) {
+    // Live dropdown only — dedicated results page opens on Enter / chip / submit.
     clearTimeout(appStore.searchTimer);
     const query = event.target.value;
     appStore.searchTimer = setTimeout(() => {
-      SearchController.search(query).catch(() => {
-        renderEmpty(els.grid, t("search.error"));
-        if (els.status) els.status.textContent = "";
-      });
       if (String(query || "").trim().length >= 2) saveSearchHistory(query);
     }, CONFIG.searchDebounceMs);
   },
 
   async search(query) {
-    return SearchPage.render(query, { showHomeView });
+    const trimmed = String(query || "").trim();
+    if (!trimmed) {
+      showHomeView();
+      return;
+    }
+    saveSearchHistory(trimmed);
+    SearchPage.open(trimmed);
+  },
+
+  submitFromForm(event) {
+    event.preventDefault();
+    const query = els.searchInput?.value || "";
+    SearchController.search(query);
   },
 
   handleCategoryClick(event) {

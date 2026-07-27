@@ -72,9 +72,18 @@ export function applyAndRenderGrid(products, emptyMessage, meta = {}) {
   renderFilterSidebar(t, categoryLabel);
   renderFilterChips(t);
   const filtered = getFilteredProducts();
-  renderProductList(els.grid, filtered, emptyMessage, meta);
-  const sortSelect = document.getElementById("sortSelect");
+  const targetGrid = meta.gridEl || els.grid;
+  renderProductList(targetGrid, filtered, emptyMessage, meta);
+  const sortSelect = meta.sortSelectEl || document.getElementById("sortSelect");
   if (sortSelect && sortSelect.value !== productStore.filters.sort) sortSelect.value = productStore.filters.sort;
+}
+
+export function applyAndRenderSearchGrid(products, emptyMessage) {
+  return applyAndRenderGrid(products, emptyMessage, {
+    screen: "search",
+    gridEl: els.searchProductGrid || document.getElementById("searchProductGrid"),
+    sortSelectEl: els.searchSortSelect || document.getElementById("searchSortSelect"),
+  });
 }
 
 export function setModeBadge(element, visible) {

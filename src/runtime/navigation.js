@@ -14,6 +14,7 @@ export function showBrandView() {
   els.homeView.hidden = true;
   els.productDetailPage.hidden = true;
   if (els.assistantPage) els.assistantPage.hidden = true;
+  hideSearchView();
   document.getElementById("brandView")?.removeAttribute("hidden");
 }
 
@@ -21,11 +22,30 @@ export function hideBrandView() {
   document.getElementById("brandView")?.setAttribute("hidden", "");
 }
 
+export function showSearchView() {
+  appStore.currentRoute = "search";
+  els.homeView.hidden = true;
+  els.productDetailPage.hidden = true;
+  if (els.assistantPage) els.assistantPage.hidden = true;
+  hideBrandView();
+  const page = document.getElementById("searchResultsPage");
+  if (page) page.hidden = false;
+  document.title = "Search - BEAUTY SKIN KOREA";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  syncBottomNav();
+}
+
+export function hideSearchView() {
+  const page = document.getElementById("searchResultsPage");
+  if (page) page.hidden = true;
+}
+
 export function showAssistantView() {
   appStore.currentRoute = "assistant";
   els.homeView.hidden = true;
   els.productDetailPage.hidden = true;
   hideBrandView();
+  hideSearchView();
   if (els.assistantPage) els.assistantPage.hidden = false;
   document.title = "AI Assistant - BEAUTY SKIN KOREA";
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -58,6 +78,7 @@ export function showHomeView() {
   els.productDetailPage.hidden = true;
   if (els.assistantPage) els.assistantPage.hidden = true;
   hideBrandView();
+  hideSearchView();
   document.title = "BEAUTY SKIN KOREA";
   syncBottomNav();
 }
@@ -68,7 +89,22 @@ export function showProductView() {
   els.productDetailPage.hidden = false;
   if (els.assistantPage) els.assistantPage.hidden = true;
   hideBrandView();
+  hideSearchView();
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+export function navigateToSearch(query) {
+  const q = String(query || "").trim();
+  if (!q) {
+    routeHome();
+    return;
+  }
+  const nextHash = `#/search?q=${encodeURIComponent(q)}`;
+  if (window.location.hash === nextHash) {
+    handleRoute();
+  } else {
+    window.location.hash = nextHash;
+  }
 }
 
 export function routeHome() {

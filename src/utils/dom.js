@@ -119,6 +119,15 @@ export const els = {
   assistantWidgetContent: null,
   assistantPage: null,
   assistantPageContent: null,
+  searchResultsPage: null,
+  searchProductGrid: null,
+  searchFilterSidebar: null,
+  searchProductStatus: null,
+  searchResultsTitle: null,
+  searchResultsCount: null,
+  searchSortSelect: null,
+  searchQuickChips: null,
+  searchBreadcrumbQuery: null,
 };
 
 const ELEMENT_IDS = {
@@ -242,6 +251,15 @@ const ELEMENT_IDS = {
   assistantWidgetContent: "assistantWidgetContent",
   assistantPage: "assistantPage",
   assistantPageContent: "assistantPageContent",
+  searchResultsPage: "searchResultsPage",
+  searchProductGrid: "searchProductGrid",
+  searchFilterSidebar: "searchFilterSidebar",
+  searchProductStatus: "searchProductStatus",
+  searchResultsTitle: "searchResultsTitle",
+  searchResultsCount: "searchResultsCount",
+  searchSortSelect: "searchSortSelect",
+  searchQuickChips: "searchQuickChips",
+  searchBreadcrumbQuery: "searchBreadcrumbQuery",
 };
 
 export function initElements() {

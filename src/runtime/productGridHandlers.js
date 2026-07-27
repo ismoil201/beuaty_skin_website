@@ -2,8 +2,9 @@ import { CartController } from "../controllers/CartController.js";
 import { FavoriteController } from "../controllers/FavoriteController.js";
 import { HomePage } from "../pages/home/HomePage.js";
 import { sendProductClick } from "../pages/shared/analytics.js";
-import { navigateToProduct } from "./navigation.js";
+import { navigateToProduct, routeHome } from "./navigation.js";
 import { toggleCompareProduct } from "./compareUi.js";
+import { appStore } from "../stores/index.js";
 
 function addToCart(productId, variantId, quantity) {
   return CartController.add(productId, variantId, quantity);
@@ -31,6 +32,10 @@ export function handleProductGridClick(event) {
 
   if (showAll) {
     event.stopPropagation();
+    if (appStore.currentRoute === "search") {
+      routeHome();
+      return;
+    }
     HomePage.load({ loadCart: () => CartController.load() });
     return;
   }
