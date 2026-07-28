@@ -9,11 +9,32 @@ import { showProductView } from "../runtime/navigation.js";
 import { applyProductSeo } from "../utils/seoProduct.js";
 
 export const ProductController = {
+  nextRequestId() {
+    productStore.detailRequestId = Number(productStore.detailRequestId || 0) + 1;
+    return productStore.detailRequestId;
+  },
+
+  isActiveRequest(requestId) {
+    return Number(productStore.detailRequestId) === Number(requestId);
+  },
+
+  safeRerender() {
+    if (!productStore.selectedDetailProduct) return;
+    try {
+      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    } catch (error) {
+      console.error("[PDP] render failed", error);
+      productStore.detailError = "Product detail rendering failed.";
+      ProductDetailPage.renderProductDetailError();
+    }
+  },
+
   pickDefaultVariant(product) {
     return ProductService.pickDefaultVariant(product);
   },
 
   async loadDetailPage(productId) {
+    const requestId = ProductController.nextRequestId();
     showProductView();
     appStore.currentRoute = "product";
     productStore.detailLoading = true;
@@ -23,59 +44,130 @@ export const ProductController = {
     productStore.recommendedSimilar = [];
     productStore.recommendedOthers = [];
     productStore.recommendationsError = "";
+    productStore.sellerProfile = null;
+    productStore.inventory = null;
+    productStore.inventoryError = "";
+    productStore.inventoryLoading = false;
+    productStore.pdpSocialProof = { viewingNow: 0, recentlySold: 0, trendingScore: 0 };
+    productStore.pdpSocialProofEnabled = false;
     ProductDetailPage.renderDetailLoading(true);
 
-    const fallbackProduct = productStore.products.find((item) => String(item.id) === String(productId)) || {};
-    const product = await ProductService.loadProduct(productId, fallbackProduct);
-    productStore.detailLoading = false;
+    try {
+      const fallbackProduct = productStore.products.find((item) => String(item.id) === String(productId)) || {};
+      const product = await ProductService.loadProduct(productId, fallbackProduct);
+      if (!ProductController.isActiveRequest(requestId)) return;
 
-    if (!product.id) {
-      productStore.detailError = appStore.lastApiError || "Mahsulot topilmadi.";
+      if (!product?.id) {
+        productStore.detailError = appStore.lastApiError || "Mahsulot topilmadi.";
+        ProductDetailPage.renderProductDetailError();
+        return;
+      }
+
+      product.favorite = favoriteStore.favoriteIds.has(String(product.id)) || product.favorite;
+      productStore.selectedDetailProduct = product;
+      productStore.selectedVariantId = ProductController.pickDefaultVariant(product)?.id || null;
+      productStore.selectedQuantity = 1;
+      productStore.pdpGalleryIndex = 0;
+      productStore.pdpActiveTab = "description";
+      productStore.reviewSearchQuery = "";
+      productStore.reviewFilterRating = 0;
+      productStore.pdpFeatureFlags = PdpFeatureAdapter.featureFlags();
+      productStore.pdpCouponCode = "";
+      productStore.pdpCouponStatus = "";
+      productStore.pdpCouponDiscount = 0;
+
+      try {
+        applyProductSeo(product);
+      } catch (error) {
+        console.error("[PDP] SEO failed", error);
+      }
+      try {
+        HomeService.addRecentProduct(product.id);
+        sendProductView(product.id);
+      } catch (error) {
+        console.error("[PDP] analytics/recent failed", error);
+      }
+
+      ProductController.safeRerender();
+      productStore.detailLoading = false;
+      void ProductController.loadOptionalModules(product, requestId);
+    } catch (error) {
+      console.error("[PDP] loadDetailPage failed", error);
+      if (!ProductController.isActiveRequest(requestId)) return;
+      productStore.detailError = error?.message || appStore.lastApiError || "Product load failed.";
       ProductDetailPage.renderProductDetailError();
-      return;
+    } finally {
+      if (ProductController.isActiveRequest(requestId)) {
+        productStore.detailLoading = false;
+      }
     }
+  },
 
-    product.favorite = favoriteStore.favoriteIds.has(String(product.id)) || product.favorite;
-    productStore.selectedDetailProduct = product;
-    productStore.selectedVariantId = ProductController.pickDefaultVariant(product)?.id || null;
-    productStore.selectedQuantity = 1;
-    productStore.pdpGalleryIndex = 0;
-    productStore.pdpActiveTab = "description";
-    productStore.reviewSearchQuery = "";
-    productStore.reviewFilterRating = 0;
-    productStore.pdpFeatureFlags = PdpFeatureAdapter.featureFlags();
-    productStore.pdpCouponCode = "";
-    productStore.pdpCouponStatus = "";
-    productStore.pdpCouponDiscount = 0;
-    productStore.sellerProfile = null;
-    applyProductSeo(product);
-    HomeService.addRecentProduct(product.id);
-    sendProductView(product.id);
-    ProductDetailPage.renderProductDetail(product);
-    const [socialProof, seller] = await Promise.all([
+  async loadOptionalModules(product, requestId) {
+    const tasks = await Promise.allSettled([
+      ProductController.loadSellerAndSocialProof(product, requestId),
+      ProductController.loadInventory(product.id, requestId),
+      ProductController.loadReviews(product.id, requestId),
+      ProductController.loadRecommendations(product, requestId),
+    ]);
+    tasks.forEach((task, idx) => {
+      if (task.status === "rejected") {
+        console.error("[PDP] optional module failed", { index: idx, reason: task.reason });
+      }
+    });
+  },
+
+  async loadSellerAndSocialProof(product, requestId) {
+    const [socialProofResult, sellerResult] = await Promise.allSettled([
       PdpFeatureAdapter.loadSocialProof(product.id),
       PdpFeatureAdapter.loadSellerProfile(product),
     ]);
-    productStore.pdpSocialProof = socialProof || productStore.pdpSocialProof;
-    productStore.sellerProfile = seller;
-    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
-    await ProductController.loadReviews(product.id);
-    await ProductController.loadRecommendations(product);
+    if (!ProductController.isActiveRequest(requestId)) return;
+    productStore.pdpSocialProof = socialProofResult.status === "fulfilled"
+      ? (socialProofResult.value || { viewingNow: 0, recentlySold: 0, trendingScore: 0 })
+      : { viewingNow: 0, recentlySold: 0, trendingScore: 0 };
+    productStore.pdpSocialProofEnabled = socialProofResult.status === "fulfilled";
+    productStore.sellerProfile = sellerResult.status === "fulfilled" ? sellerResult.value : null;
+    ProductController.safeRerender();
   },
 
-  async loadRecommendations(product) {
+  async loadInventory(productId, requestId) {
+    if (!productId) return;
+    productStore.inventoryLoading = true;
+    const result = await PdpFeatureAdapter.loadInventory(productId);
+    if (!ProductController.isActiveRequest(requestId)) return;
+    productStore.inventoryLoading = false;
+    productStore.inventory = result.ok ? result.inventory : null;
+    productStore.inventoryError = result.ok ? "" : (result.message || "Availability unknown");
+    ProductController.safeRerender();
+  },
+
+  async loadRecommendations(product, requestId = productStore.detailRequestId) {
+    if (!product?.id) return;
     productStore.recommendationsLoading = true;
     productStore.recommendationsError = "";
-    ProductDetailPage.renderProductDetail(product);
+    ProductController.safeRerender();
 
-    const result = await ProductService.loadRecommendations(product, appStore.sessionId);
+    let result;
+    try {
+      result = await ProductService.loadRecommendations(product, appStore.sessionId);
+    } catch (error) {
+      console.error("[PDP] recommendations failed", error);
+      if (ProductController.isActiveRequest(requestId)) {
+        productStore.recommendationsLoading = false;
+        productStore.recommendationsError = "Recommendations could not be loaded.";
+        ProductController.safeRerender();
+      }
+      return;
+    }
+    if (!ProductController.isActiveRequest(requestId)) return;
 
     if (result.mode === "api") {
       productStore.recommendationsLoading = false;
       productStore.recommendedProducts = [];
-      productStore.recommendedSimilar = result.similar;
-      productStore.recommendedOthers = result.others;
-      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+      productStore.recommendedSimilar = Array.isArray(result.similar) ? result.similar : [];
+      productStore.recommendedOthers = Array.isArray(result.others) ? result.others : [];
+      ProductController.safeRerender();
       return;
     }
 
@@ -89,21 +181,30 @@ export const ProductController = {
     }));
     productStore.recommendedSimilar = [];
     productStore.recommendedOthers = [];
-    if (productStore.selectedDetailProduct?.id !== undefined && String(productStore.selectedDetailProduct.id) === String(product.id)) {
-      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
-    }
+    ProductController.safeRerender();
   },
 
-  async loadReviews(productId) {
+  async loadReviews(productId, requestId = productStore.detailRequestId) {
     if (!productId) return;
     const key = String(productId);
     productStore.productReviewsLoading[key] = true;
     productStore.productReviewsError[key] = "";
-    if (productStore.selectedDetailProduct?.id !== undefined && String(productStore.selectedDetailProduct.id) === key) {
-      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
-    }
+    ProductController.safeRerender();
 
-    const { reviews, error } = await ReviewService.loadProductReviews(productId);
+    let reviewsResult;
+    try {
+      reviewsResult = await ReviewService.loadProductReviews(productId);
+    } catch (error) {
+      console.error("[PDP] reviews failed", error);
+      if (ProductController.isActiveRequest(requestId)) {
+        productStore.productReviewsLoading[key] = false;
+        productStore.productReviewsError[key] = "Reviews unavailable.";
+        ProductController.safeRerender();
+      }
+      return;
+    }
+    if (!ProductController.isActiveRequest(requestId)) return;
+    const { reviews, error } = reviewsResult;
     productStore.productReviewsLoading[key] = false;
 
     if (reviews === null) {
@@ -112,9 +213,7 @@ export const ProductController = {
       productStore.productReviewsByProductId[key] = reviews;
     }
 
-    if (productStore.selectedDetailProduct?.id !== undefined && String(productStore.selectedDetailProduct.id) === key) {
-      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
-    }
+    ProductController.safeRerender();
   },
 
   rerender() {

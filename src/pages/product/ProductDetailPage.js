@@ -65,15 +65,24 @@ export const ProductDetailPage = {
   },
 
   renderProductDetail(product) {
-    const selectedVariant = product.variants.find((variant) => String(variant.id) === String(productStore.selectedVariantId)) || null;
-    const gallery = [...new Set([product.image, ...product.images, ...product.detailImages].filter(Boolean))];
+    try {
+    if (!product || typeof product !== "object") return;
+    const safeProduct = {
+      ...product,
+      variants: Array.isArray(product.variants) ? product.variants : [],
+      images: Array.isArray(product.images) ? product.images : [],
+      detailImages: Array.isArray(product.detailImages) ? product.detailImages : [],
+      name: product.name || "Product",
+    };
+    const selectedVariant = safeProduct.variants.find((variant) => String(variant?.id) === String(productStore.selectedVariantId)) || null;
+    const gallery = [...new Set([safeProduct.image, ...safeProduct.images, ...safeProduct.detailImages].filter(Boolean))];
     const galleryIndex = Math.min(productStore.pdpGalleryIndex || 0, Math.max(0, gallery.length - 1));
-    const currentImage = gallery[galleryIndex] || product.image;
-    const currentPrice = selectedVariant?.discountPrice ?? selectedVariant?.price ?? product.finalPrice;
-    const originalPrice = selectedVariant?.price ?? product.originalPrice;
-    const variantStock = selectedVariant?.stock ?? product.stock;
-    const isFavorite = favoriteStore.favoriteIds.has(String(product.id)) || Boolean(product.favorite);
-    const isCompared = getCompareIds().includes(String(product.id));
+    const currentImage = gallery[galleryIndex] || safeProduct.image;
+    const currentPrice = selectedVariant?.discountPrice ?? selectedVariant?.price ?? safeProduct.finalPrice;
+    const originalPrice = selectedVariant?.price ?? safeProduct.originalPrice;
+    const variantStock = selectedVariant?.stock ?? safeProduct.stock;
+    const isFavorite = favoriteStore.favoriteIds.has(String(safeProduct.id)) || Boolean(safeProduct.favorite);
+    const isCompared = getCompareIds().includes(String(safeProduct.id));
     const pageMode = appStore.currentRoute === "product";
     const target = pageMode ? els.productDetailPageContent : els.detailContent;
     const lowStock = numberOrZero(variantStock) > 0 && numberOrZero(variantStock) <= 5;
@@ -81,8 +90,9 @@ export const ProductDetailPage = {
     const socialProof = productStore.pdpSocialProof || { viewingNow: 0, recentlySold: 0, trendingScore: 0 };
     const seller = productStore.sellerProfile;
     const featureFlags = productStore.pdpFeatureFlags || {};
-    const productMeta = PdpFeatureAdapter.resolveProductMeta(product);
-    const deliveryMeta = PdpFeatureAdapter.resolveDeliveryMeta(product);
+    const productMeta = PdpFeatureAdapter.resolveProductMeta(safeProduct);
+    const deliveryMeta = PdpFeatureAdapter.resolveDeliveryMeta(safeProduct);
+    const inventoryMessage = productStore.inventoryError || (numberOrZero(variantStock) > 0 ? t("product.stock", { count: variantStock }) : t("product.outOfStock"));
     const savings = Math.max(0, originalPrice - currentPrice);
     const isOutOfStock = numberOrZero(variantStock) <= 0;
 
@@ -91,11 +101,11 @@ export const ProductDetailPage = {
         <div class="breadcrumbs">
           <button data-route-home type="button">${escapeHtml(t("product.home") || t("home.all"))}</button>
           <span>/</span>
-          <button data-brand="${escapeHtml(product.brand || "")}" type="button">${escapeHtml(product.brand || t("header.catalog"))}</button>
+          <button data-brand="${escapeHtml(safeProduct.brand || "")}" type="button">${escapeHtml(safeProduct.brand || t("header.catalog"))}</button>
           <span>/</span>
-          <button data-category="${escapeHtml(product.category || "ALL")}" type="button">${escapeHtml(product.category ? categoryLabel(product.category) : t("header.catalog"))}</button>
+          <button data-category="${escapeHtml(safeProduct.category || "ALL")}" type="button">${escapeHtml(safeProduct.category ? categoryLabel(safeProduct.category) : t("header.catalog"))}</button>
           <span>/</span>
-          <span>${escapeHtml(shortText(product.name, 42))}</span>
+          <span>${escapeHtml(shortText(safeProduct.name, 42))}</span>
         </div>
       ` : `
         <div class="drawer-head">
@@ -108,7 +118,7 @@ export const ProductDetailPage = {
       <div class="pdp-layout">
         <div class="pdp-gallery-wrap">
           <div class="pdp-main-image" data-pdp-zoom>
-            <img src="${escapeHtml(currentImage)}" alt="${escapeHtml(product.name)}" id="pdpMainImage" decoding="async" fetchpriority="high" />
+            <img src="${escapeHtml(currentImage)}" alt="${escapeHtml(safeProduct.name)}" id="pdpMainImage" decoding="async" fetchpriority="high" />
             <div class="pdp-main-controls">
               <button class="icon-button" type="button" data-pdp-prev aria-label="Previous media">&lt;</button>
               <button class="icon-button" type="button" data-pdp-next aria-label="Next media">&gt;</button>
@@ -133,40 +143,42 @@ export const ProductDetailPage = {
             <span class="pdp-badge pdp-badge--official">Verified seller</span>
             ${lowStock ? `<span class="pdp-badge pdp-badge--stock-low">${escapeHtml(t("product.lowStock"))}</span>` : ""}
           </div>
-          <div class="pdp-social-proof">
-            <span>Now viewing: ${socialProof.viewingNow}</span>
-            <span>Sold today: ${socialProof.recentlySold}</span>
-            <span>Trend score: ${socialProof.trendingScore}</span>
-          </div>
-          <p class="hint brand-name">${escapeHtml(product.brand || product.category)}</p>
-          <h2 class="detail-title">${escapeHtml(product.name)}</h2>
+          ${productStore.pdpSocialProofEnabled ? `
+            <div class="pdp-social-proof">
+              <span>Now viewing: ${socialProof.viewingNow}</span>
+              <span>Sold today: ${socialProof.recentlySold}</span>
+              <span>Trend score: ${socialProof.trendingScore}</span>
+            </div>
+          ` : ""}
+          <p class="hint brand-name">${escapeHtml(safeProduct.brand || safeProduct.category)}</p>
+          <h2 class="detail-title">${escapeHtml(safeProduct.name)}</h2>
           <div class="pdp-price-block">
             <h3>${formatPrice(currentPrice)}</h3>
             ${originalPrice > currentPrice ? `<p class="old-price">${formatPrice(originalPrice)}</p>` : ""}
-            ${originalPrice > currentPrice ? `<p class="pdp-savings">Save ${formatPrice(savings)} (${product.discountPercent || 0}%)</p>` : ""}
+            ${originalPrice > currentPrice ? `<p class="pdp-savings">Save ${formatPrice(savings)} (${safeProduct.discountPercent || 0}%)</p>` : ""}
           </div>
           <div class="pdp-price-breakdown">
             <div><span>${escapeHtml(t("product.listPrice"))}</span><span>${formatPrice(originalPrice)}</span></div>
-            ${product.discountPercent ? `<div><span>${escapeHtml(t("product.discount"))}</span><span>-${product.discountPercent}%</span></div>` : ""}
+            ${safeProduct.discountPercent ? `<div><span>${escapeHtml(t("product.discount"))}</span><span>-${safeProduct.discountPercent}%</span></div>` : ""}
             <div><strong>${escapeHtml(t("cart.subtotal"))}</strong><strong>${formatPrice(currentPrice)}</strong></div>
             <p class="hint">${escapeHtml(t("product.installmentPlaceholder"))}</p>
             <p class="hint">Lowest price guarantee · Tax included</p>
           </div>
-          <p class="hint">${renderStars(product.ratingAvg)} ${product.ratingAvg.toFixed(1)} (${product.reviewCount}) · ${escapeHtml(t("product.sold", { count: product.soldCount }))}</p>
+          <p class="hint">${renderStars(numberOrZero(safeProduct.ratingAvg))} ${numberOrZero(safeProduct.ratingAvg).toFixed(1)} (${numberOrZero(safeProduct.reviewCount)}) · ${escapeHtml(t("product.sold", { count: numberOrZero(safeProduct.soldCount) }))}</p>
           <div class="pdp-actions-row" style="margin:12px 0">
-            <button class="secondary-button detail-favorite ${isFavorite ? "active" : ""}" data-detail-favorite="${escapeHtml(product.id)}" type="button">${escapeHtml(isFavorite ? t("product.saved") : t("product.save"))}</button>
-            <button class="secondary-button ${isCompared ? "active" : ""}" data-compare="${escapeHtml(product.id)}" type="button">${escapeHtml(t("product.compare"))}</button>
-            <button class="secondary-button" data-pdp-share="${escapeHtml(product.id)}" type="button">Share</button>
-            <button class="secondary-button" data-pdp-copy-link="${escapeHtml(product.id)}" type="button">Copy link</button>
+            <button class="secondary-button detail-favorite ${isFavorite ? "active" : ""}" data-detail-favorite="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(isFavorite ? t("product.saved") : t("product.save"))}</button>
+            <button class="secondary-button ${isCompared ? "active" : ""}" data-compare="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(t("product.compare"))}</button>
+            <button class="secondary-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button">Share</button>
+            <button class="secondary-button" data-pdp-copy-link="${escapeHtml(safeProduct.id)}" type="button">Copy link</button>
           </div>
           <div class="pdp-meta-grid">
             <div><span>SKU</span><strong>${escapeHtml(productMeta.sku)}</strong></div>
-            <div><span>Category</span><strong>${escapeHtml(categoryLabel(productMeta.category || product.category || ""))}</strong></div>
+            <div><span>Category</span><strong>${escapeHtml(categoryLabel(productMeta.category || safeProduct.category || ""))}</strong></div>
             <div><span>Country</span><strong>${escapeHtml(productMeta.country)}</strong></div>
             <div><span>Made in</span><strong>${escapeHtml(productMeta.madeIn)}</strong></div>
           </div>
-          ${product.variants.length ? ProductDetailPage.renderVariantSelectors(product) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
-          <p class="hint">${numberOrZero(variantStock) > 0 ? escapeHtml(t("product.stock", { count: variantStock })) : escapeHtml(t("product.outOfStock"))}</p>
+          ${safeProduct.variants.length ? ProductDetailPage.renderVariantSelectors(safeProduct) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
+          <p class="hint">${escapeHtml(inventoryMessage)}</p>
           <div class="quantity-row">
             <button class="secondary-button" data-qty="minus" type="button" aria-label="Decrease">-</button>
             <input id="quantityInput" value="${productStore.selectedQuantity}" inputmode="numeric" aria-label="${escapeHtml(t("product.quantity"))}" />
@@ -187,7 +199,7 @@ export const ProductDetailPage = {
           </div>
           <div class="cart-coupon" style="margin-top:12px">
             <input type="text" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" value="${escapeHtml(productStore.pdpCouponCode || "")}" data-pdp-coupon />
-            <button class="secondary-button" type="button" data-pdp-apply-coupon ${featureFlags.couponsApi ? "" : "title=\"No coupon API yet\""}>${escapeHtml(t("cart.applyCoupon"))}</button>
+            <button class="secondary-button" type="button" data-pdp-apply-coupon ${featureFlags.couponsApi ? "" : "disabled title=\"No coupon API yet\""}>${escapeHtml(t("cart.applyCoupon"))}</button>
           </div>
           ${productStore.pdpCouponStatus ? `<p class="hint">${escapeHtml(productStore.pdpCouponStatus)}</p>` : ""}
           <div class="pdp-actions">
@@ -200,7 +212,7 @@ export const ProductDetailPage = {
             <span>${escapeHtml(t("product.original"))}</span>
             <span>Return in ${deliveryMeta.returnDays} days</span>
           </div>
-          ${seller ? ProductDetailPage.renderSellerBlock(seller) : ProductDetailPage.renderSellerPlaceholder()}
+          ${seller ? ProductDetailPage.renderSellerBlock(seller) : ""}
         </div>
       </div>
       <div class="pdp-tabs">
@@ -213,12 +225,12 @@ export const ProductDetailPage = {
           <button class="pdp-tab-btn ${productStore.pdpActiveTab === "qna" ? "active" : ""}" data-pdp-tab="qna" type="button" role="tab">Q&A</button>
         </nav>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "description" ? "" : "hidden"} data-pdp-panel="description">
-          <p class="hint">${escapeHtml(product.description || t("common.unavailable"))}</p>
-          ${product.detailImages.length ? `<div class="detail-image-stack">${product.detailImages.map((image) => `<img src="${escapeHtml(image)}" alt="" loading="lazy" class="img-loading" />`).join("")}</div>` : ""}
+          <p class="hint">${escapeHtml(safeProduct.description || t("common.unavailable"))}</p>
+          ${safeProduct.detailImages.length ? `<div class="detail-image-stack">${safeProduct.detailImages.map((image) => `<img src="${escapeHtml(image)}" alt="" loading="lazy" class="img-loading" />`).join("")}</div>` : ""}
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "details" ? "" : "hidden"} data-pdp-panel="details">
-          <p class="hint">${escapeHtml(t("home.categories"))}: ${escapeHtml(product.category ? categoryLabel(product.category) : "-")}</p>
-          <p class="hint">${escapeHtml(t("filter.brand"))}: ${escapeHtml(product.brand || "-")}</p>
+          <p class="hint">${escapeHtml(t("home.categories"))}: ${escapeHtml(safeProduct.category ? categoryLabel(safeProduct.category) : "-")}</p>
+          <p class="hint">${escapeHtml(t("filter.brand"))}: ${escapeHtml(safeProduct.brand || "-")}</p>
           <p class="hint">Skin type: All skin types</p>
           <p class="hint">Texture: Lightweight essence</p>
           <p class="hint">Storage: Keep in a cool and dry place</p>
@@ -232,14 +244,14 @@ export const ProductDetailPage = {
           <p class="hint"><strong>Warnings:</strong> Stop use if irritation occurs.</p>
         </div>
         <div class="pdp-tab-panel reviews-premium" ${productStore.pdpActiveTab === "reviews" ? "" : "hidden"} data-pdp-panel="reviews">
-          ${ProductDetailPage.renderProductReviews(product.id)}
+          ${ProductDetailPage.renderProductReviews(safeProduct.id)}
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "qna" ? "" : "hidden"} data-pdp-panel="qna">
           <div class="media-placeholder">Q&A adapter placeholder. TODO(api): connect `/api/products/{id}/questions` when available.</div>
         </div>
       </div>
       ${pageMode ? ProductDetailPage.renderRecommendations() : ""}
-      ${pageMode ? ProductDetailPage.renderFrequentlyBought(product) : ""}
+      ${pageMode ? ProductDetailPage.renderFrequentlyBought(safeProduct) : ""}
       ${pageMode ? ProductDetailPage.renderTrendingInKorea() : ""}
       ${pageMode ? ProductDetailPage.renderRecentlyViewedStrip() : ""}
       ${pageMode ? `
@@ -249,14 +261,26 @@ export const ProductDetailPage = {
           <button class="primary-button" data-detail-add type="button">${escapeHtml(t("product.addToCart"))}</button>
         </div>
         <div class="mobile-float-actions">
-          <button class="icon-button" data-detail-favorite="${escapeHtml(product.id)}" type="button" aria-label="Wishlist">W</button>
-          <button class="icon-button" data-pdp-share="${escapeHtml(product.id)}" type="button" aria-label="Share">S</button>
+          <button class="icon-button" data-detail-favorite="${escapeHtml(safeProduct.id)}" type="button" aria-label="Wishlist">W</button>
+          <button class="icon-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button" aria-label="Share">S</button>
         </div>
       ` : ""}
     `;
     observeProductImpressions(target);
     initLazyImages(target);
     ProductDetailPage.initPdpGallerySwipe(target);
+    } catch (error) {
+      console.error("[PDP] renderProductDetail failed", error);
+      if (els?.productDetailPageContent) {
+        els.productDetailPageContent.innerHTML = `
+          <div class="detail-error-page">
+            <strong>${escapeHtml(t("product.notFound"))}</strong>
+            <p>${escapeHtml(productStore.detailError || "Product detail is temporarily unavailable.")}</p>
+            <button class="primary-button" data-route-home type="button">${escapeHtml(t("product.backToShopping"))}</button>
+          </div>
+        `;
+      }
+    }
   },
 
   renderVariantSelectors(product) {
@@ -327,15 +351,6 @@ export const ProductDetailPage = {
     `;
   },
 
-  renderSellerPlaceholder() {
-    return `
-      <section class="pdp-seller-card">
-        <h4>Verified seller</h4>
-        <p class="hint">Seller details are loading or unavailable.</p>
-      </section>
-    `;
-  },
-
   renderRecentlyViewedStrip() {
     const ids = getRecentProductIds().filter((id) => String(id) !== String(productStore.selectedDetailProduct?.id));
     if (!ids.length || !productStore.recentlyViewed.length) return "";
@@ -374,16 +389,7 @@ export const ProductDetailPage = {
       `;
     }
 
-    if (productStore.recommendationsError) {
-      return `
-        <section class="recommended-section app-feed-block app-feed-rail">
-          <div class="detail-error-page compact">
-            <strong>Recommendations unavailable</strong>
-            <p>${escapeHtml(productStore.recommendationsError)}</p>
-          </div>
-        </section>
-      `;
-    }
+    if (productStore.recommendationsError) return "";
 
     const apiSections = [
       [t("home.similar"), productStore.recommendedSimilar || [], "recommendations-similar"],

@@ -1,6 +1,7 @@
 import { getTrendingRecommendations } from "../api/recommendationApi.js";
 import { getTrendingBehaviorIds } from "../api/behaviorApi.js";
 import { SellerService } from "./SellerService.js";
+import { InventoryService } from "./InventoryService.js";
 
 /**
  * PDP marketplace adapter layer.
@@ -8,10 +9,15 @@ import { SellerService } from "./SellerService.js";
  */
 export const PdpFeatureAdapter = {
   async loadSellerProfile(product) {
-    const sellerId = product?.raw?.sellerId ?? product?.sellerId ?? product?.raw?.seller?.id;
-    if (!sellerId) return null;
-    const result = await SellerService.loadSeller(sellerId);
-    return result.success ? result.seller : null;
+    try {
+      const sellerId = product?.raw?.sellerId ?? product?.sellerId ?? product?.raw?.seller?.id;
+      if (!sellerId) return null;
+      const result = await SellerService.loadSeller(sellerId);
+      return result.success ? result.seller : null;
+    } catch (error) {
+      console.error("[PDP] Seller profile failed", error);
+      return null;
+    }
   },
 
   resolveProductMeta(product) {
@@ -56,10 +62,18 @@ export const PdpFeatureAdapter = {
   },
 
   async loadSocialProof(productId) {
-    const [trendingPayload, trendingIds] = await Promise.all([
+    const [trendingPayloadResult, trendingIdsResult] = await Promise.allSettled([
       getTrendingRecommendations(12),
       getTrendingBehaviorIds(30),
     ]);
+    const trendingPayload = trendingPayloadResult.status === "fulfilled" ? trendingPayloadResult.value : null;
+    const trendingIds = trendingIdsResult.status === "fulfilled" ? trendingIdsResult.value : [];
+    if (trendingPayloadResult.status === "rejected" || trendingIdsResult.status === "rejected") {
+      console.error("[PDP] Social proof degraded", {
+        trendingError: trendingPayloadResult.status === "rejected" ? trendingPayloadResult.reason : null,
+        behaviorError: trendingIdsResult.status === "rejected" ? trendingIdsResult.reason : null,
+      });
+    }
     const behaviorList = Array.isArray(trendingIds) ? trendingIds : [];
     const inTrending = behaviorList.some((id) => String(id) === String(productId));
     const recCount = Array.isArray(trendingPayload?.recommendations)
@@ -72,6 +86,17 @@ export const PdpFeatureAdapter = {
       trendingScore: inTrending ? 92 : 61,
       inTrending,
     };
+  },
+
+  async loadInventory(productId) {
+    try {
+      const result = await InventoryService.getForProduct(productId);
+      if (!result.success) return { ok: false, inventory: null, message: "Availability unknown" };
+      return { ok: true, inventory: result.inventory, message: "" };
+    } catch (error) {
+      console.error("[PDP] Inventory failed", error);
+      return { ok: false, inventory: null, message: "Availability unknown" };
+    }
   },
 
   featureFlags() {

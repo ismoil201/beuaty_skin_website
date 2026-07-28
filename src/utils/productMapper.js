@@ -51,7 +51,7 @@ export function normalizeProduct(product = {}) {
     name: product.name || "Mahsulot",
     description: product.description || "",
     brand: product.brand || "",
-    category: product.category || "",
+    category: normalizeCategory(product.category),
     image: mainImage,
     images: images.length ? images : [mainImage],
     detailImages,
@@ -106,9 +106,11 @@ export function normalizeFavoriteItem(item = {}) {
 }
 
 export function normalizeCategory(value) {
-  if (typeof value === "string") return value;
-  if (!value || typeof value !== "object") return "";
-  return value.code || value.name || value.title || value.category || "";
+  if (value == null) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (typeof value !== "object") return "";
+  return String(value.code || value.name || value.title || value.category || "").trim();
 }
 
 /**
@@ -270,13 +272,14 @@ export function getMyReviewsContent(response) {
 }
 
 export function categoryLabel(category) {
-  if (!category) return "";
-  const key = `category.${category}`;
+  const normalized = normalizeCategory(category);
+  if (!normalized) return "";
+  const key = `category.${normalized}`;
   const translated = t(key);
   if (translated !== key) return translated;
   return (
-    CATEGORY_LABELS[category] ||
-    category
+    CATEGORY_LABELS[normalized] ||
+    normalized
       .toLowerCase()
       .split("_")
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

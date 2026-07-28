@@ -60,6 +60,7 @@ import { toggleCompareProduct } from './compareUi.js';
 import { handleProductCardKeydown, handleProductGridClick } from './productGridHandlers.js';
 
 export { handleProductGridClick };
+let eventsBound = false;
 
 function addToCart(productId, variantId, quantity) {
   return CartController.add(productId, variantId, quantity);
@@ -72,6 +73,8 @@ function prepareCheckout() {
 /* ================= EVENT BINDING ================= */
 
 export function bindEvents() {
+  if (eventsBound) return;
+  eventsBound = true;
   els.languageSelect?.addEventListener("change", (event) => setLanguage(event.target.value));
   els.searchForm.addEventListener("submit", (event) => SearchController.submitFromForm(event));
   els.searchInput.addEventListener("input", (event) => SearchController.handleInput(event));
@@ -280,6 +283,7 @@ function handleBannerClick(event) {
 /* ================= PRODUCT DETAIL HANDLERS ================= */
 
 function handleDetailClick(event) {
+  const selectedProduct = productStore.selectedDetailProduct;
   const routeHomeButton = event.target.closest("[data-route-home]");
   const categoryButton = event.target.closest(".product-detail-page [data-category]");
   const brandButton = event.target.closest("[data-brand]");
@@ -331,6 +335,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpThumb) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     productStore.pdpGalleryIndex = Number(pdpThumb.dataset.pdpThumb);
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
@@ -351,6 +356,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpTab) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     productStore.pdpActiveTab = pdpTab.dataset.pdpTab;
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
@@ -358,6 +364,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpPrev || pdpNext) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     const gallery = [...new Set([productStore.selectedDetailProduct?.image, ...(productStore.selectedDetailProduct?.images || []), ...(productStore.selectedDetailProduct?.detailImages || [])].filter(Boolean))];
     const next = (productStore.pdpGalleryIndex || 0) + (pdpNext ? 1 : -1);
@@ -367,6 +374,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpVariantColor) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     const color = String(pdpVariantColor.dataset.variantColor || "").toLowerCase();
     const candidate = productStore.selectedDetailProduct?.variants?.find((v) =>
@@ -382,6 +390,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpApplyCoupon) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     const input = document.querySelector("[data-pdp-coupon]");
     const code = String(input?.value || "").trim();
@@ -396,6 +405,7 @@ function handleDetailClick(event) {
   }
 
   if (pdpShare || pdpCopyLink) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     const url = `${window.location.origin}${window.location.pathname}#/product/${encodeURIComponent(productStore.selectedDetailProduct?.id || "")}`;
     if (pdpShare && navigator.share) {
@@ -417,12 +427,14 @@ function handleDetailClick(event) {
   }
 
   if (compare) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     toggleCompareProduct(compare.dataset.compare);
     return true;
   }
 
   if (variant) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     productStore.selectedVariantId = variant.dataset.variant;
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
@@ -430,6 +442,7 @@ function handleDetailClick(event) {
   }
 
   if (qty) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     productStore.selectedQuantity = Math.max(1, productStore.selectedQuantity + (qty.dataset.qty === "plus" ? 1 : -1));
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
@@ -437,6 +450,7 @@ function handleDetailClick(event) {
   }
 
   if (favorite) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     FavoriteController.toggle(favorite.dataset.detailFavorite);
     return true;
@@ -449,6 +463,7 @@ function handleDetailClick(event) {
   }
 
   if (reviewHelpful) {
+    if (!selectedProduct) return true;
     event.stopPropagation();
     const id = reviewHelpful.dataset.reviewHelpful;
     if (productStore.reviewHelpfulIds.has(id)) productStore.reviewHelpfulIds.delete(id);
@@ -458,19 +473,21 @@ function handleDetailClick(event) {
   }
 
   if (add) {
+    if (!selectedProduct?.id) return true;
     event.stopPropagation();
     const quantityInput = document.getElementById("quantityInput");
     productStore.selectedQuantity = Math.max(1, Number(quantityInput?.value || productStore.selectedQuantity));
-    addToCart(productStore.selectedDetailProduct.id, productStore.selectedVariantId, productStore.selectedQuantity);
+    addToCart(selectedProduct.id, productStore.selectedVariantId, productStore.selectedQuantity);
     return true;
   }
 
   if (buyNow) {
+    if (!selectedProduct?.id) return true;
     event.stopPropagation();
     const quantityInput = document.getElementById("quantityInput");
     productStore.selectedQuantity = Math.max(1, Number(quantityInput?.value || productStore.selectedQuantity));
     CartController.buyNow(
-      productStore.selectedDetailProduct.id,
+      selectedProduct.id,
       productStore.selectedVariantId,
       productStore.selectedQuantity,
     );
