@@ -44,6 +44,18 @@ function recommendationIds(payload) {
   return [];
 }
 
+function extractProductDetailPayload(response, fallbackProduct = null) {
+  if (!response) return fallbackProduct || {};
+  if (response.id != null) return response;
+  if (response.data && typeof response.data === "object" && response.data.id != null) return response.data;
+  if (response.data?.product && typeof response.data.product === "object" && response.data.product.id != null) return response.data.product;
+  if (response.product && typeof response.product === "object" && response.product.id != null) return response.product;
+  if (response.item && typeof response.item === "object" && response.item.id != null) return response.item;
+  if (Array.isArray(response.items) && response.items[0]?.id != null) return response.items[0];
+  if (Array.isArray(response.content) && response.content[0]?.id != null) return response.content[0];
+  return fallbackProduct || {};
+}
+
 export const ProductService = {
   async hydrateProductIds(ids = []) {
     const numericIds = [...new Set(ids.map(Number).filter(Number.isFinite))];
@@ -139,7 +151,7 @@ export const ProductService = {
 
   async loadProduct(productId, fallbackProduct = null) {
     const response = await getProduct(productId);
-    return normalizeProduct(response || fallbackProduct || {});
+    return normalizeProduct(extractProductDetailPayload(response, fallbackProduct));
   },
 
   async loadProductsByIds(ids) {

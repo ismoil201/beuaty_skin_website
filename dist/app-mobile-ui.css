@@ -1,15 +1,15 @@
-/* Mobile app UI — BEAUTY SKIN KOREA */
+/* Mobile app UI ??BEAUTY SKIN KOREA */
 :root {
-  --app-bg: #f8f8f8;
+  --app-bg: #faf8f9;
   --app-surface: #ffffff;
-  --app-text: #1a1a1a;
-  --app-muted: #8a8a8a;
-  --app-border: #ececec;
-  --app-pink: #fdf2f4;
-  --app-pink-strong: #f8d9e2;
-  --app-accent: #4a3f54;
-  --app-accent-soft: #efe8f3;
-  --app-sale: #ff4d6d;
+  --app-text: #111118;
+  --app-muted: #8b8e99;
+  --app-border: #ebe6ea;
+  --app-pink: #fdf2f6;
+  --app-pink-strong: #f3d5df;
+  --app-accent: #e8a0b4;
+  --app-accent-soft: #fce8ef;
+  --app-sale: #ff3b5c;
   --app-radius: 16px;
   --app-radius-sm: 12px;
   --app-shell: 100%;
@@ -38,7 +38,7 @@ body.app-layout #homeView > section {
   box-sizing: border-box;
 }
 
-/* Header — app style */
+/* Header ??app style */
 body.app-layout .mini-bar,
 body.app-layout .category-nav,
 body.app-layout .mobile-menu-toggle,
@@ -285,7 +285,7 @@ body.app-layout .quick-card span {
 }
 
 body.app-layout .quick-card:nth-child(1) span { background: linear-gradient(145deg, #fce8ef, #f6d4e0) !important; color: #9b4d67 !important; }
-body.app-layout .quick-card:nth-child(2) span { background: linear-gradient(145deg, #efe8fc, #ddd0f8) !important; color: #6b4f9b !important; }
+body.app-layout .quick-card:nth-child(2) span { background: linear-gradient(145deg, #fce8ef, #f3d5df) !important; color: #b76b84 !important; }
 body.app-layout .quick-card:nth-child(3) span { background: linear-gradient(145deg, #e8f3fc, #cfe6f8) !important; color: #3f6f9b !important; }
 body.app-layout .quick-card:nth-child(4) span { background: linear-gradient(145deg, #fceef0, #f7d9de) !important; color: #a14d5d !important; }
 body.app-layout .quick-card:nth-child(5) span { background: linear-gradient(145deg, #f3ece6, #e5d5c8) !important; color: #7a5f4d !important; }
@@ -701,7 +701,7 @@ body.app-layout .load-row .secondary-button {
   font-weight: 600;
 }
 
-/* Bottom navigation — always above shell drawers (cart/favorites/profile = 55) */
+/* Bottom navigation ??always above shell drawers (cart/favorites/profile = 55) */
 body.app-layout .mobile-bottom-nav {
   position: fixed;
   left: 0;
@@ -814,6 +814,7 @@ body.app-layout {
   body.app-layout .mini-bar,
   body.app-layout .brand,
   body.app-layout .catalog-button,
+  body.app-layout #loginButton,
   body.app-layout #favoritesButton,
   body.app-layout .cart-button {
     display: flex !important;
@@ -821,30 +822,64 @@ body.app-layout {
 
   body.app-layout .mini-bar {
     display: flex !important;
-    max-width: var(--app-shell);
-    margin-inline: auto;
-    padding-inline: var(--app-gutter);
+    max-width: none !important;
+    width: 100%;
+    margin-inline: 0;
+    padding-inline: max(var(--app-gutter), calc((100vw - var(--app-shell)) / 2));
     box-sizing: border-box;
+    background: #f2f4f7 !important;
+    color: #5c5c6e !important;
+  }
+
+  body.app-layout .mini-bar-left,
+  body.app-layout .mini-bar-right {
+    display: flex !important;
+    align-items: center;
   }
 
   body.app-layout .topbar {
     grid-template-columns: auto auto minmax(280px, 1fr) auto !important;
-    gap: 12px !important;
+    gap: 14px !important;
     padding: 12px var(--app-gutter) !important;
   }
 
+  body.app-layout .catalog-button {
+    background: #fdf2f6 !important;
+    color: #e8a0b4 !important;
+    border-radius: 12px !important;
+    min-height: 44px !important;
+  }
+
   body.app-layout .catalog-button span,
+  body.app-layout #loginButton span,
   body.app-layout #favoritesButton span,
   body.app-layout .cart-button span {
     display: inline !important;
   }
 
+  body.app-layout .header-action,
+  body.app-layout .cart-button {
+    flex-direction: row !important;
+    gap: 8px !important;
+    font-size: 14px !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+  }
+
   body.app-layout .search-actions {
     display: flex !important;
+    height: 100%;
   }
 
   body.app-layout .search-button {
     display: inline-flex !important;
+    width: 56px !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border-left: 1px solid #e8eaef !important;
+    background: #f2f4f7 !important;
+    color: #5c5c6e !important;
   }
 
   body.app-layout .search::before {
@@ -852,15 +887,18 @@ body.app-layout {
   }
 
   body.app-layout .search {
-    display: grid !important;
-    grid-template-columns: 1fr auto !important;
+    display: flex !important;
+    align-items: stretch !important;
+    height: 44px !important;
     padding: 0 !important;
-    border: 1px solid var(--app-border) !important;
+    border: 1px solid #d0d3db !important;
+    border-radius: 12px !important;
     background: #fff !important;
+    box-shadow: none !important;
   }
 
   body.app-layout .search input {
-    padding: 0 14px !important;
+    padding: 0 16px !important;
   }
 
   body.app-layout .category-nav {

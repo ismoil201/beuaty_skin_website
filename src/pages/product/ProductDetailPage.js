@@ -248,7 +248,7 @@ export const ProductDetailPage = {
           ${ProductDetailPage.renderProductReviews(safeProduct.id)}
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "qna" ? "" : "hidden"} data-pdp-panel="qna">
-          <div class="media-placeholder">Q&A adapter placeholder. TODO(api): connect `/api/products/{id}/questions` when available.</div>
+          <div class="media-placeholder">Q&A adapter placeholder. TODO(api): connect /api/products/{id}/questions when available.</div>
         </div>
       </div>
       ${pageMode ? ProductDetailPage.renderRecommendations() : ""}

@@ -1,6 +1,6 @@
 /* Uzum-inspired marketplace home (BSK brand colors) */
 
-/* Banner — full promotional plane */
+/* Banner ??full promotional plane */
 body.app-layout #banners {
   display: block !important;
   padding: 12px var(--app-gutter) 8px !important;
@@ -83,7 +83,7 @@ body.app-layout .banner-dot.active {
   background: #111118;
 }
 
-/* Category chips — Uzum pill row */
+/* Category chips ??Uzum pill row */
 body.app-layout .app-categories-block {
   padding-top: 6px !important;
   padding-bottom: 10px !important;
@@ -124,13 +124,13 @@ body.app-layout .uzum-cat-chip {
 
 body.app-layout .uzum-cat-chip:hover {
   border-color: #f0c4d2;
-  box-shadow: 0 6px 16px rgba(17, 17, 24, 0.06);
+  box-shadow: 0 6px 16px rgba(31, 32, 38, 0.06);
   transform: translateY(-1px);
 }
 
 body.app-layout .uzum-cat-chip.active {
-  border-color: #111118;
-  background: #111118;
+  border-color: #e8a0b4;
+  background: #e8a0b4;
   color: #fff;
 }
 
@@ -141,13 +141,13 @@ body.app-layout .uzum-cat-icon {
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(145deg, #fce8ef, #f6d4e0);
+  background: linear-gradient(145deg, #fdf2f6, #f3d5df);
   flex: 0 0 32px;
 }
 
-body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #efe8fc, #ddd0f8); }
+body.app-layout .uzum-cat-chip:nth-child(2) .uzum-cat-icon { background: linear-gradient(145deg, #fce8ef, #f3d5df); }
 body.app-layout .uzum-cat-chip:nth-child(3) .uzum-cat-icon { background: linear-gradient(145deg, #e8f3fc, #cfe6f8); }
-body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fceef0, #f7d9de); }
+body.app-layout .uzum-cat-chip:nth-child(4) .uzum-cat-icon { background: linear-gradient(145deg, #fff4d6, #ffe54c); }
 body.app-layout .uzum-cat-chip:nth-child(5) .uzum-cat-icon { background: linear-gradient(145deg, #f3ece6, #e5d5c8); }
 body.app-layout .uzum-cat-chip:nth-child(n+6) .uzum-cat-icon { background: linear-gradient(145deg, #eef0f5, #dfe3ec); }
 
@@ -164,7 +164,7 @@ body.app-layout .uzum-cat-icon img {
 body.app-layout .uzum-cat-letter {
   font-size: 13px;
   font-weight: 700;
-  color: #7a4558;
+  color: #e8a0b4;
 }
 
 body.app-layout .uzum-cat-label {
@@ -181,7 +181,7 @@ body.app-layout .quick-card {
   display: none !important;
 }
 
-/* Product cards — marketplace grid item */
+/* Product cards ??marketplace grid item */
 body.app-layout .app-feed-rail .product-card,
 body.app-layout .app-main-catalog .product-card {
   display: flex !important;
@@ -342,7 +342,7 @@ body.app-layout .app-main-catalog .product-meta {
   display: none !important;
 }
 
-/* Main Mashhur grid — denser marketplace feed */
+/* Main Mashhur grid ??denser marketplace feed */
 body.app-layout .app-main-catalog .catalog-toolbar,
 body.app-layout .app-main-catalog .filter-sidebar,
 body.app-layout .app-main-catalog .filter-chips-row {
@@ -365,7 +365,7 @@ body.app-layout .app-section-head h2 {
 }
 
 body.app-layout .app-section-head h2::after {
-  content: " ›";
+  content: " ??;
   color: #111118;
   font-weight: 700;
 }

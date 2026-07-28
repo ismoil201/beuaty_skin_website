@@ -10,4 +10,8 @@ export const postProductClick = (productId) =>
   postAnalyticsEvent("/events/click", { method: "POST", query: { productId } });
 
 export const postProductView = (productId) =>
-  postAnalyticsEvent("/events/view", { method: "POST", query: { productId } });
+  postAnalyticsEvent("/events/view", {
+    method: "POST",
+    body: JSON.stringify({ productId }),
+    headers: { "Content-Type": "application/json" },
+  });
