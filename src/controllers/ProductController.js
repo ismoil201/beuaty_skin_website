@@ -24,8 +24,7 @@ export const ProductController = {
       ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     } catch (error) {
       console.error("[PDP] render failed", error);
-      productStore.detailError = "Product detail rendering failed.";
-      ProductDetailPage.renderProductDetailError();
+      // Keep the previous successful UI on non-critical rerender failures.
     }
   },
 
@@ -58,8 +57,11 @@ export const ProductController = {
       if (!ProductController.isActiveRequest(requestId)) return;
 
       if (!product?.id) {
-        productStore.detailError = appStore.lastApiError || "Mahsulot topilmadi.";
-        ProductDetailPage.renderProductDetailError();
+        const notFound = Number(appStore.lastApiStatus) === 404;
+        productStore.detailError = notFound
+          ? (appStore.lastApiError || "Mahsulot topilmadi.")
+          : (appStore.lastApiError || "Product could not be loaded.");
+        ProductDetailPage.renderProductDetailError({ notFound });
         return;
       }
 
@@ -94,8 +96,11 @@ export const ProductController = {
     } catch (error) {
       console.error("[PDP] loadDetailPage failed", error);
       if (!ProductController.isActiveRequest(requestId)) return;
-      productStore.detailError = error?.message || appStore.lastApiError || "Product load failed.";
-      ProductDetailPage.renderProductDetailError();
+      const notFound = Number(appStore.lastApiStatus) === 404;
+      productStore.detailError = notFound
+        ? (appStore.lastApiError || "Mahsulot topilmadi.")
+        : (error?.message || appStore.lastApiError || "Product load failed.");
+      ProductDetailPage.renderProductDetailError({ notFound });
     } finally {
       if (ProductController.isActiveRequest(requestId)) {
         productStore.detailLoading = false;

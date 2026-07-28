@@ -54,10 +54,11 @@ export const ProductDetailPage = {
     `;
   },
 
-  renderProductDetailError() {
+  renderProductDetailError({ notFound = false } = {}) {
+    const title = notFound ? t("product.notFound") : (t("common.serverFailed") || "Product unavailable");
     els.productDetailPageContent.innerHTML = `
       <div class="detail-error-page">
-        <strong>${escapeHtml(t("product.notFound"))}</strong>
+        <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(productStore.detailError || "Mahsulot topilmadi.")}</p>
         <button class="primary-button" data-route-home type="button">${escapeHtml(t("product.backToShopping"))}</button>
       </div>
@@ -271,15 +272,7 @@ export const ProductDetailPage = {
     ProductDetailPage.initPdpGallerySwipe(target);
     } catch (error) {
       console.error("[PDP] renderProductDetail failed", error);
-      if (els?.productDetailPageContent) {
-        els.productDetailPageContent.innerHTML = `
-          <div class="detail-error-page">
-            <strong>${escapeHtml(t("product.notFound"))}</strong>
-            <p>${escapeHtml(productStore.detailError || "Product detail is temporarily unavailable.")}</p>
-            <button class="primary-button" data-route-home type="button">${escapeHtml(t("product.backToShopping"))}</button>
-          </div>
-        `;
-      }
+      ProductDetailPage.renderProductDetailError({ notFound: false });
     }
   },
 
