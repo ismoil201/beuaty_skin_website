@@ -355,6 +355,17 @@ mark {
   cursor: zoom-out;
 }
 
+.pdp-main-controls {
+  position: absolute;
+  inset: auto 10px 10px auto;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.pdp-main-controls .icon-button {
+  background: rgba(255, 255, 255, 0.86);
+}
+
 .pdp-thumbs {
   display: flex;
   gap: var(--ds-space-2, 8px);
@@ -487,6 +498,54 @@ mark {
   padding: 4px 0;
 }
 
+.pdp-savings {
+  margin: 6px 0 0;
+  font-size: var(--ds-text-sm, 13px);
+  color: var(--ds-success, #0d9f6e);
+  font-weight: 700;
+}
+
+.pdp-social-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--ds-text-secondary, #5c5c6e);
+}
+
+.pdp-social-proof span {
+  border: 1px solid var(--ds-border, #e8e8ee);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.pdp-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.pdp-meta-grid div {
+  border: 1px solid var(--ds-border, #e8e8ee);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.pdp-meta-grid span {
+  display: block;
+  font-size: 11px;
+  color: var(--ds-text-muted, #9494a8);
+}
+
+.pdp-meta-grid strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
 .pdp-variant-section {
   margin: var(--ds-space-4, 16px) 0;
 }
@@ -568,11 +627,43 @@ mark {
   font-weight: 600;
 }
 
+.pdp-delivery-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11px;
+}
+
 .pdp-actions {
   display: flex;
   flex-direction: column;
   gap: var(--ds-space-3, 12px);
   margin-top: var(--ds-space-4, 16px);
+}
+
+.cta-animate {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cta-animate:hover {
+  transform: translateY(-1px);
+}
+
+.cta-animate:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.pdp-seller-card {
+  margin-top: 14px;
+  border: 1px solid var(--ds-border, #e8e8ee);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.pdp-seller-card h4 {
+  margin: 0 0 6px;
 }
 
 .pdp-actions-row {
@@ -611,6 +702,24 @@ mark {
   border-bottom-color: var(--ds-primary, #e8a0b4);
 }
 
+.mobile-float-actions {
+  position: fixed;
+  right: 12px;
+  bottom: 88px;
+  z-index: 95;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-float-actions .icon-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+  background: #fff;
+}
+
 @media (max-width: 900px) {
   .pdp-layout {
     grid-template-columns: 1fr;
@@ -618,6 +727,13 @@ mark {
   .pdp-gallery-wrap,
   .pdp-purchase-card {
     position: static;
+  }
+  .pdp-delivery-grid,
+  .pdp-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .mobile-float-actions {
+    display: flex;
   }
 }
 

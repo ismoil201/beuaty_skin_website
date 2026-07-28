@@ -2,9 +2,11 @@ import { appStore, productStore, favoriteStore } from "../stores/index.js";
 import { ProductService } from "../services/ProductService.js";
 import { ReviewService } from "../services/ReviewService.js";
 import { HomeService } from "../services/HomeService.js";
+import { PdpFeatureAdapter } from "../services/PdpFeatureAdapter.js";
 import { ProductDetailPage } from "../pages/product/ProductDetailPage.js";
 import { sendProductView } from "../pages/shared/analytics.js";
 import { showProductView } from "../runtime/navigation.js";
+import { applyProductSeo } from "../utils/seoProduct.js";
 
 export const ProductController = {
   pickDefaultVariant(product) {
@@ -41,10 +43,22 @@ export const ProductController = {
     productStore.pdpActiveTab = "description";
     productStore.reviewSearchQuery = "";
     productStore.reviewFilterRating = 0;
-    document.title = `${product.name} - BEAUTY SKIN KOREA`;
+    productStore.pdpFeatureFlags = PdpFeatureAdapter.featureFlags();
+    productStore.pdpCouponCode = "";
+    productStore.pdpCouponStatus = "";
+    productStore.pdpCouponDiscount = 0;
+    productStore.sellerProfile = null;
+    applyProductSeo(product);
     HomeService.addRecentProduct(product.id);
     sendProductView(product.id);
     ProductDetailPage.renderProductDetail(product);
+    const [socialProof, seller] = await Promise.all([
+      PdpFeatureAdapter.loadSocialProof(product.id),
+      PdpFeatureAdapter.loadSellerProfile(product),
+    ]);
+    productStore.pdpSocialProof = socialProof || productStore.pdpSocialProof;
+    productStore.sellerProfile = seller;
+    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     await ProductController.loadReviews(product.id);
     await ProductController.loadRecommendations(product);
   },

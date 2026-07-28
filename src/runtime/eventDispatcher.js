@@ -31,6 +31,7 @@ import { cancelPendingAuth, resetLoginModalGate } from '../auth/requireAuth.js';
 import { CartPage } from '../pages/cart/CartPage.js';
 import { CheckoutPage } from '../pages/checkout/CheckoutPage.js';
 import { ProductDetailPage } from '../pages/product/ProductDetailPage.js';
+import { PdpFeatureAdapter } from '../services/PdpFeatureAdapter.js';
 import { FavoritesPage } from '../pages/favorites/FavoritesPage.js';
 import { SupportPage } from '../pages/support/SupportPage.js';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage.js';
@@ -294,6 +295,13 @@ function handleDetailClick(event) {
   const pdpTab = event.target.closest("[data-pdp-tab]");
   const pdpZoom = event.target.closest("[data-pdp-zoom]");
   const pdpFullscreen = event.target.closest("[data-pdp-fullscreen]");
+  const pdpPrev = event.target.closest("[data-pdp-prev]");
+  const pdpNext = event.target.closest("[data-pdp-next]");
+  const pdpVariantColor = event.target.closest("[data-variant-color]");
+  const pdpApplyCoupon = event.target.closest("[data-pdp-apply-coupon]");
+  const pdpShare = event.target.closest("[data-pdp-share]");
+  const pdpCopyLink = event.target.closest("[data-pdp-copy-link]");
+  const pdpNotify = event.target.closest("[data-pdp-notify]");
   const reviewHelpful = event.target.closest("[data-review-helpful]");
 
   if (routeHomeButton) {
@@ -346,6 +354,65 @@ function handleDetailClick(event) {
     event.stopPropagation();
     productStore.pdpActiveTab = pdpTab.dataset.pdpTab;
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    return true;
+  }
+
+  if (pdpPrev || pdpNext) {
+    event.stopPropagation();
+    const gallery = [...new Set([productStore.selectedDetailProduct?.image, ...(productStore.selectedDetailProduct?.images || []), ...(productStore.selectedDetailProduct?.detailImages || [])].filter(Boolean))];
+    const next = (productStore.pdpGalleryIndex || 0) + (pdpNext ? 1 : -1);
+    productStore.pdpGalleryIndex = Math.max(0, Math.min(gallery.length - 1, next));
+    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    return true;
+  }
+
+  if (pdpVariantColor) {
+    event.stopPropagation();
+    const color = String(pdpVariantColor.dataset.variantColor || "").toLowerCase();
+    const candidate = productStore.selectedDetailProduct?.variants?.find((v) =>
+      String(v.label || "").toLowerCase().includes(color) && Number(v.stock || 0) > 0
+    ) || productStore.selectedDetailProduct?.variants?.find((v) =>
+      String(v.label || "").toLowerCase().includes(color)
+    );
+    if (candidate?.id != null) {
+      productStore.selectedVariantId = candidate.id;
+      ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    }
+    return true;
+  }
+
+  if (pdpApplyCoupon) {
+    event.stopPropagation();
+    const input = document.querySelector("[data-pdp-coupon]");
+    const code = String(input?.value || "").trim();
+    const variant = productStore.selectedDetailProduct?.variants?.find((v) => String(v.id) === String(productStore.selectedVariantId));
+    const subtotal = variant?.discountPrice ?? variant?.price ?? productStore.selectedDetailProduct?.finalPrice ?? 0;
+    const result = PdpFeatureAdapter.applyCoupon({ code, subtotal });
+    productStore.pdpCouponCode = code;
+    productStore.pdpCouponDiscount = result.discount || 0;
+    productStore.pdpCouponStatus = result.valid ? (result.message || t("cart.couponApplied")) : (result.message || t("cart.couponInvalid"));
+    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    return true;
+  }
+
+  if (pdpShare || pdpCopyLink) {
+    event.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}#/product/${encodeURIComponent(productStore.selectedDetailProduct?.id || "")}`;
+    if (pdpShare && navigator.share) {
+      navigator.share({ title: productStore.selectedDetailProduct?.name || "Product", url }).catch(() => {});
+      return true;
+    }
+    navigator.clipboard?.writeText(url).then(() => {
+      showToast("Product link copied", "success");
+    }).catch(() => {
+      showToast("Could not copy link", "error");
+    });
+    return true;
+  }
+
+  if (pdpNotify) {
+    event.stopPropagation();
+    showToast("Notify me is queued. TODO(api): connect stock alert endpoint.", "info");
     return true;
   }
 
