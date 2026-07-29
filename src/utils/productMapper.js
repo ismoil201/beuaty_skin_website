@@ -26,8 +26,78 @@ export function getPageContent(response) {
   return [];
 }
 
+export function normalizeVariantTiers(tiers) {
+  if (!Array.isArray(tiers)) return [];
+  return tiers
+    .map((tier) => ({
+      minQty: Math.max(1, Math.round(numberOrZero(tier?.minQty))),
+      totalPrice: numberOrZero(tier?.totalPrice),
+    }))
+    .filter((tier) => tier.minQty >= 1 && tier.totalPrice > 0)
+    .sort((a, b) => a.minQty - b.minQty);
+}
+
+export function normalizeVariant(variant = {}) {
+  return {
+    ...variant,
+    id: variant.id,
+    label: variant.label || "",
+    price: numberOrZero(variant.price),
+    discountPrice: variant.discountPrice == null ? null : numberOrZero(variant.discountPrice),
+    stock: numberOrZero(variant.stock),
+    sortOrder: numberOrZero(variant.sortOrder),
+    active: variant.active !== false,
+    tiers: normalizeVariantTiers(variant.tiers),
+  };
+}
+
+/** Highest applicable wholesale tier for quantity, or null. */
+export function matchVariantTier(variant, quantity = 1) {
+  const qty = Math.max(1, numberOrZero(quantity));
+  const tiers = normalizeVariantTiers(variant?.tiers);
+  let matched = null;
+  for (const tier of tiers) {
+    if (qty >= tier.minQty) matched = tier;
+  }
+  return matched;
+}
+
+/** Unit + line total using wholesale tiers when quantity qualifies. */
+export function resolveVariantTierPricing(variant, quantity = 1) {
+  const qty = Math.max(1, numberOrZero(quantity));
+  const baseUnit = numberOrZero(
+    variant?.discountPrice != null && variant.discountPrice !== ""
+      ? variant.discountPrice
+      : variant?.price
+  );
+  const matched = matchVariantTier(variant, qty);
+  if (!matched) {
+    return {
+      quantity: qty,
+      unitPrice: baseUnit,
+      lineTotal: baseUnit * qty,
+      tier: null,
+      baseUnit,
+      savingsVsBase: 0,
+    };
+  }
+  const unitPrice = matched.totalPrice / matched.minQty;
+  const lineTotal = unitPrice * qty;
+  const baseLine = baseUnit * qty;
+  return {
+    quantity: qty,
+    unitPrice,
+    lineTotal,
+    tier: matched,
+    baseUnit,
+    savingsVsBase: Math.max(0, baseLine - lineTotal),
+  };
+}
+
 export function normalizeProduct(product = {}) {
-  const variants = Array.isArray(product.variants) ? product.variants : [];
+  const variants = Array.isArray(product.variants)
+    ? product.variants.map(normalizeVariant)
+    : [];
   const selectedVariant =
     variants.find((variant) => Number(variant.stock || 0) > 0) || variants[0] || null;
   const images = normalizeImages(product.images);

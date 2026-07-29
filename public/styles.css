@@ -7914,6 +7914,56 @@ mark {
   margin-bottom: var(--ds-space-2, 8px);
 }
 
+.pdp-tier-section .hint {
+  margin: 0 0 8px;
+}
+
+.pdp-tier-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pdp-tier-option {
+  display: grid;
+  gap: 2px;
+  min-width: 112px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1.5px solid var(--ds-border, #e8e8ee);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pdp-tier-option strong {
+  font-size: 13px;
+}
+
+.pdp-tier-option span {
+  font-size: 12px;
+}
+
+.pdp-tier-option:hover {
+  border-color: var(--ds-pink, #e85a8c);
+}
+
+.pdp-tier-option.active {
+  border-color: var(--ds-pink, #e85a8c);
+  background: color-mix(in srgb, var(--ds-pink, #e85a8c) 8%, white);
+}
+
+.pdp-tier-save {
+  color: #1a7f4b;
+  font-weight: 700;
+}
+
+.pdp-tier-active {
+  color: #1a7f4b;
+  font-weight: 600;
+}
+
 .color-swatches {
   display: flex;
   flex-wrap: wrap;

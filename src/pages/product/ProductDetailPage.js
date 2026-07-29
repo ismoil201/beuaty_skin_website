@@ -1,7 +1,12 @@
 import { appStore, productStore, favoriteStore, cartStore } from "../../stores/index.js";
 import { els } from "../../utils/dom.js";
 import { escapeHtml } from "../../utils/html.js";
-import { categoryLabel, numberOrZero } from "../../utils/productMapper.js";
+import {
+  categoryLabel,
+  numberOrZero,
+  normalizeVariantTiers,
+  resolveVariantTierPricing,
+} from "../../utils/productMapper.js";
 import { t, getCurrentLanguage } from "../../i18n/index.js";
 import { formatPrice } from "../../utils/format.js";
 import { getCompareIds } from "../../store/compareStore.js";
@@ -85,8 +90,13 @@ export const ProductDetailPage = {
     const gallery = [...new Set([safeProduct.image, ...safeProduct.images, ...safeProduct.detailImages].filter(Boolean))];
     const galleryIndex = Math.min(productStore.pdpGalleryIndex || 0, Math.max(0, gallery.length - 1));
     const currentImage = gallery[galleryIndex] || safeProduct.image;
-    const currentPrice = selectedVariant?.discountPrice ?? selectedVariant?.price ?? safeProduct.finalPrice;
+    const qty = Math.max(1, numberOrZero(productStore.selectedQuantity) || 1);
+    const tierPricing = resolveVariantTierPricing(selectedVariant, qty);
+    const currentPrice = tierPricing.tier
+      ? tierPricing.unitPrice
+      : (selectedVariant?.discountPrice ?? selectedVariant?.price ?? safeProduct.finalPrice);
     const originalPrice = selectedVariant?.price ?? safeProduct.originalPrice;
+    const lineTotal = tierPricing.lineTotal || numberOrZero(currentPrice) * qty;
     const variantStock = selectedVariant?.stock ?? safeProduct.stock;
     const isFavorite = favoriteStore.favoriteIds.has(String(safeProduct.id)) || Boolean(safeProduct.favorite);
     const isCompared = getCompareIds().includes(String(safeProduct.id));
@@ -163,11 +173,15 @@ export const ProductDetailPage = {
             <h3>${formatPrice(currentPrice)}</h3>
             ${originalPrice > currentPrice ? `<p class="old-price">${formatPrice(originalPrice)}</p>` : ""}
             ${originalPrice > currentPrice ? `<p class="pdp-savings">Save ${formatPrice(savings)} (${safeProduct.discountPercent || 0}%)</p>` : ""}
+            ${tierPricing.tier ? `<p class="hint pdp-tier-active">${escapeHtml(t("product.tierApplied", { count: tierPricing.tier.minQty }))}</p>` : ""}
           </div>
           <div class="pdp-price-breakdown">
             <div><span>${escapeHtml(t("product.listPrice"))}</span><span>${formatPrice(originalPrice)}</span></div>
             ${safeProduct.discountPercent ? `<div><span>${escapeHtml(t("product.discount"))}</span><span>-${safeProduct.discountPercent}%</span></div>` : ""}
-            <div><strong>${escapeHtml(t("cart.subtotal"))}</strong><strong>${formatPrice(currentPrice)}</strong></div>
+            <div><span>${escapeHtml(t("product.quantity"))}</span><span>× ${qty}</span></div>
+            ${tierPricing.tier ? `<div><span>${escapeHtml(t("product.tierUnitPrice"))}</span><span>${formatPrice(tierPricing.unitPrice)}</span></div>` : ""}
+            <div><strong>${escapeHtml(t("cart.subtotal"))}</strong><strong>${formatPrice(lineTotal)}</strong></div>
+            ${tierPricing.savingsVsBase > 0 ? `<div><span>${escapeHtml(t("product.tierSavings"))}</span><span>-${formatPrice(tierPricing.savingsVsBase)}</span></div>` : ""}
             <p class="hint">${escapeHtml(t("product.installmentPlaceholder"))}</p>
             <p class="hint">Lowest price guarantee · Tax included</p>
           </div>
@@ -185,10 +199,11 @@ export const ProductDetailPage = {
             <div><span>Made in</span><strong>${escapeHtml(productMeta.madeIn)}</strong></div>
           </div>
           ${safeProduct.variants.length ? ProductDetailPage.renderVariantSelectors(safeProduct) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
+          ${ProductDetailPage.renderVariantTiers(selectedVariant, qty)}
           <p class="hint">${escapeHtml(inventoryMessage)}</p>
           <div class="quantity-row">
             <button class="secondary-button" data-qty="minus" type="button" aria-label="Decrease">-</button>
-            <input id="quantityInput" value="${productStore.selectedQuantity}" inputmode="numeric" aria-label="${escapeHtml(t("product.quantity"))}" />
+            <input id="quantityInput" value="${qty}" inputmode="numeric" aria-label="${escapeHtml(t("product.quantity"))}" />
             <button class="secondary-button" data-qty="plus" type="button" aria-label="Increase">+</button>
           </div>
           <div class="pdp-shipping-estimate">
@@ -263,7 +278,7 @@ export const ProductDetailPage = {
       ${pageMode ? ProductDetailPage.renderRecentlyViewedStrip() : ""}
       ${pageMode ? `
         <div class="mobile-buy-bar">
-          <strong>${formatPrice(currentPrice)}</strong>
+          <strong>${formatPrice(lineTotal)}</strong>
           <button class="secondary-button" data-detail-buy type="button">${escapeHtml(t("product.buyNow"))}</button>
           <button class="primary-button" data-detail-add type="button">${escapeHtml(t("product.addToCart"))}</button>
         </div>
@@ -315,6 +330,47 @@ export const ProductDetailPage = {
       `;
     }
     return ProductDetailPage.renderVariantButtons(product);
+  },
+
+  renderVariantTiers(variant, quantity = 1) {
+    const tiers = normalizeVariantTiers(variant?.tiers);
+    if (!tiers.length) return "";
+    const qty = Math.max(1, numberOrZero(quantity) || 1);
+    const baseUnit = numberOrZero(
+      variant?.discountPrice != null && variant.discountPrice !== ""
+        ? variant.discountPrice
+        : variant?.price
+    );
+    return `
+      <div class="pdp-variant-section pdp-tier-section">
+        <p class="pdp-variant-label">${escapeHtml(t("product.bulkTiers"))}</p>
+        <p class="hint">${escapeHtml(t("product.bulkTiersHint"))}</p>
+        <div class="pdp-tier-options" role="list">
+          ${tiers.map((tier) => {
+            const unit = tier.totalPrice / tier.minQty;
+            const active = qty >= tier.minQty
+              && !tiers.some((other) => other.minQty > tier.minQty && qty >= other.minQty);
+            const savePct = baseUnit > 0
+              ? Math.max(0, Math.round(((baseUnit - unit) / baseUnit) * 100))
+              : 0;
+            return `
+              <button
+                class="pdp-tier-option ${active ? "active" : ""}"
+                type="button"
+                role="listitem"
+                data-variant-tier="${tier.minQty}"
+                aria-pressed="${active ? "true" : "false"}"
+              >
+                <strong>${escapeHtml(t("product.tierQty", { count: tier.minQty }))}</strong>
+                <span>${formatPrice(tier.totalPrice)}</span>
+                <span class="hint">${formatPrice(unit)} / ${escapeHtml(t("product.unitShort"))}</span>
+                ${savePct > 0 ? `<span class="pdp-tier-save">-${savePct}%</span>` : ""}
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
   },
 
   renderPdpProductStrip(title, products, screen) {

@@ -302,6 +302,7 @@ function handleDetailClick(event) {
   const pdpPrev = event.target.closest("[data-pdp-prev]");
   const pdpNext = event.target.closest("[data-pdp-next]");
   const pdpVariantColor = event.target.closest("[data-variant-color]");
+  const pdpVariantTier = event.target.closest("[data-variant-tier]");
   const pdpApplyCoupon = event.target.closest("[data-pdp-apply-coupon]");
   const pdpShare = event.target.closest("[data-pdp-share]");
   const pdpCopyLink = event.target.closest("[data-pdp-copy-link]");
@@ -384,8 +385,22 @@ function handleDetailClick(event) {
     );
     if (candidate?.id != null) {
       productStore.selectedVariantId = candidate.id;
+      productStore.selectedQuantity = 1;
       ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     }
+    return true;
+  }
+
+  if (pdpVariantTier) {
+    if (!selectedProduct) return true;
+    event.stopPropagation();
+    const minQty = Math.max(1, Number(pdpVariantTier.dataset.variantTier || 1));
+    const variant = productStore.selectedDetailProduct?.variants?.find(
+      (v) => String(v.id) === String(productStore.selectedVariantId)
+    );
+    const stock = Number(variant?.stock ?? productStore.selectedDetailProduct?.stock ?? minQty);
+    productStore.selectedQuantity = Math.min(Math.max(1, minQty), Math.max(1, stock || minQty));
+    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     return true;
   }
 
@@ -437,6 +452,7 @@ function handleDetailClick(event) {
     if (!selectedProduct) return true;
     event.stopPropagation();
     productStore.selectedVariantId = variant.dataset.variant;
+    productStore.selectedQuantity = 1;
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
     return true;
   }
