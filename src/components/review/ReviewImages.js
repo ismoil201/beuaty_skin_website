@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../utils/html.js";
+import { t } from "../../i18n/index.js";
 
 export function ReviewImages({ imageUrls = [] } = {}) {
   const urls = Array.isArray(imageUrls) ? imageUrls.filter(Boolean).slice(0, 5) : [];
@@ -8,7 +9,7 @@ export function ReviewImages({ imageUrls = [] } = {}) {
       ${urls
         .map(
           (url) =>
-            `<img src="${escapeHtml(url)}" alt="Review image" loading="lazy" decoding="async" />`
+            `<img src="${escapeHtml(url)}" alt="${escapeHtml(t("reviews.imageAlt"))}" loading="lazy" decoding="async" />`
         )
         .join("")}
     </div>

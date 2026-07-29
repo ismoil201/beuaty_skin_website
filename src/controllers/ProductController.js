@@ -7,6 +7,7 @@ import { ProductDetailPage } from "../pages/product/ProductDetailPage.js";
 import { sendProductView } from "../pages/shared/analytics.js";
 import { showProductView } from "../runtime/navigation.js";
 import { applyProductSeo } from "../utils/seoProduct.js";
+import { t } from "../i18n/index.js";
 
 export const ProductController = {
   nextRequestId() {
@@ -149,7 +150,7 @@ export const ProductController = {
     if (!ProductController.isActiveRequest(requestId)) return;
     productStore.inventoryLoading = false;
     productStore.inventory = result.ok ? result.inventory : null;
-    productStore.inventoryError = result.ok ? "" : (result.message || "Availability unknown");
+    productStore.inventoryError = result.ok ? "" : (result.message || t("product.availabilityUnknown"));
     ProductController.safeRerender();
   },
 

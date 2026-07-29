@@ -42,10 +42,10 @@ export const ProductDetailPage = {
   renderDetailLoading(pageMode = false) {
     const target = pageMode ? els.productDetailPageContent : els.detailContent;
     target.innerHTML = `
-      ${pageMode ? "<div class=\"breadcrumbs\"><button data-route-home type=\"button\">Home</button><span>/</span><span>Loading</span></div>" : `
+      ${pageMode ? `<div class="breadcrumbs"><button data-route-home type="button">${escapeHtml(t("product.home"))}</button><span>/</span><span>${escapeHtml(t("product.loading"))}</span></div>` : `
         <div class="drawer-head">
-          <h2>Mahsulot yuklanmoqda</h2>
-          <button class="icon-button" data-close-detail type="button" aria-label="Yopish">
+          <h2>${escapeHtml(t("product.loadingTitle"))}</h2>
+          <button class="icon-button" data-close-detail type="button" aria-label="${escapeHtml(t("product.close"))}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
@@ -63,10 +63,10 @@ export const ProductDetailPage = {
     const title = notFound
       ? t("product.notFound")
       : networkError
-        ? (t("common.serverFailed") || "Server connection failed")
-        : (t("common.tryAgain") || "Product unavailable");
+        ? t("common.serverFailed")
+        : t("common.tryAgain");
     const message = productStore.detailError
-      || (notFound ? t("product.notFound") : networkError ? (t("common.serverFailed") || "Server connection failed") : "Product could not be displayed.");
+      || (notFound ? t("product.notFound") : networkError ? t("common.serverFailed") : t("product.renderFailed"));
     els.productDetailPageContent.innerHTML = `
       <div class="detail-error-page">
         <strong>${escapeHtml(title)}</strong>
@@ -84,7 +84,7 @@ export const ProductDetailPage = {
       variants: Array.isArray(product.variants) ? product.variants : [],
       images: Array.isArray(product.images) ? product.images : [],
       detailImages: Array.isArray(product.detailImages) ? product.detailImages : [],
-      name: product.name || "Product",
+      name: product.name || t("product.fallbackName"),
     };
     const selectedVariant = safeProduct.variants.find((variant) => String(variant?.id) === String(productStore.selectedVariantId)) || null;
     const gallery = [...new Set([safeProduct.image, ...safeProduct.images, ...safeProduct.detailImages].filter(Boolean))];
@@ -127,7 +127,7 @@ export const ProductDetailPage = {
       ` : `
         <div class="drawer-head">
           <h2>${escapeHtml(t("product.viewDetails"))}</h2>
-          <button class="icon-button" data-close-detail type="button" aria-label="Yopish">
+          <button class="icon-button" data-close-detail type="button" aria-label="${escapeHtml(t("product.close"))}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
@@ -137,8 +137,8 @@ export const ProductDetailPage = {
           <div class="pdp-main-image" data-pdp-zoom>
             <img src="${escapeHtml(currentImage)}" alt="${escapeHtml(safeProduct.name)}" id="pdpMainImage" decoding="async" fetchpriority="high" />
             <div class="pdp-main-controls">
-              <button class="icon-button" type="button" data-pdp-prev aria-label="Previous media">&lt;</button>
-              <button class="icon-button" type="button" data-pdp-next aria-label="Next media">&gt;</button>
+              <button class="icon-button" type="button" data-pdp-prev aria-label="${escapeHtml(t("product.prevMedia"))}">&lt;</button>
+              <button class="icon-button" type="button" data-pdp-next aria-label="${escapeHtml(t("product.nextMedia"))}">&gt;</button>
             </div>
           </div>
           ${gallery.length > 1 ? `
@@ -151,20 +151,20 @@ export const ProductDetailPage = {
             </div>
           ` : ""}
           <button class="ghost-button full" type="button" data-pdp-fullscreen style="margin-top:8px">${escapeHtml(t("product.fullscreen"))}</button>
-          <div class="media-placeholder">Video / 360 Viewer adapter · ${escapeHtml(t("product.video360Placeholder"))}</div>
+          <div class="media-placeholder">${escapeHtml(t("product.video360Label"))} · ${escapeHtml(t("product.video360Placeholder"))}</div>
         </div>
         <div class="pdp-purchase-card">
           <div class="pdp-badges">
             <span class="pdp-badge pdp-badge--auth">✓ ${escapeHtml(t("product.authentic"))}</span>
             <span class="pdp-badge pdp-badge--official">★ ${escapeHtml(t("product.officialStore"))}</span>
-            <span class="pdp-badge pdp-badge--official">Verified seller</span>
+            <span class="pdp-badge pdp-badge--official">${escapeHtml(t("product.verifiedSeller"))}</span>
             ${lowStock ? `<span class="pdp-badge pdp-badge--stock-low">${escapeHtml(t("product.lowStock"))}</span>` : ""}
           </div>
           ${productStore.pdpSocialProofEnabled ? `
             <div class="pdp-social-proof">
-              <span>Now viewing: ${socialProof.viewingNow}</span>
-              <span>Sold today: ${socialProof.recentlySold}</span>
-              <span>Trend score: ${socialProof.trendingScore}</span>
+              <span>${escapeHtml(t("product.nowViewing", { count: socialProof.viewingNow }))}</span>
+              <span>${escapeHtml(t("product.soldToday", { count: socialProof.recentlySold }))}</span>
+              <span>${escapeHtml(t("product.trendScore", { count: socialProof.trendingScore }))}</span>
             </div>
           ` : ""}
           <p class="hint brand-name">${escapeHtml(safeProduct.brand || safeProduct.category)}</p>
@@ -172,7 +172,7 @@ export const ProductDetailPage = {
           <div class="pdp-price-block">
             <h3>${formatPrice(currentPrice)}</h3>
             ${originalPrice > currentPrice ? `<p class="old-price">${formatPrice(originalPrice)}</p>` : ""}
-            ${originalPrice > currentPrice ? `<p class="pdp-savings">Save ${formatPrice(savings)} (${safeProduct.discountPercent || 0}%)</p>` : ""}
+            ${originalPrice > currentPrice ? `<p class="pdp-savings">${escapeHtml(t("product.saveAmount", { amount: formatPrice(savings), percent: safeProduct.discountPercent || 0 }))}</p>` : ""}
             ${tierPricing.tier ? `<p class="hint pdp-tier-active">${escapeHtml(t("product.tierApplied", { count: tierPricing.tier.minQty }))}</p>` : ""}
           </div>
           <div class="pdp-price-breakdown">
@@ -183,56 +183,56 @@ export const ProductDetailPage = {
             <div><strong>${escapeHtml(t("cart.subtotal"))}</strong><strong>${formatPrice(lineTotal)}</strong></div>
             ${tierPricing.savingsVsBase > 0 ? `<div><span>${escapeHtml(t("product.tierSavings"))}</span><span>-${formatPrice(tierPricing.savingsVsBase)}</span></div>` : ""}
             <p class="hint">${escapeHtml(t("product.installmentPlaceholder"))}</p>
-            <p class="hint">Lowest price guarantee · Tax included</p>
+            <p class="hint">${escapeHtml(t("product.priceGuarantee"))}</p>
           </div>
           <p class="hint">${renderStars(numberOrZero(safeProduct.ratingAvg))} ${numberOrZero(safeProduct.ratingAvg).toFixed(1)} (${numberOrZero(safeProduct.reviewCount)}) · ${escapeHtml(t("product.sold", { count: numberOrZero(safeProduct.soldCount) }))}</p>
           <div class="pdp-actions-row" style="margin:12px 0">
             <button class="secondary-button detail-favorite ${isFavorite ? "active" : ""}" data-detail-favorite="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(isFavorite ? t("product.saved") : t("product.save"))}</button>
             <button class="secondary-button ${isCompared ? "active" : ""}" data-compare="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(t("product.compare"))}</button>
-            <button class="secondary-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button">Share</button>
-            <button class="secondary-button" data-pdp-copy-link="${escapeHtml(safeProduct.id)}" type="button">Copy link</button>
+            <button class="secondary-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(t("product.share"))}</button>
+            <button class="secondary-button" data-pdp-copy-link="${escapeHtml(safeProduct.id)}" type="button">${escapeHtml(t("product.copyLink"))}</button>
           </div>
           <div class="pdp-meta-grid">
-            <div><span>SKU</span><strong>${escapeHtml(productMeta.sku)}</strong></div>
-            <div><span>Category</span><strong>${escapeHtml(categoryLabel(productMeta.category || safeProduct.category || ""))}</strong></div>
-            <div><span>Country</span><strong>${escapeHtml(productMeta.country)}</strong></div>
-            <div><span>Made in</span><strong>${escapeHtml(productMeta.madeIn)}</strong></div>
+            <div><span>${escapeHtml(t("product.sku"))}</span><strong>${escapeHtml(productMeta.sku)}</strong></div>
+            <div><span>${escapeHtml(t("product.categoryLabel"))}</span><strong>${escapeHtml(categoryLabel(productMeta.category || safeProduct.category || ""))}</strong></div>
+            <div><span>${escapeHtml(t("product.country"))}</span><strong>${escapeHtml(productMeta.country)}</strong></div>
+            <div><span>${escapeHtml(t("product.madeIn"))}</span><strong>${escapeHtml(productMeta.madeIn)}</strong></div>
           </div>
           ${safeProduct.variants.length ? ProductDetailPage.renderVariantSelectors(safeProduct) : `<p class="hint">${escapeHtml(t("product.variantUnavailable"))}</p>`}
           ${ProductDetailPage.renderVariantTiers(selectedVariant, qty)}
           <p class="hint">${escapeHtml(inventoryMessage)}</p>
           <div class="quantity-row">
-            <button class="secondary-button" data-qty="minus" type="button" aria-label="Decrease">-</button>
+            <button class="secondary-button" data-qty="minus" type="button" aria-label="${escapeHtml(t("product.decreaseQty"))}">-</button>
             <input id="quantityInput" value="${qty}" inputmode="numeric" aria-label="${escapeHtml(t("product.quantity"))}" />
-            <button class="secondary-button" data-qty="plus" type="button" aria-label="Increase">+</button>
+            <button class="secondary-button" data-qty="plus" type="button" aria-label="${escapeHtml(t("product.increaseQty"))}">+</button>
           </div>
           <div class="pdp-shipping-estimate">
             <strong>${escapeHtml(t("product.estimatedDelivery"))}</strong>
-            <p class="pdp-delivery-countdown">ETA ${escapeHtml(deliveryDate)}</p>
+            <p class="pdp-delivery-countdown">${escapeHtml(t("product.eta", { date: deliveryDate }))}</p>
             <p class="hint">${escapeHtml(t("product.delivery"))}</p>
             <div class="pdp-delivery-grid">
-              <span>Shipping: ${deliveryMeta.shippingCost > 0 ? formatPrice(deliveryMeta.shippingCost) : "Free"}</span>
-              <span>Free over: ${formatPrice(deliveryMeta.freeShippingThreshold)}</span>
-              <span>Courier: ${escapeHtml(deliveryMeta.courier)}</span>
-              <span>Warehouse: ${escapeHtml(deliveryMeta.warehouse)}</span>
-              <span>COD: ${deliveryMeta.codAvailable ? "Available" : "Unavailable"}</span>
-              <span>Pickup: ${deliveryMeta.pickupAvailable ? "Available" : "Unavailable"}</span>
+              <span>${escapeHtml(t("product.shipping"))}: ${deliveryMeta.shippingCost > 0 ? formatPrice(deliveryMeta.shippingCost) : escapeHtml(t("product.free"))}</span>
+              <span>${escapeHtml(t("product.freeOver"))}: ${formatPrice(deliveryMeta.freeShippingThreshold)}</span>
+              <span>${escapeHtml(t("product.courier"))}: ${escapeHtml(deliveryMeta.courier)}</span>
+              <span>${escapeHtml(t("product.warehouse"))}: ${escapeHtml(deliveryMeta.warehouse)}</span>
+              <span>${escapeHtml(t("product.cod"))}: ${escapeHtml(deliveryMeta.codAvailable ? t("product.available") : t("product.unavailable"))}</span>
+              <span>${escapeHtml(t("product.pickup"))}: ${escapeHtml(deliveryMeta.pickupAvailable ? t("product.available") : t("product.unavailable"))}</span>
             </div>
           </div>
           <div class="cart-coupon" style="margin-top:12px">
             <input type="text" placeholder="${escapeHtml(t("cart.couponPlaceholder"))}" value="${escapeHtml(productStore.pdpCouponCode || "")}" data-pdp-coupon />
-            <button class="secondary-button" type="button" data-pdp-apply-coupon ${featureFlags.couponsApi ? "" : "disabled title=\"No coupon API yet\""}>${escapeHtml(t("cart.applyCoupon"))}</button>
+            <button class="secondary-button" type="button" data-pdp-apply-coupon ${featureFlags.couponsApi ? "" : `disabled title="${escapeHtml(t("product.couponSoon"))}"`}>${escapeHtml(t("cart.applyCoupon"))}</button>
           </div>
           ${productStore.pdpCouponStatus ? `<p class="hint">${escapeHtml(productStore.pdpCouponStatus)}</p>` : ""}
           <div class="pdp-actions">
-            <button class="primary-button full cta-animate" data-detail-add type="button" ${isOutOfStock ? "disabled" : ""}>${escapeHtml(isOutOfStock ? "Out of stock" : t("product.addToCartFull"))}</button>
-            <button class="secondary-button full cta-animate" data-detail-buy type="button" ${isOutOfStock ? "disabled" : ""}>${escapeHtml(isOutOfStock ? "Unavailable" : t("product.buyNow"))}</button>
-            <button class="ghost-button full cta-animate" data-pdp-notify type="button" ${isOutOfStock ? "" : "disabled"}>Notify me</button>
+            <button class="primary-button full cta-animate" data-detail-add type="button" ${isOutOfStock ? "disabled" : ""}>${escapeHtml(isOutOfStock ? t("product.outOfStockCta") : t("product.addToCartFull"))}</button>
+            <button class="secondary-button full cta-animate" data-detail-buy type="button" ${isOutOfStock ? "disabled" : ""}>${escapeHtml(isOutOfStock ? t("product.unavailable") : t("product.buyNow"))}</button>
+            <button class="ghost-button full cta-animate" data-pdp-notify type="button" ${isOutOfStock ? "" : "disabled"}>${escapeHtml(t("product.notifyMe"))}</button>
           </div>
           <div class="delivery-info">
             <span>${escapeHtml(t("product.secure"))}</span>
             <span>${escapeHtml(t("product.original"))}</span>
-            <span>Return in ${deliveryMeta.returnDays} days</span>
+            <span>${escapeHtml(t("product.returnInDays", { days: deliveryMeta.returnDays }))}</span>
           </div>
           ${seller ? ProductDetailPage.renderSellerBlock(seller) : ""}
         </div>
@@ -241,10 +241,10 @@ export const ProductDetailPage = {
         <nav class="pdp-tab-nav" role="tablist">
           <button class="pdp-tab-btn ${productStore.pdpActiveTab === "description" ? "active" : ""}" data-pdp-tab="description" type="button" role="tab">${escapeHtml(t("product.description"))}</button>
           <button class="pdp-tab-btn ${productStore.pdpActiveTab === "details" ? "active" : ""}" data-pdp-tab="details" type="button" role="tab">${escapeHtml(t("product.details"))}</button>
-          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "benefits" ? "active" : ""}" data-pdp-tab="benefits" type="button" role="tab">Benefits</button>
-          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "faq" ? "active" : ""}" data-pdp-tab="faq" type="button" role="tab">FAQ</button>
+          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "benefits" ? "active" : ""}" data-pdp-tab="benefits" type="button" role="tab">${escapeHtml(t("product.benefits"))}</button>
+          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "faq" ? "active" : ""}" data-pdp-tab="faq" type="button" role="tab">${escapeHtml(t("product.faq"))}</button>
           <button class="pdp-tab-btn ${productStore.pdpActiveTab === "reviews" ? "active" : ""}" data-pdp-tab="reviews" type="button" role="tab">${escapeHtml(t("product.reviews"))}</button>
-          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "qna" ? "active" : ""}" data-pdp-tab="qna" type="button" role="tab">Q&A</button>
+          <button class="pdp-tab-btn ${productStore.pdpActiveTab === "qna" ? "active" : ""}" data-pdp-tab="qna" type="button" role="tab">${escapeHtml(t("product.qna"))}</button>
         </nav>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "description" ? "" : "hidden"} data-pdp-panel="description">
           <p class="hint">${escapeHtml(safeProduct.description || t("common.unavailable"))}</p>
@@ -253,23 +253,23 @@ export const ProductDetailPage = {
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "details" ? "" : "hidden"} data-pdp-panel="details">
           <p class="hint">${escapeHtml(t("home.categories"))}: ${escapeHtml(safeProduct.category ? categoryLabel(safeProduct.category) : "-")}</p>
           <p class="hint">${escapeHtml(t("filter.brand"))}: ${escapeHtml(safeProduct.brand || "-")}</p>
-          <p class="hint">Skin type: All skin types</p>
-          <p class="hint">Texture: Lightweight essence</p>
-          <p class="hint">Storage: Keep in a cool and dry place</p>
+          <p class="hint">${escapeHtml(t("product.skinType"))}</p>
+          <p class="hint">${escapeHtml(t("product.texture"))}</p>
+          <p class="hint">${escapeHtml(t("product.storage"))}</p>
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "benefits" ? "" : "hidden"} data-pdp-panel="benefits">
-          <p class="hint">Brightening, hydration, and barrier support for daily routine.</p>
-          <p class="hint">Who is it for: Normal, dry, combination skin.</p>
+          <p class="hint">${escapeHtml(t("product.benefitsBody"))}</p>
+          <p class="hint">${escapeHtml(t("product.benefitsFor"))}</p>
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "faq" ? "" : "hidden"} data-pdp-panel="faq">
-          <p class="hint"><strong>How to use:</strong> Apply after toner, before moisturizer.</p>
-          <p class="hint"><strong>Warnings:</strong> Stop use if irritation occurs.</p>
+          <p class="hint"><strong>${escapeHtml(t("product.howToUse"))}</strong> ${escapeHtml(t("product.howToUseBody"))}</p>
+          <p class="hint"><strong>${escapeHtml(t("product.warnings"))}</strong> ${escapeHtml(t("product.warningsBody"))}</p>
         </div>
         <div class="pdp-tab-panel reviews-premium" ${productStore.pdpActiveTab === "reviews" ? "" : "hidden"} data-pdp-panel="reviews">
           ${ProductDetailPage.renderProductReviews(safeProduct.id)}
         </div>
         <div class="pdp-tab-panel" ${productStore.pdpActiveTab === "qna" ? "" : "hidden"} data-pdp-panel="qna">
-          <div class="media-placeholder">Q&A adapter placeholder. TODO(api): connect /api/products/{id}/questions when available.</div>
+          <div class="media-placeholder">${escapeHtml(t("product.qnaPlaceholder"))}</div>
         </div>
       </div>
       ${pageMode ? ProductDetailPage.renderRecommendations() : ""}
@@ -283,8 +283,8 @@ export const ProductDetailPage = {
           <button class="primary-button" data-detail-add type="button">${escapeHtml(t("product.addToCart"))}</button>
         </div>
         <div class="mobile-float-actions">
-          <button class="icon-button" data-detail-favorite="${escapeHtml(safeProduct.id)}" type="button" aria-label="Wishlist">W</button>
-          <button class="icon-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button" aria-label="Share">S</button>
+          <button class="icon-button" data-detail-favorite="${escapeHtml(safeProduct.id)}" type="button" aria-label="${escapeHtml(t("product.wishlist"))}">W</button>
+          <button class="icon-button" data-pdp-share="${escapeHtml(safeProduct.id)}" type="button" aria-label="${escapeHtml(t("product.share"))}">S</button>
         </div>
       ` : ""}
     `;
@@ -296,10 +296,10 @@ export const ProductDetailPage = {
       // Do not convert a successful product fetch into "not found" / network failure.
       // Prefer keeping whatever product payload we already have.
       if (productStore.selectedDetailProduct?.id) {
-        productStore.detailError = error?.message || "Product detail rendering failed.";
+        productStore.detailError = error?.message || t("product.renderFailed");
         return;
       }
-      productStore.detailError = error?.message || "Product detail rendering failed.";
+      productStore.detailError = error?.message || t("product.renderFailed");
       ProductDetailPage.renderProductDetailError({ notFound: false, networkError: false });
     }
   },
@@ -396,19 +396,19 @@ export const ProductDetailPage = {
   renderTrendingInKorea() {
     const items = (productStore.recommendedSimilar || productStore.recommendedProducts || []).slice(0, 6);
     if (!items.length) return "";
-    return ProductDetailPage.renderPdpProductStrip("Trending in Korea", items, "trending-korea");
+    return ProductDetailPage.renderPdpProductStrip(t("product.trendingKorea"), items, "trending-korea");
   },
 
   renderSellerBlock(seller) {
-    const name = seller.storeName || seller.name || "Marketplace Seller";
+    const name = seller.storeName || seller.name || t("product.sellerDefault");
     const rating = Number(seller.rating || seller.averageRating || 0).toFixed(1);
     const followers = Number(seller.followers || seller.followerCount || 0);
     const products = Number(seller.productCount || seller.productsCount || 0);
     return `
       <section class="pdp-seller-card">
         <h4>${escapeHtml(name)}</h4>
-        <p class="hint">Rating ${rating} · ${followers} followers</p>
-        <p class="hint">${products} products · Response within 1 hour</p>
+        <p class="hint">${escapeHtml(t("product.sellerRating", { rating, followers }))}</p>
+        <p class="hint">${escapeHtml(t("product.sellerStats", { count: products }))}</p>
       </section>
     `;
   },
@@ -551,7 +551,7 @@ export const ProductDetailPage = {
           const disabled = Number(variant.stock || 0) <= 0;
           return `
             <button class="variant-option ${active ? "active" : ""}" data-variant="${escapeHtml(variant.id)}" ${disabled ? "disabled" : ""} type="button">
-              ${escapeHtml(variant.label || `Variant #${variant.id}`)}
+              ${escapeHtml(variant.label || t("product.variantLabel", { id: variant.id }))}
               ${variant.price ? ` · ${escapeHtml(formatPrice(variant.discountPrice ?? variant.price))}` : ""}
             </button>
           `;

@@ -2,6 +2,7 @@ import { getTrendingRecommendations } from "../api/recommendationApi.js";
 import { getTrendingBehaviorIds } from "../api/behaviorApi.js";
 import { SellerService } from "./SellerService.js";
 import { InventoryService } from "./InventoryService.js";
+import { t } from "../i18n/index.js";
 
 /**
  * PDP marketplace adapter layer.
@@ -24,8 +25,8 @@ export const PdpFeatureAdapter = {
     const raw = product?.raw || {};
     return {
       sku: raw.sku || raw.productCode || raw.code || `BSK-${product?.id || "N/A"}`,
-      country: raw.country || raw.countryOfOrigin || "Korea",
-      madeIn: raw.madeIn || raw.manufacturingCountry || raw.countryOfOrigin || "Korea",
+      country: raw.country || raw.countryOfOrigin || t("product.countryKorea"),
+      madeIn: raw.madeIn || raw.manufacturingCountry || raw.countryOfOrigin || t("product.countryKorea"),
       category: raw.category || product?.category || "",
     };
   },
@@ -36,7 +37,7 @@ export const PdpFeatureAdapter = {
       shippingCost: Number(raw.shippingCost || 0),
       freeShippingThreshold: Number(raw.freeShippingThreshold || 300000),
       courier: raw.courier || "Yandex / BTS",
-      warehouse: raw.warehouseLocation || "Tashkent Hub",
+      warehouse: raw.warehouseLocation || t("product.warehouseDefault"),
       codAvailable: Boolean(raw.codAvailable ?? true),
       pickupAvailable: Boolean(raw.pickupAvailable ?? true),
       taxIncluded: true,
@@ -55,10 +56,10 @@ export const PdpFeatureAdapter = {
         valid: true,
         code: normalized,
         discount: Math.round(Number(subtotal || 0) * 0.1),
-        message: "10% coupon applied",
+        message: t("product.couponAppliedPercent", { percent: 10 }),
       };
     }
-    return { valid: false, code: normalized, discount: 0, message: "Coupon is not available yet" };
+    return { valid: false, code: normalized, discount: 0, message: t("product.couponUnavailable") };
   },
 
   async loadSocialProof(productId) {
@@ -91,11 +92,11 @@ export const PdpFeatureAdapter = {
   async loadInventory(productId) {
     try {
       const result = await InventoryService.getForProduct(productId);
-      if (!result.success) return { ok: false, inventory: null, message: "Availability unknown" };
+      if (!result.success) return { ok: false, inventory: null, message: t("product.availabilityUnknown") };
       return { ok: true, inventory: result.inventory, message: "" };
     } catch (error) {
       console.error("[PDP] Inventory failed", error);
-      return { ok: false, inventory: null, message: "Availability unknown" };
+      return { ok: false, inventory: null, message: t("product.availabilityUnknown") };
     }
   },
 

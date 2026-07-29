@@ -424,20 +424,20 @@ function handleDetailClick(event) {
     event.stopPropagation();
     const url = `${window.location.origin}${window.location.pathname}#/product/${encodeURIComponent(productStore.selectedDetailProduct?.id || "")}`;
     if (pdpShare && navigator.share) {
-      navigator.share({ title: productStore.selectedDetailProduct?.name || "Product", url }).catch(() => {});
+      navigator.share({ title: productStore.selectedDetailProduct?.name || t("product.fallbackName"), url }).catch(() => {});
       return true;
     }
     navigator.clipboard?.writeText(url).then(() => {
-      showToast("Product link copied", "success");
+      showToast(t("product.linkCopied"), "success");
     }).catch(() => {
-      showToast("Could not copy link", "error");
+      showToast(t("product.linkCopyFailed"), "error");
     });
     return true;
   }
 
   if (pdpNotify) {
     event.stopPropagation();
-    showToast("Notify me is queued. TODO(api): connect stock alert endpoint.", "info");
+    showToast(t("product.notifyQueued"), "info");
     return true;
   }
 

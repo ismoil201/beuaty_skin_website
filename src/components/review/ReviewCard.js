@@ -2,13 +2,14 @@ import { escapeHtml } from "../../utils/html.js";
 import { formatDateTime } from "../../utils/format.js";
 import { Rating } from "../common/Rating.js";
 import { ReviewImages } from "./ReviewImages.js";
+import { t } from "../../i18n/index.js";
 
 export function ReviewCard({
   review,
   helpful = false,
-  verifiedLabel = "Verified purchase",
-  noTextLabel = "No text review",
-  helpfulLabel = "Helpful",
+  verifiedLabel = t("reviews.verified"),
+  noTextLabel = t("reviews.noText"),
+  helpfulLabel = t("reviews.helpful"),
 }) {
   const verified = Boolean(review.orderId);
   return `
