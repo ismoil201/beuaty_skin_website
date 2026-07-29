@@ -54,12 +54,18 @@ export const ProductDetailPage = {
     `;
   },
 
-  renderProductDetailError({ notFound = false } = {}) {
-    const title = notFound ? t("product.notFound") : (t("common.serverFailed") || "Product unavailable");
+  renderProductDetailError({ notFound = false, networkError = false } = {}) {
+    const title = notFound
+      ? t("product.notFound")
+      : networkError
+        ? (t("common.serverFailed") || "Server connection failed")
+        : (t("common.tryAgain") || "Product unavailable");
+    const message = productStore.detailError
+      || (notFound ? t("product.notFound") : networkError ? (t("common.serverFailed") || "Server connection failed") : "Product could not be displayed.");
     els.productDetailPageContent.innerHTML = `
       <div class="detail-error-page">
         <strong>${escapeHtml(title)}</strong>
-        <p>${escapeHtml(productStore.detailError || "Mahsulot topilmadi.")}</p>
+        <p>${escapeHtml(message)}</p>
         <button class="primary-button" data-route-home type="button">${escapeHtml(t("product.backToShopping"))}</button>
       </div>
     `;
@@ -272,7 +278,14 @@ export const ProductDetailPage = {
     ProductDetailPage.initPdpGallerySwipe(target);
     } catch (error) {
       console.error("[PDP] renderProductDetail failed", error);
-      ProductDetailPage.renderProductDetailError({ notFound: false });
+      // Do not convert a successful product fetch into "not found" / network failure.
+      // Prefer keeping whatever product payload we already have.
+      if (productStore.selectedDetailProduct?.id) {
+        productStore.detailError = error?.message || "Product detail rendering failed.";
+        return;
+      }
+      productStore.detailError = error?.message || "Product detail rendering failed.";
+      ProductDetailPage.renderProductDetailError({ notFound: false, networkError: false });
     }
   },
 

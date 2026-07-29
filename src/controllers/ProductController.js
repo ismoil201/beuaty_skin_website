@@ -58,10 +58,13 @@ export const ProductController = {
 
       if (!product?.id) {
         const notFound = Number(appStore.lastApiStatus) === 404;
+        const networkError = Number(appStore.lastApiStatus) === 0;
         productStore.detailError = notFound
           ? (appStore.lastApiError || "Mahsulot topilmadi.")
-          : (appStore.lastApiError || "Product could not be loaded.");
-        ProductDetailPage.renderProductDetailError({ notFound });
+          : networkError
+            ? (appStore.lastApiError || "Server bilan aloqa bo‘lmadi")
+            : (appStore.lastApiError || "Product could not be loaded.");
+        ProductDetailPage.renderProductDetailError({ notFound, networkError });
         return;
       }
 
@@ -97,10 +100,13 @@ export const ProductController = {
       console.error("[PDP] loadDetailPage failed", error);
       if (!ProductController.isActiveRequest(requestId)) return;
       const notFound = Number(appStore.lastApiStatus) === 404;
+      const networkError = Number(appStore.lastApiStatus) === 0;
       productStore.detailError = notFound
         ? (appStore.lastApiError || "Mahsulot topilmadi.")
-        : (error?.message || appStore.lastApiError || "Product load failed.");
-      ProductDetailPage.renderProductDetailError({ notFound });
+        : networkError
+          ? (appStore.lastApiError || "Server bilan aloqa bo‘lmadi")
+          : (error?.message || appStore.lastApiError || "Product load failed.");
+      ProductDetailPage.renderProductDetailError({ notFound, networkError });
     } finally {
       if (ProductController.isActiveRequest(requestId)) {
         productStore.detailLoading = false;

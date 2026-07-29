@@ -1,6 +1,7 @@
 import { escapeHtml } from "../../utils/html.js";
 import { formatDateTime } from "../../utils/format.js";
 import { Rating } from "../common/Rating.js";
+import { ReviewImages } from "./ReviewImages.js";
 
 export function ReviewCard({
   review,
