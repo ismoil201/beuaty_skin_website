@@ -4,6 +4,7 @@ import { els } from "../../utils/dom.js";
 import { escapeHtml } from "../../utils/html.js";
 import { t, getCurrentLanguage } from "../../i18n/index.js";
 import { formatPrice } from "../../utils/format.js";
+import { getOrderDisplayNumber } from "../../utils/productMapper.js";
 import { CheckoutService } from "../../services/CheckoutService.js";
 import { initLazyImages } from "../../utils/imageLoader.js";
 import { CartPage } from "../cart/CartPage.js";
@@ -226,7 +227,7 @@ function renderOrderSuccess() {
       </header>
       <div class="app-checkout-scroll app-checkout-success-body">
         <div class="order-success-icon">✓</div>
-        <p>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)} · ${escapeHtml(order.status || "NEW")}</p>
+        <p>${escapeHtml(t("orders.order"))} ${escapeHtml(getOrderDisplayNumber(order))} · ${escapeHtml(order.status || "NEW")}</p>
         <strong class="app-checkout-success-total">${formatPrice(order.totalAmount)}</strong>
         <p class="hint">${escapeHtml(order.fullName || "")} ${order.phone ? `· ${escapeHtml(order.phone)}` : ""}</p>
         <p class="hint">${escapeHtml(order.address || "")}</p>

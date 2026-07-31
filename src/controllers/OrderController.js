@@ -1,6 +1,7 @@
 import { appStore } from "../stores/index.js";
 import { els } from "../utils/dom.js";
 import { OrdersPage } from "../pages/orders/OrdersPage.js";
+import { OrderService } from "../services/OrderService.js";
 import { lockBody } from "../runtime/navigation.js";
 import { AuthController } from "./AuthController.js";
 import { deps } from "../runtime/deps.js";
@@ -30,6 +31,7 @@ export const OrderController = {
     const startShopping = event.target.closest("[data-orders-start-shopping]");
     const writeReview = event.target.closest("[data-order-write-review]");
     const feedback = event.target.closest("[data-order-feedback]");
+    const returnBtn = event.target.closest("[data-order-return]");
 
     if (closeOrders) {
       els.ordersDialog.close();
@@ -55,6 +57,11 @@ export const OrderController = {
       return;
     }
 
+    if (returnBtn) {
+      void OrderController.requestReturn(returnBtn.dataset.orderReturn);
+      return;
+    }
+
     if (feedback) {
       deps.toast?.(deps.i18n?.t("profile.comingSoon"), "info");
       return;
@@ -73,6 +80,24 @@ export const OrderController = {
     if (startShopping) {
       els.ordersDialog.close();
       document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  },
+
+  async requestReturn(orderItemId) {
+    if (!orderItemId) return;
+    const result = await OrderService.requestReturn(orderItemId, {
+      reason: "CUSTOMER_CHANGED_MIND",
+      description: "",
+    });
+    if (!result.success) {
+      deps.toast?.(result.error || deps.i18n?.t("common.tryAgain"), "error");
+      return;
+    }
+    deps.toast?.(deps.i18n?.t("orders.returnSuccess"), "success");
+    if (appStore.selectedOrder?.id) {
+      await OrdersPage.openDetail(appStore.selectedOrder.id);
+    } else {
+      await OrderController.load();
     }
   },
 };

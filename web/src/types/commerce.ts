@@ -1,3 +1,21 @@
+export type ReturnBlockedReason =
+  | "ORDER_NOT_PAID"
+  | "ORDER_CANCELED"
+  | "RETURN_ALREADY_EXISTS"
+  | "SELLER_MISSING";
+
+export type BannerLinkType = "PRODUCT" | "CATEGORY" | "NONE" | string;
+
+export type BannerResponse = {
+  id?: number | string;
+  title?: string;
+  subtitle?: string;
+  imageUrl?: string;
+  linkType?: BannerLinkType;
+  linkId?: number | string | null;
+  position?: number;
+};
+
 export type ProductVariant = {
   id: number | string;
   label: string;
@@ -52,7 +70,18 @@ export type CartItem = {
   stock: number;
 };
 
-export type OrderSummary = {
+export type OrderItem = {
+  id: number | string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  image?: string;
+  variantLabel?: string;
+  returnable: boolean;
+  returnBlockedReason?: ReturnBlockedReason;
+};
+
+export type OrderResponse = {
   id: number | string;
   orderNumber: string;
   status: string;
@@ -61,11 +90,19 @@ export type OrderSummary = {
   items?: OrderItem[];
 };
 
-export type OrderItem = {
-  id: number | string;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  image?: string;
-  variantLabel?: string;
+/** @deprecated Use OrderResponse */
+export type OrderSummary = OrderResponse;
+
+export type ErrorResponse = {
+  code?: string;
+  message?: string;
+  error?: string;
+};
+
+export type ReturnResponse = {
+  id?: number | string;
+  orderItemId?: number | string;
+  status?: string;
+  code?: string;
+  message?: string;
 };

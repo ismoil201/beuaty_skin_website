@@ -9,9 +9,10 @@ import {
   getOrderReturn,
 } from "../api/orderApi.js";
 import { createPayment, getPaymentByOrder } from "../api/paymentApi.js";
-import { getPageContent } from "../utils/productMapper.js";
+import { getPageContent, normalizeOrder } from "../utils/productMapper.js";
 import { createApiFailure } from "./serviceHelpers.js";
 import { appStore } from "../stores/appStore.js";
+import { getLocalizedBusinessMessage } from "../utils/errorCodes.js";
 
 export const OrderService = {
   orderStatusModifier(status = "") {
@@ -50,7 +51,10 @@ export const OrderService = {
       }
     }));
 
-    return orders.map((order) => enriched.get(String(order.id)) || order);
+    return orders.map((order) => {
+      const detail = enriched.get(String(order.id));
+      return detail ? normalizeOrder(detail) : normalizeOrder(order);
+    });
   },
 
   async enrichProfileOrders(orders = []) {
@@ -71,7 +75,7 @@ export const OrderService = {
     if (response === null) {
       return createApiFailure("Orders could not be loaded.");
     }
-    const orders = await this.enrichOrdersList(getPageContent(response));
+    const orders = await this.enrichOrdersList(getPageContent(response).map(normalizeOrder));
     return { success: true, orders };
   },
 
@@ -91,7 +95,7 @@ export const OrderService = {
     }
     return {
       success: true,
-      order: detail,
+      order: normalizeOrder(detail),
       history: history === null ? [] : getPageContent(history),
       historyWarning: history === null ? "Status history could not be loaded." : "",
       shipment: shipment && typeof shipment === "object" ? shipment : null,
@@ -136,7 +140,11 @@ export const OrderService = {
   async requestReturn(orderItemId, { reason, description = "" } = {}) {
     const response = await createOrderItemReturn(orderItemId, { reason, description });
     if (response === null) {
-      return createApiFailure(appStore.lastApiError || "Return request failed.");
+      const code = appStore.lastApiCode;
+      const localized = code
+        ? getLocalizedBusinessMessage(code)
+        : appStore.lastApiError || "Return request failed.";
+      return createApiFailure(localized);
     }
     return { success: true, returnRequest: response };
   },

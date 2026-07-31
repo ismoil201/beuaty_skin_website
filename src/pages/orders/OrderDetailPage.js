@@ -1,6 +1,6 @@
 import { appStore } from "../../stores/index.js";
 import { escapeHtml } from "../../utils/html.js";
-import { normalizeOrderItem } from "../../utils/productMapper.js";
+import { normalizeOrderItem, getOrderDisplayNumber } from "../../utils/productMapper.js";
 import { formatOrderDetailDate } from "../../utils/format.js";
 import { t } from "../../i18n/index.js";
 import { OrderService } from "../../services/OrderService.js";
@@ -67,6 +67,7 @@ export const OrderDetailPage = {
     }
 
     const order = appStore.selectedOrder;
+    const displayNumber = getOrderDisplayNumber(order);
     const shipment = appStore.selectedOrderShipment;
     const payment = appStore.selectedOrderPayment;
     const items = Array.isArray(order.items)
@@ -86,12 +87,12 @@ export const OrderDetailPage = {
 
     return `
       <div class="app-orders-page">
-        ${renderHeader(`${t("orders.order")} #${order.id}`, "back")}
+        ${renderHeader(`${t("orders.order")} ${displayNumber}`, "back")}
         <div class="app-orders-scroll app-orders-detail">
           <article class="app-orders-detail-hero">
             <div class="app-orders-detail-hero-top">
               <div>
-                <h3>${escapeHtml(t("orders.order"))} #${escapeHtml(order.id)}</h3>
+                <h3>${escapeHtml(t("orders.order"))} ${escapeHtml(displayNumber)}</h3>
                 <p class="app-orders-detail-date">${escapeHtml(formatOrderDetailDate(order.createdAt))}</p>
               </div>
               ${OrderDetailStatusPill({ status: order.status })}

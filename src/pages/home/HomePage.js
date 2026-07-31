@@ -323,6 +323,8 @@ export const HomePage = {
     appStore.currentSearchQuery = "";
     appStore.currentGridScreen = "home";
     productStore.feedPage = 0;
+    productStore.feedCursor = "";
+    productStore.feedHasMore = true;
     els.title.textContent = t("home.popular");
     els.status.textContent = t("home.loading");
     renderSkeleton(els.grid, 12);

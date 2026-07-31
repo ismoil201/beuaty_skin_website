@@ -69,4 +69,6 @@ export const productStore = createStore({
   compareProducts: [],
   feedLoading: false,
   feedPage: 0,
+  feedCursor: "",
+  feedHasMore: true,
 });

@@ -3,7 +3,7 @@ import { authStore } from "../stores/authStore.js";
 import { getToken } from "../utils/storage.js";
 import { CONFIG } from "../config/config.js";
 import { getViteEnv, isDevMode } from "../config/env.js";
-import { getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
+import { getApiErrorCode, getApiErrorMessage, parseResponseBody } from "../utils/errorHandler.js";
 import { getXsrfToken } from "../utils/cookies.js";
 import {
   isAuthenticationFailure,
@@ -248,6 +248,7 @@ async function executeFetch(path, options, isRetry) {
 
   try {
     appStore.lastApiError = "";
+    appStore.lastApiCode = "";
     appStore.lastApiStatus = 0;
     const response = await fetch(url, {
       ...fetchOptions,
@@ -291,10 +292,12 @@ async function executeFetch(path, options, isRetry) {
     if (!response.ok) {
       const message = getApiErrorMessage(payload, response.status);
       appStore.lastApiError = message;
+      appStore.lastApiCode = getApiErrorCode(payload);
       if (showError) handlers.showToast(message, "error");
       return null;
     }
 
+    appStore.lastApiCode = "";
     return payload;
   } catch (error) {
     appStore.lastApiStatus = 0;

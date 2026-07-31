@@ -270,14 +270,20 @@ function handleBannerClick(event) {
   }
 
   if (type === "CATEGORY" && id) {
-    const category = productStore.categories.find((item) => String(item) === String(id)) || (CATEGORY_LABELS[id] ? id : "");
+    const category =
+      productStore.categories.find((item) => String(item) === String(id)) ||
+      (CATEGORY_LABELS[id] ? id : "") ||
+      String(id);
     if (category) {
       routeHome();
       CatalogPage.renderCategoryProducts(category, { showHomeView });
     } else {
-      showToast("Category banner is not available yet.", "info");
+      showToast(t("home.bannerCategoryUnavailable"), "info");
     }
+    return;
   }
+
+  // NONE or unknown linkType: no navigation
 }
 
 /* ================= PRODUCT DETAIL HANDLERS ================= */

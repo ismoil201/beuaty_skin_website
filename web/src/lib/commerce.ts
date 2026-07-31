@@ -1,5 +1,14 @@
 import { APP_CONFIG } from "@/config";
-import type { CartItem, FeedResponse, OrderItem, OrderSummary, Product, ProductVariant } from "@/types/commerce";
+import type {
+  CartItem,
+  FeedResponse,
+  OrderItem,
+  OrderResponse,
+  Product,
+  ProductVariant,
+  ReturnBlockedReason,
+} from "@/types/commerce";
+import { isBusinessErrorCode } from "@/lib/errors/ErrorCode";
 
 function numberOrZero(value: unknown) {
   const n = Number(value);
@@ -19,6 +28,13 @@ function imageValue(value: unknown): string {
 function normalizeImages(images: unknown): string[] {
   if (!Array.isArray(images)) return [];
   return images.map(imageValue).filter(Boolean);
+}
+
+function normalizeReturnBlockedReason(value: unknown): ReturnBlockedReason | undefined {
+  const code = String(value || "");
+  return isBusinessErrorCode(code) && code !== "OUT_OF_STOCK"
+    ? (code as ReturnBlockedReason)
+    : undefined;
 }
 
 function normalizeVariant(variant: Record<string, unknown> = {}): ProductVariant {
@@ -94,9 +110,8 @@ export function normalizeProduct(product: Record<string, unknown> = {}): Product
 }
 
 export function getPageContent(response: unknown): Record<string, unknown>[] {
-  if (!response || typeof response !== "object") {
-    return Array.isArray(response) ? (response as Record<string, unknown>[]) : [];
-  }
+  if (Array.isArray(response)) return response as Record<string, unknown>[];
+  if (!response || typeof response !== "object") return [];
   const r = response as Record<string, unknown>;
   if (Array.isArray(r.content)) return r.content as Record<string, unknown>[];
   if (Array.isArray(r.items)) return r.items as Record<string, unknown>[];
@@ -106,12 +121,29 @@ export function getPageContent(response: unknown): Record<string, unknown>[] {
 }
 
 export function normalizeFeed(response: unknown): FeedResponse {
+  // Legacy: bare product array
+  if (Array.isArray(response)) {
+    const products = response.map((item) =>
+      normalizeProduct((item || {}) as Record<string, unknown>),
+    );
+    return { products, nextCursor: null, hasMore: false };
+  }
+
   const r = (response || {}) as Record<string, unknown>;
   const products = getPageContent(response).map(normalizeProduct);
+  const nextCursor =
+    (typeof r.nextCursor === "string" && r.nextCursor) ||
+    (typeof r.cursor === "string" && r.cursor) ||
+    null;
+  const hasMore =
+    typeof r.hasMore === "boolean"
+      ? r.hasMore
+      : Boolean(nextCursor);
+
   return {
     products,
-    nextCursor: (r.nextCursor as string) || null,
-    hasMore: Boolean(r.hasMore ?? r.nextCursor),
+    nextCursor,
+    hasMore,
   };
 }
 
@@ -145,28 +177,57 @@ export function normalizeCartItem(item: Record<string, unknown> = {}): CartItem 
   };
 }
 
-export function normalizeOrder(order: Record<string, unknown> = {}): OrderSummary {
+export function normalizeOrderItem(item: Record<string, unknown> = {}): OrderItem {
+  const reason = normalizeReturnBlockedReason(item.returnBlockedReason);
+  return {
+    id: (item.id || item.orderItemId) as number | string,
+    productName: String(item.productName || item.name || "Product"),
+    quantity: numberOrZero(item.quantity),
+    unitPrice: numberOrZero(item.unitPrice || item.price),
+    image: imageValue(item.image || item.imageUrl),
+    variantLabel: String(item.variantLabel || ""),
+    returnable: item.returnable === true,
+    returnBlockedReason: reason,
+  };
+}
+
+export function normalizeOrder(order: Record<string, unknown> = {}): OrderResponse {
   const items = Array.isArray(order.items)
-    ? order.items.map((raw) => {
-        const item = raw as Record<string, unknown>;
-        return {
-          id: item.id as number | string,
-          productName: String(item.productName || item.name || "Product"),
-          quantity: numberOrZero(item.quantity),
-          unitPrice: numberOrZero(item.unitPrice || item.price),
-          image: imageValue(item.image || item.imageUrl),
-          variantLabel: String(item.variantLabel || ""),
-        } satisfies OrderItem;
-      })
+    ? order.items.map((raw) => normalizeOrderItem((raw || {}) as Record<string, unknown>))
     : [];
 
+  const id = order.id as number | string;
+  const orderNumber = String(
+    order.orderNumber || order.orderNo || (id != null && id !== "" ? `BSK-${id}` : ""),
+  );
+
   return {
-    id: order.id as number | string,
-    orderNumber: String(order.orderNumber || order.orderNo || `BSK-${order.id || ""}`),
+    id,
+    orderNumber,
     status: String(order.status || "PENDING"),
     createdAt: String(order.createdAt || order.created_at || ""),
-    totalPrice: numberOrZero(order.totalPrice || order.total || order.amount),
+    totalPrice: numberOrZero(order.totalPrice || order.total || order.amount || order.totalAmount),
     items,
+  };
+}
+
+export function normalizeBanner(banner: Record<string, unknown> = {}) {
+  const linkIdRaw = banner.linkId;
+  const linkId =
+    linkIdRaw == null || linkIdRaw === ""
+      ? null
+      : (typeof linkIdRaw === "string" || typeof linkIdRaw === "number"
+          ? linkIdRaw
+          : String(linkIdRaw));
+
+  return {
+    id: banner.id as number | string | undefined,
+    title: String(banner.title || ""),
+    subtitle: String(banner.subtitle || ""),
+    imageUrl: String(banner.imageUrl || banner.image || ""),
+    linkType: String(banner.linkType || "NONE").toUpperCase(),
+    linkId,
+    position: numberOrZero(banner.position),
   };
 }
 

@@ -1,4 +1,21 @@
-export type ApiErrorCode = "OUT_OF_STOCK" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "UNKNOWN";
+import {
+  extractErrorCode,
+  getLocalizedErrorMessage,
+  type BusinessErrorCode,
+} from "@/lib/errors/ErrorCode";
+import type { Language } from "@/config";
+import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from "@/config";
+
+export type ApiErrorCode = BusinessErrorCode | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "UNKNOWN" | string;
+
+function currentLanguage(): Language {
+  try {
+    const saved = localStorage.getItem("beauty_skin_language") as Language | null;
+    return saved && SUPPORTED_LANGUAGES.includes(saved) ? saved : DEFAULT_LANGUAGE;
+  } catch {
+    return DEFAULT_LANGUAGE;
+  }
+}
 
 export class ApiError extends Error {
   status: number;
@@ -6,29 +23,17 @@ export class ApiError extends Error {
   friendly: string;
 
   constructor(status: number, message: string, code?: string) {
-    super(message);
+    const friendly = getLocalizedErrorMessage(code, currentLanguage(), message);
+    super(friendly);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
-    this.friendly = sanitizeApiMessage(message);
+    this.friendly = friendly;
   }
 }
 
 export function sanitizeApiMessage(raw: unknown): string {
-  const text = String(raw || "").trim();
-  if (!text) return "Something went wrong. Please try again.";
-  const lower = text.toLowerCase();
-  if (
-    lower.includes("sql") ||
-    lower.includes("exception") ||
-    lower.includes("stack") ||
-    lower.includes("null pointer") ||
-    lower.includes("hibernate") ||
-    lower.includes("jdbc")
-  ) {
-    return "Something went wrong. Please try again.";
-  }
-  return text.slice(0, 180);
+  return getLocalizedErrorMessage(undefined, currentLanguage(), String(raw || ""));
 }
 
 function getCookie(name: string): string {
@@ -157,11 +162,11 @@ export async function apiFetch<T = unknown>(
   }
 
   if (!response.ok) {
+    const code = extractErrorCode(payload);
     const message =
       (payload as { message?: string; error?: string })?.message ||
       (payload as { error?: string })?.error ||
       response.statusText;
-    const code = (payload as { code?: string })?.code;
     throw new ApiError(response.status, String(message || "Request failed"), code);
   }
 

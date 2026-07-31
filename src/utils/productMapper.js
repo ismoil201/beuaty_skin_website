@@ -209,6 +209,16 @@ export function normalizeCategoryEntity(value) {
 export function normalizeOrderItem(item = {}) {
   const product = item.product || {};
   const mainImageUrl = imageValue(item.mainImageUrl || product.mainImageUrl);
+  const blocked = String(item.returnBlockedReason || "");
+  const returnBlockedReason = [
+    "ORDER_NOT_PAID",
+    "ORDER_CANCELED",
+    "RETURN_ALREADY_EXISTS",
+    "SELLER_MISSING",
+  ].includes(blocked)
+    ? blocked
+    : undefined;
+
   return {
     id: item.id || item.orderItemId,
     productId: item.productId || product.id || item.product?.id,
@@ -224,6 +234,29 @@ export function normalizeOrderItem(item = {}) {
     quantity: numberOrZero(item.quantity) || 1,
     unitPrice: numberOrZero(item.unitPrice || item.price || product.discountPrice || product.price),
     lineTotal: numberOrZero(item.lineTotal || item.total || item.price || 0),
+    returnable: item.returnable === true,
+    returnBlockedReason,
+  };
+}
+
+/** Display orderNumber (e.g. BSK-000123); keep numeric id for API calls. */
+export function getOrderDisplayNumber(order = {}) {
+  const number = order.orderNumber || order.orderNo;
+  if (number) return String(number);
+  if (order.id != null && order.id !== "") return `BSK-${order.id}`;
+  return "";
+}
+
+export function normalizeOrder(order = {}) {
+  const items = Array.isArray(order.items)
+    ? order.items.map((item) => normalizeOrderItem({ ...item, orderId: order.id }))
+    : [];
+  return {
+    ...order,
+    id: order.id,
+    orderNumber: getOrderDisplayNumber(order),
+    totalAmount: numberOrZero(order.totalAmount ?? order.totalPrice ?? order.total ?? order.amount),
+    items,
   };
 }
 

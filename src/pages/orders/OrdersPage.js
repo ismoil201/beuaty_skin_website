@@ -2,7 +2,7 @@ import { CONFIG } from "../../config/config.js";
 import { appStore } from "../../stores/index.js";
 import { els } from "../../utils/dom.js";
 import { escapeHtml } from "../../utils/html.js";
-import { normalizeOrderItem } from "../../utils/productMapper.js";
+import { normalizeOrderItem, getOrderDisplayNumber } from "../../utils/productMapper.js";
 import { formatOrderDetailDate } from "../../utils/format.js";
 import { t } from "../../i18n/index.js";
 import { OrderService } from "../../services/OrderService.js";
@@ -57,6 +57,7 @@ function renderOrderCard(order) {
     totalLabel: t("orders.totalLabel"),
     addressLabel: t("orders.addressLabel"),
     viewDetailsLabel: t("orders.viewDetails"),
+    orderDisplayNumber: getOrderDisplayNumber(order),
     lineCount,
     itemCount,
   });

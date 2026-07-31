@@ -118,23 +118,36 @@ export const CatalogPage = {
 
   async loadMoreProducts() {
     if (productStore.feedLoading) return;
+    if (productStore.feedHasMore === false) {
+      els.loadMore.disabled = true;
+      els.loadMore.textContent = t("home.endReached");
+      return;
+    }
     productStore.feedLoading = true;
     els.loadMore.disabled = true;
-    els.loadMore.textContent = "Yuklanmoqda...";
+    els.loadMore.textContent = t("home.loading") || "Yuklanmoqda...";
 
-    const { products, nextProducts, nextFeedPage } = await ProductService.loadMoreProducts({
-      feedPage: productStore.feedPage,
-      existingProducts: productStore.products,
-    });
+    const { products, nextProducts, nextFeedPage, nextCursor, hasMore } =
+      await ProductService.loadMoreProducts({
+        feedPage: productStore.feedPage,
+        existingProducts: productStore.products,
+        feedCursor: productStore.feedCursor,
+      });
 
     productStore.feedPage = nextFeedPage;
+    productStore.feedCursor = nextCursor || "";
+    productStore.feedHasMore = Boolean(hasMore);
     productStore.products = products;
     syncProductFavorites();
-    applyAndRenderGrid(productStore.products, "Mahsulot topilmadi.", { screen: appStore.currentGridScreen || "home" });
+    applyAndRenderGrid(productStore.products, "Mahsulot topilmadi.", {
+      screen: appStore.currentGridScreen || "home",
+    });
 
     productStore.feedLoading = false;
-    els.loadMore.disabled = false;
-    els.loadMore.textContent = nextProducts.length ? "Yana yuklash" : "Boshqa mahsulot topilmadi";
+    els.loadMore.disabled = !productStore.feedHasMore;
+    els.loadMore.textContent = productStore.feedHasMore
+      ? t("home.loadMore")
+      : t("home.endReached");
   },
 
   async renderCategoryProducts(category, { showHomeView } = {}) {

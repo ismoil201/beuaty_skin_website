@@ -107,23 +107,38 @@ export const ProductService = {
     if (feedCursor) query.cursor = feedCursor;
 
     const feedResponse = await getHomeFeed(query);
-    let products = getPageContent(feedResponse).map(normalizeProduct);
-    let nextCursor =
-      feedResponse && typeof feedResponse === "object" && !Array.isArray(feedResponse)
-        ? feedResponse.nextCursor || feedResponse.cursor || ""
-        : "";
+
+    // Legacy array OR FeedResponse { products, hasMore, nextCursor }
+    let products = [];
+    let nextCursor = "";
+    let hasMore = false;
+
+    if (Array.isArray(feedResponse)) {
+      products = feedResponse.map(normalizeProduct);
+      nextCursor = "";
+      hasMore = false;
+    } else if (feedResponse && typeof feedResponse === "object") {
+      products = getPageContent(feedResponse).map(normalizeProduct);
+      nextCursor = feedResponse.nextCursor || feedResponse.cursor || "";
+      hasMore =
+        typeof feedResponse.hasMore === "boolean"
+          ? feedResponse.hasMore
+          : Boolean(nextCursor);
+    }
 
     let nextFeedPage = feedPage;
-    if (!products.length) {
+    if (!products.length && !hasMore) {
       // Prefer paginated popular, then products list.
       const popular = await this.loadPopular({ page: nextFeedPage + 1, size: CONFIG.defaultPageSize });
       if (popular.products.length) {
         products = popular.products;
         nextFeedPage = popular.page;
+        hasMore = popular.page + 1 < (popular.totalPages || 0);
       } else {
         nextFeedPage += 1;
         const fallback = await getProducts({ page: nextFeedPage, size: CONFIG.defaultPageSize });
         products = getPageContent(fallback).map(normalizeProduct);
+        hasMore = products.length >= CONFIG.defaultPageSize;
       }
     }
 
@@ -134,6 +149,7 @@ export const ProductService = {
       nextProducts,
       nextFeedPage,
       nextCursor,
+      hasMore: hasMore && (Boolean(nextCursor) || nextProducts.length > 0),
     };
   },
 

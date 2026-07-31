@@ -37,8 +37,10 @@ export function OrderCard({
   viewDetailsLabel,
   lineCount,
   itemCount,
+  orderDisplayNumber,
 }) {
   const timestamp = order.createdAt ? String(order.createdAt) : "";
+  const displayNumber = orderDisplayNumber || order.orderNumber || order.id;
   return `
     <article class="app-orders-card">
       <div class="app-orders-card-top">
@@ -47,7 +49,7 @@ export function OrderCard({
       </div>
       <div class="app-orders-thumbs">${thumbsHtml}</div>
       <h3 class="app-orders-card-title">
-        ${escapeHtml(orderLabel)} #${escapeHtml(order.id)} · ${escapeHtml(itemsCountLabel)}
+        ${escapeHtml(orderLabel)} ${escapeHtml(displayNumber)} · ${escapeHtml(itemsCountLabel)}
       </h3>
       <p class="app-orders-card-meta">${escapeHtml(itemsLabel)}</p>
       <div class="app-orders-card-total">

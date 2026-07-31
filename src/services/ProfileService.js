@@ -1,7 +1,7 @@
 import { getMe, updateMe } from "../api/userApi.js";
 import { getOrders } from "../api/orderApi.js";
 import { getHealth } from "../api/healthApi.js";
-import { getPageContent } from "../utils/productMapper.js";
+import { getPageContent, normalizeOrder } from "../utils/productMapper.js";
 import { OrderService } from "./OrderService.js";
 import { ReviewService } from "./ReviewService.js";
 import { HomeService } from "./HomeService.js";
@@ -33,7 +33,9 @@ export const ProfileService = {
   },
 
   normalizeOrdersResponse(ordersResponse) {
-    return ordersResponse !== null ? getPageContent(ordersResponse) : null;
+    return ordersResponse !== null
+      ? getPageContent(ordersResponse).map(normalizeOrder)
+      : null;
   },
 
   validateProfileUpdate({ fullName, phone }) {

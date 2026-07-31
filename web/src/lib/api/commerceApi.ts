@@ -1,12 +1,20 @@
 import { apiFetch } from "@/lib/api/client";
 import {
   getPageContent,
+  normalizeBanner,
   normalizeCartItem,
   normalizeFeed,
   normalizeOrder,
   normalizeProduct,
 } from "@/lib/commerce";
-import type { CartItem, FeedResponse, OrderSummary, Product } from "@/types/commerce";
+import type {
+  BannerResponse,
+  CartItem,
+  FeedResponse,
+  OrderSummary,
+  Product,
+  ReturnResponse,
+} from "@/types/commerce";
 
 export async function fetchHomeFeed(params: {
   limit?: number;
@@ -162,13 +170,27 @@ export async function fetchCategories() {
   }
 }
 
-export async function fetchBanners() {
+export async function fetchBanners(): Promise<BannerResponse[]> {
   try {
     const data = await apiFetch("/api/banners");
-    return getPageContent(data);
+    return getPageContent(data)
+      .map(normalizeBanner)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
   } catch {
     return [];
   }
+}
+
+export async function requestReturn(
+  orderItemId: number | string,
+  body: { reason: string; description?: string },
+): Promise<ReturnResponse> {
+  return apiFetch(`/api/orders/items/${orderItemId}/return`, {
+    method: "POST",
+    body,
+    requireAuth: true,
+    csrf: true,
+  });
 }
 
 export async function fetchProductReviews(productId: string | number) {

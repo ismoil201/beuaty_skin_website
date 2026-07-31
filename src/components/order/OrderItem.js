@@ -1,6 +1,8 @@
 import { CONFIG } from "../../config/config.js";
 import { escapeHtml } from "../../utils/html.js";
 import { formatMoney } from "../../utils/format.js";
+import { getLocalizedBusinessMessage } from "../../utils/errorCodes.js";
+import { getCurrentLanguage, t } from "../../i18n/index.js";
 
 export function OrderItem({
   item,
@@ -18,6 +20,7 @@ export function OrderItem({
         ${canReview ? `
           <button class="secondary-button order-review-button" data-order-write-review="${escapeHtml(item.productId)}" data-review-order="${escapeHtml(order.id)}" data-review-name="${escapeHtml(item.name)}" type="button">${escapeHtml(writeReviewLabel)}</button>
         ` : item.productId ? `<p class="hint">${escapeHtml(afterDeliveryHint)}</p>` : ""}
+        ${renderReturnControls(item)}
       </div>
       <strong>${formatMoney(item.lineTotal || item.unitPrice * item.quantity)}</strong>
     </article>
@@ -31,7 +34,30 @@ export function OrderDetailItem({ item }) {
       <div>
         <strong>${escapeHtml(item.name)}</strong>
         <p class="app-orders-detail-muted">x${item.quantity}</p>
+        ${renderReturnControls(item)}
       </div>
     </article>
   `;
+}
+
+function renderReturnControls(item = {}) {
+  if (item.returnable === true) {
+    return `
+      <button
+        class="secondary-button order-return-button"
+        type="button"
+        data-order-return="${escapeHtml(item.id)}"
+      >${escapeHtml(t("orders.requestReturn"))}</button>
+    `;
+  }
+
+  if (item.returnBlockedReason) {
+    return `
+      <p class="hint order-return-blocked">
+        ${escapeHtml(getLocalizedBusinessMessage(item.returnBlockedReason, getCurrentLanguage()))}
+      </p>
+    `;
+  }
+
+  return "";
 }
