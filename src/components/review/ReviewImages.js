@@ -9,7 +9,9 @@ export function ReviewImages({ imageUrls = [] } = {}) {
       ${urls
         .map(
           (url) =>
-            `<img src="${escapeHtml(url)}" alt="${escapeHtml(t("reviews.imageAlt"))}" loading="lazy" decoding="async" />`
+            `<button class="review-image-btn" type="button" data-review-photo="${escapeHtml(url)}">
+              <img src="${escapeHtml(url)}" alt="${escapeHtml(t("reviews.imageAlt"))}" loading="lazy" decoding="async" />
+            </button>`
         )
         .join("")}
     </div>

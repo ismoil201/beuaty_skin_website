@@ -619,12 +619,19 @@ export const ProductDetailPage = {
     if (productStore.reviewFilterRating > 0) {
       reviews = reviews.filter((r) => numberOrZero(r.rating) >= productStore.reviewFilterRating);
     }
-    if (productStore.reviewSort === "helpful") {
-      reviews.sort((a, b) => (productStore.reviewHelpfulIds.has(String(b.id)) ? 1 : 0) - (productStore.reviewHelpfulIds.has(String(a.id)) ? 1 : 0));
+    if (productStore.reviewSort === "helpful" || productStore.reviewSort === "best") {
+      reviews.sort((a, b) => {
+        const hb = Number(b.helpfulCount || 0) + (productStore.reviewHelpfulIds.has(String(b.id)) ? 1 : 0);
+        const ha = Number(a.helpfulCount || 0) + (productStore.reviewHelpfulIds.has(String(a.id)) ? 1 : 0);
+        if (hb !== ha) return hb - ha;
+        return numberOrZero(b.rating) - numberOrZero(a.rating);
+      });
     } else if (productStore.reviewSort === "rating-high") {
       reviews.sort((a, b) => numberOrZero(b.rating) - numberOrZero(a.rating));
     } else if (productStore.reviewSort === "rating-low") {
       reviews.sort((a, b) => numberOrZero(a.rating) - numberOrZero(b.rating));
+    } else {
+      reviews.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     }
 
     if (!reviews.length && !productStore.productReviewsByProductId[key]?.length) {
@@ -637,24 +644,40 @@ export const ProductDetailPage = {
       const count = allReviews.filter((r) => Math.round(numberOrZero(r.rating)) === star).length;
       return { star, count, pct: allReviews.length ? (count / allReviews.length) * 100 : 0 };
     });
+    const photoUrls = allReviews.flatMap((r) => (Array.isArray(r.imageUrls) ? r.imageUrls : [])).filter(Boolean);
+    const sort = productStore.reviewSort || "newest";
 
     return `
-      ${ReviewSummary({ stats, distribution, reviewsLabel: t("product.reviews") })}
-      <div class="reviews-toolbar">
-        <input type="search" placeholder="${escapeHtml(t("reviews.search"))}" value="${escapeHtml(productStore.reviewSearchQuery || "")}" data-review-search />
-        <select data-review-sort>
-          <option value="newest" ${productStore.reviewSort === "newest" ? "selected" : ""}>${escapeHtml(t("reviews.sortNewest"))}</option>
-          <option value="rating-high" ${productStore.reviewSort === "rating-high" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingHigh"))}</option>
-          <option value="rating-low" ${productStore.reviewSort === "rating-low" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingLow"))}</option>
-          <option value="helpful" ${productStore.reviewSort === "helpful" ? "selected" : ""}>${escapeHtml(t("reviews.sortHelpful"))}</option>
-        </select>
-        <select data-review-filter-rating>
-          <option value="0">${escapeHtml(t("reviews.allRatings"))}</option>
-          ${[5, 4, 3, 2, 1].map((r) => `<option value="${r}" ${productStore.reviewFilterRating === r ? "selected" : ""}>${r}★+</option>`).join("")}
-        </select>
-      </div>
-      <div class="review-list">
-        ${reviews.length ? reviews.map(ProductDetailPage.renderReviewCard).join("") : `<p class="hint">${escapeHtml(t("search.noResults"))}</p>`}
+      <div class="reviews-premium-wrap">
+        <h3 class="reviews-section-title">${escapeHtml(t("reviews.sectionTitle", { count: stats.count }))}</h3>
+        ${ReviewSummary({
+          stats,
+          distribution,
+          reviewsLabel: t("product.reviews"),
+          photoUrls,
+        })}
+        <div class="reviews-toolbar reviews-toolbar--coupang">
+          <div class="reviews-sort-tabs" role="tablist">
+            <button class="reviews-sort-tab ${sort === "best" || sort === "helpful" ? "active" : ""}" type="button" data-review-sort-tab="best">${escapeHtml(t("reviews.sortBest"))}</button>
+            <button class="reviews-sort-tab ${sort === "newest" ? "active" : ""}" type="button" data-review-sort-tab="newest">${escapeHtml(t("reviews.sortNewest"))}</button>
+          </div>
+          <div class="reviews-toolbar-right">
+            <input type="search" placeholder="${escapeHtml(t("reviews.search"))}" value="${escapeHtml(productStore.reviewSearchQuery || "")}" data-review-search />
+            <select data-review-sort>
+              <option value="newest" ${sort === "newest" ? "selected" : ""}>${escapeHtml(t("reviews.sortNewest"))}</option>
+              <option value="best" ${sort === "best" || sort === "helpful" ? "selected" : ""}>${escapeHtml(t("reviews.sortBest"))}</option>
+              <option value="rating-high" ${sort === "rating-high" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingHigh"))}</option>
+              <option value="rating-low" ${sort === "rating-low" ? "selected" : ""}>${escapeHtml(t("reviews.sortRatingLow"))}</option>
+            </select>
+            <select data-review-filter-rating>
+              <option value="0">${escapeHtml(t("reviews.allRatings"))}</option>
+              ${[5, 4, 3, 2, 1].map((r) => `<option value="${r}" ${productStore.reviewFilterRating === r ? "selected" : ""}>${r}★+</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <div class="review-list">
+          ${reviews.length ? reviews.map(ProductDetailPage.renderReviewCard).join("") : `<p class="hint">${escapeHtml(t("search.noResults"))}</p>`}
+        </div>
       </div>
     `;
   },
@@ -663,9 +686,12 @@ export const ProductDetailPage = {
     return ReviewCardView({
       review,
       helpful: productStore.reviewHelpfulIds.has(String(review.id)),
+      helpfulCount: Number(review.helpfulCount || 0),
       verifiedLabel: t("reviews.verified"),
       noTextLabel: t("reviews.noText"),
       helpfulLabel: t("reviews.helpful"),
+      reportLabel: t("reviews.report"),
+      expertLabel: t("reviews.expert"),
     });
   },
 

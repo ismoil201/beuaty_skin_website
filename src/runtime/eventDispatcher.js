@@ -308,6 +308,9 @@ function handleDetailClick(event) {
   const pdpCopyLink = event.target.closest("[data-pdp-copy-link]");
   const pdpNotify = event.target.closest("[data-pdp-notify]");
   const reviewHelpful = event.target.closest("[data-review-helpful]");
+  const reviewSortTab = event.target.closest("[data-review-sort-tab]");
+  const reviewReport = event.target.closest("[data-review-report]");
+  const reviewPhoto = event.target.closest("[data-review-photo]");
 
   if (routeHomeButton) {
     event.stopPropagation();
@@ -485,6 +488,26 @@ function handleDetailClick(event) {
     if (productStore.reviewHelpfulIds.has(id)) productStore.reviewHelpfulIds.delete(id);
     else productStore.reviewHelpfulIds.add(id);
     ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    return true;
+  }
+
+  if (reviewSortTab) {
+    if (!selectedProduct) return true;
+    event.stopPropagation();
+    productStore.reviewSort = reviewSortTab.dataset.reviewSortTab || "newest";
+    ProductDetailPage.renderProductDetail(productStore.selectedDetailProduct);
+    return true;
+  }
+
+  if (reviewReport) {
+    event.stopPropagation();
+    showToast(t("reviews.reportQueued"), "info");
+    return true;
+  }
+
+  if (reviewPhoto) {
+    event.stopPropagation();
+    openPdpFullscreen(reviewPhoto.dataset.reviewPhoto);
     return true;
   }
 
