@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "start": "node server.cjs",
     "sync:css": "node scripts/sync-css.cjs",
-    "test": "node --test tests/authHttp.test.js tests/pendingActionManager.test.js"
+    "test": "node --test tests/authHttp.test.js tests/pendingActionManager.test.js",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:preview": "npm --prefix web run preview"
   },
   "devDependencies": {
     "vite": "^6.2.0"

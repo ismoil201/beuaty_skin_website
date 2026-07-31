@@ -29,6 +29,16 @@ npm run start
 
 Open `http://127.0.0.1:4174`.
 
+### React storefront (new)
+
+A parallel React + TypeScript + Tailwind marketplace lives in `web/` (does not replace production Vanilla SPA yet).
+
+```bash
+npm run web:dev
+```
+
+Open **http://localhost:5174**. Details: [`web/README.md`](web/README.md).
+
 ## Backend API
 
 Default production base URL:
